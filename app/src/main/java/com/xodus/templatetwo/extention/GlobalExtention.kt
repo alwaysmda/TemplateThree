@@ -1175,18 +1175,20 @@ fun Context.getDominantColor(resourceId: Int): Int {
     return getDominantColor(Bitmap.createScaledBitmap(convertDrawableToBitmap(resourceId), 1, 1, true))
 }
 
-fun Context.convertUriToPath(contentUri: Uri): String {
-    var cursor: Cursor? = null
-    try {
-        val proj = arrayOf(MediaStore.Images.Media.DATA)
-        cursor = contentResolver.query(contentUri, proj, null, null, null)
-        val column_index = cursor!!.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-        cursor.moveToFirst()
-        return cursor.getString(column_index)
-    } finally {
-        cursor?.close()
-    }
-}
+//fun Context.convertUriToPath(contentUri: Uri): String {
+//    var cursor: Cursor? = null
+//    try {
+//        val proj = arrayOf(MediaStore.Images.Media.DATA)
+//        cursor = contentResolver.query(contentUri, proj, null, null, null)
+//        val column_index = cursor!!.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+//        cursor.moveToFirst()
+//        return cursor.getString(column_index)
+//    } finally {
+//        cursor?.close()
+//    }
+//}
+
+
 
 fun setEditTextCursorColor(view: EditText, @ColorInt color: Int) {
     try {

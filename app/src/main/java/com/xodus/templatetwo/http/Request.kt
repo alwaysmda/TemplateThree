@@ -29,7 +29,7 @@ open class Request {
     }
 
 
-    fun toJSON(): JSONObject {
+    fun toJSONObject(): JSONObject {
         val jsonObject = JSONObject()
         val paramObject = JSONObject()
         val headerObject = JSONObject()
@@ -52,7 +52,6 @@ open class Request {
         } catch (e: JSONException) {
             e.printStackTrace()
         }
-
         return jsonObject
     }
 }

@@ -29,7 +29,7 @@ import java.net.URL
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class Client(private val context: Context, private val listener: OnResponseListener) {
+class Client(private val context: Context, private val listener: OnResponseListener?) {
     private val appClass: ApplicationClass = ApplicationClass().getInstance(context)
     private var client: OkHttpClient? = null
     private lateinit var requestBuilder: okhttp3.Request.Builder
@@ -106,11 +106,11 @@ class Client(private val context: Context, private val listener: OnResponseListe
             override fun onResponse(call: Call, res: okhttp3.Response) {
                 val request = requestList[res.request().tag()]
                 requestList.remove(res.request().tag())
-                val directory = File(request?.params?.get("path")?.toString())
+                val directory = File(request?.params?.get(API.PARAM_NAME_DOWNLOAD_PATH)?.toString())
                 if (!directory.exists()) {
                     directory.mkdirs()
                 }
-                val file = File(request?.params?.get("path")?.toString(), request?.params?.get("name")?.toString())
+                val file = File(request?.params?.get(API.PARAM_NAME_DOWNLOAD_PATH)?.toString(), request?.params?.get(API.PARAM_NAME_DOWNLOAD_NAME)?.toString())
                 if (file.exists()) {
                     file.delete()
                 }
@@ -121,7 +121,7 @@ class Client(private val context: Context, private val listener: OnResponseListe
                     file.path,
                     if (res.isSuccessful) SUCCESS else FAILURE
                 )
-                log(response.toJSON(file).toString())
+                log(response.toJSONObject(file).toString())
                 val sink = Okio.buffer(Okio.sink(file))
                 handleWrites(request, sink, res.body()!!.source(), res.body()!!.contentLength())
                 sink.close()
@@ -160,7 +160,7 @@ class Client(private val context: Context, private val listener: OnResponseListe
                 Handler(context.mainLooper)
                     .post {
                         try {
-                            listener.onProgress(request, finalBytesWritten, totalSize, finalPercent)
+                            listener?.onProgress(request, finalBytesWritten, totalSize, finalPercent)
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
@@ -268,7 +268,8 @@ class Client(private val context: Context, private val listener: OnResponseListe
         when (request.method) {
             GET, DOWNLOAD -> {
             }
-            POST, PUT, DELETE ->
+            POST, PUT, DELETE -> {
+                body.setType(MultipartBody.FORM)
                 if (request.params.isNotEmpty()) {
                     for (key in request.params.keys) {
                         val item = request.params[key]
@@ -289,6 +290,7 @@ class Client(private val context: Context, private val listener: OnResponseListe
                 } else {
                     requestBody = RequestBody.create(null, ByteArray(0))
                 }
+            }
             RAW -> requestBody = if (request.raw.isEmpty()) {
                 RequestBody.create(MediaType.parse("application/json; charset=utf-8"), ByteArray(0))
             } else {
@@ -307,7 +309,7 @@ class Client(private val context: Context, private val listener: OnResponseListe
             request(response.request!!)
             return
         }
-        listener.onResponse(response)
+        listener?.onResponse(response)
         when (response.statusName) {
             NoInternetConnection//0
             -> MaterialDialog.Builder(context)

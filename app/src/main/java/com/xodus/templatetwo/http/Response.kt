@@ -67,7 +67,7 @@ open class Response() {
         }
     }
 
-    fun toJSON(): JSONObject {
+    fun toJSONObject(): JSONObject {
         val jsonObject = JSONObject()
         val headerObject = JSONObject()
         try {
@@ -77,7 +77,7 @@ open class Response() {
                     headerObject.put(name, headers!!.get(name))
                 }
             }
-            jsonObject.put("request", JSONObject(request!!.toString()))
+            jsonObject.put("request", request!!.toJSONObject())
             jsonObject.put("status", status)
             jsonObject.put("status_code", statusCode)
             jsonObject.put("status_name", statusName)
@@ -91,7 +91,7 @@ open class Response() {
     }
 
 
-    fun toJSON(file: File): JSONObject {
+    fun toJSONObject(file: File): JSONObject {
         val jsonObject = JSONObject()
         val headerObject = JSONObject()
         try {
@@ -101,7 +101,7 @@ open class Response() {
                     headerObject.put(name, headers!!.get(name))
                 }
             }
-            jsonObject.put("request", JSONObject(request!!.toString()))
+            jsonObject.put("request", request!!.toJSONObject())
             jsonObject.put("status", status)
             jsonObject.put("status_code", statusCode)
             jsonObject.put("status_name", statusName)

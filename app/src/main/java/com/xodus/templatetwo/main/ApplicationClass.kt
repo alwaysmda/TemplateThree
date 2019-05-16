@@ -13,7 +13,7 @@ import com.xodus.templatetwo.main.Constant.*;
 
 open class ApplicationClass : Application() {
 
-    var encryptedPreferences: EncryptedPreferences? = null
+    private var encryptedPreferences: EncryptedPreferences? = null
 
     override fun onCreate() {
         super.onCreate()

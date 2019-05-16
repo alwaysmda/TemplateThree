@@ -5,6 +5,11 @@ import java.util.HashMap
 
 open class API : Request() {
     protected val BASE_API = "https://www.xodus.ir/api/v1"
+    companion object {
+        val PARAM_NAME_DOWNLOAD_PATH = "KEY_NAME_DOWNLOAD_PATH"
+        val PARAM_NAME_DOWNLOAD_NAME = "KEY_NAME_DOWNLOAD_NAME"
+    }
+
 
     class GetMain(urlParam: String, params: HashMap<String, Any>, headers: HashMap<String, String>) : API() {
         init {
@@ -41,8 +46,8 @@ open class API : Request() {
             this.method = Method.DOWNLOAD
             this.url = url
             val downloadData = HashMap<String, Any>()
-            downloadData["path"] = path
-            downloadData["name"] = name
+            downloadData[PARAM_NAME_DOWNLOAD_PATH] = path
+            downloadData[PARAM_NAME_DOWNLOAD_NAME] = name
             this.params = downloadData
         }
     }
