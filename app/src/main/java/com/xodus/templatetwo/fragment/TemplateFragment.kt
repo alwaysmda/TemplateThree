@@ -4,18 +4,21 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.RecyclerView
 import com.xodus.templatetwo.R
+import com.xodus.templatetwo.extention.log
+import com.xodus.templatetwo.extention.toast
 import com.xodus.templatetwo.http.OnResponseListener
 import com.xodus.templatetwo.http.Request
 import com.xodus.templatetwo.http.Response
-import com.xodus.templatetwo.listener.OnRecyclerItemClickListener
 import com.xodus.templatetwo.main.BaseFragment
 import kotlinx.android.synthetic.main.fragment_home.view.*
 import kotlinx.android.synthetic.main.toolbar_template.view.*
+import org.greenrobot.eventbus.EventBus
 
-class TemplateFragment : BaseFragment(), View.OnClickListener, OnRecyclerItemClickListener, OnResponseListener {
+class TemplateFragment : BaseFragment(), View.OnClickListener, OnResponseListener {
+
 
     companion object {
         fun newInstance(): TemplateFragment {
@@ -26,6 +29,12 @@ class TemplateFragment : BaseFragment(), View.OnClickListener, OnRecyclerItemCli
         }
     }
 
+    override fun onDetach() {
+        super.onDetach()
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this)
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 //        if (!EventBus.getDefault().isRegistered(this)) {
@@ -34,7 +43,7 @@ class TemplateFragment : BaseFragment(), View.OnClickListener, OnRecyclerItemCli
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         init(view)
         setupToolbar(view)
-        registerClientListeners(this)
+
         return view
     }
 
@@ -42,9 +51,11 @@ class TemplateFragment : BaseFragment(), View.OnClickListener, OnRecyclerItemCli
     private fun init(v: View) {
         //Elements
 
-
         //View
         v.home_tvMessage.text = getID()
+
+//        var adapter = TemplateAdapter(appClass, ArrayList()) { viewHolder, view, i -> onRecyclerItemClick(viewHolder,view,i)}
+//        client.request(API.GET("https://www.httpbin.org/get", this))
     }
 
     private fun setupToolbar(v: View) {
@@ -68,16 +79,15 @@ class TemplateFragment : BaseFragment(), View.OnClickListener, OnRecyclerItemCli
         }
     }
 
-    override fun onResponse(response: Response) {
+    fun onRecyclerItemClick(viewHolder: RecyclerView.ViewHolder, view: View?, position: Int) {
+        context?.toast("Item $position of type ${view?.javaClass?.simpleName} is clicked!")
+    }
 
+    override fun onResponse(response: Response) {
+        log("RESPONSE=" + response.body)
     }
 
     override fun onProgress(request: Request, bytesWritten: Long, totalSize: Long, percent: Int) {
 
     }
-
-    override fun OnItemClick(v: View, position: Int) {
-        Toast.makeText(appClass, position.toString() + "", Toast.LENGTH_SHORT).show()
-    }
-
 }

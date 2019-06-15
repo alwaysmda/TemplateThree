@@ -13,57 +13,51 @@ import com.xodus.templatetwo.main.Constant.*;
 
 open class ApplicationClass : Application() {
 
-    private var encryptedPreferences: EncryptedPreferences? = null
+    private lateinit var encryptedPreferences: EncryptedPreferences
 
     override fun onCreate() {
         super.onCreate()
-        encryptedPreferences = EncryptedPreferences.Builder(this).withEncryptionPassword(BuildConfig.APPLICATION_ID).build()
+        encryptedPreferences =
+            EncryptedPreferences.Builder(this).withEncryptionPassword(BuildConfig.APPLICATION_ID).build()
     }
 
     fun getStringPref(key: Constant): String? {
-        var f: String? = encryptedPreferences!!.getString(key.toString(), "")
-        if (f == "") {
-            f = null
-        }
-        return f
+        val f: String? = encryptedPreferences.getString(key.toString(), "")
+        return if (f == "") null else f
     }
 
     fun getBooleanPref(key: Constant): Boolean {
-        return encryptedPreferences!!.getBoolean(key.toString(), false)
+        return encryptedPreferences.getBoolean(key.toString(), false)
     }
 
     fun getIntPref(key: Constant): Int {
-        return encryptedPreferences!!.getInt(key.toString(), 0)
+        return encryptedPreferences.getInt(key.toString(), 0)
     }
 
     fun setPref(key: Constant, value: String?) {
-        var value = value
-        if (value == null) {
-            value = ""
-        }
-        encryptedPreferences!!.edit()
-            .putString(key.toString(), value)
+        encryptedPreferences.edit()
+            .putString(key.toString(), value ?: "")
             .apply()
     }
 
     fun setPref(key: Constant, value: Boolean) {
-        encryptedPreferences!!.edit()
+        encryptedPreferences.edit()
             .putBoolean(key.toString(), value)
             .apply()
     }
 
     fun setPref(key: Constant, value: Int) {
-        encryptedPreferences!!.edit()
+        encryptedPreferences.edit()
             .putInt(key.toString(), value)
             .apply()
     }
 
     fun setCurrentClass(currentClass: String) {
-        setPref(PREF_CurrentClass, currentClass)
+        setPref(PREF_CURRENT_CLASS, currentClass)
     }
 
     fun setCurrentMethod(currentMethod: String) {
-        setPref(PREF_CurrentMethod, currentMethod)
+        setPref(PREF_CURRENT_METHOD, currentMethod)
     }
 
 
@@ -71,8 +65,8 @@ open class ApplicationClass : Application() {
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("crash", true)
         intent.putExtra("message", paramThrowable.toString())
-        intent.putExtra("method", getStringPref(PREF_CurrentMethod))
-        intent.putExtra("class", getStringPref(PREF_CurrentClass))
+        intent.putExtra("method", getStringPref(PREF_CURRENT_METHOD))
+        intent.putExtra("class", getStringPref(PREF_CURRENT_CLASS))
         intent.putExtra("time", System.currentTimeMillis())
         intent.addFlags(
             Intent.FLAG_ACTIVITY_CLEAR_TOP

@@ -17,12 +17,13 @@ import com.xodus.templatetwo.extention.convertViewToBitmap
 import com.xodus.templatetwo.fragment.TemplateFragment
 import com.xodus.templatetwo.http.Client
 import com.xodus.templatetwo.http.OnResponseListener
+import com.xodus.templatetwo.http.Request
+import com.xodus.templatetwo.http.Response
 import kotlinx.android.synthetic.main.activity_base.*
 import org.greenrobot.eventbus.EventBus
 import java.util.ArrayList
 
 class BaseActivity : AppCompatActivity() {
-
 
     lateinit var appClass: ApplicationClass
     private lateinit var fragmentTable: ArrayList<ArrayList<BaseFragment>>
@@ -32,7 +33,6 @@ class BaseActivity : AppCompatActivity() {
     private val exitMode = ExitMode.BackToFirstTab
     private var barHeight: Int = 0
     lateinit var client: Client
-    var responseListener : OnResponseListener? = null
 
     private enum class StartMode {
         SingleInstance, MultiInstance
@@ -47,19 +47,13 @@ class BaseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_base)
         appClass = ApplicationClass().getInstance(this)
-        client = Client(this, responseListener)
+        client = Client(this)
         initFragmentTable(
             TemplateFragment.newInstance(),
             TemplateFragment.newInstance()
         )
         initBottomBar()
-        bar.post(Runnable { barHeight = bar.height })
-    }
-
-    fun registerClientListener(
-        listener: OnResponseListener?
-    ) {
-        responseListener = listener
+        bar.post { barHeight = bar.height }
     }
 
 

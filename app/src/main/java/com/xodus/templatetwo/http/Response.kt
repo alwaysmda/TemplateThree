@@ -27,14 +27,14 @@ open class Response() {
         Other
     }
 
-    var request: Request? = null
+    lateinit var request: Request
     var statusCode: Int = 0
     var statusName: StatusName? = null
     var headers: Headers? = null
-    var body: String? = null
+    var body: String = ""
     var status: Status? = null
 
-    constructor(request: Request, statusCode: Int, headers: Headers?, body: String?, status: Status) : this() {
+    constructor(request: Request, statusCode: Int, headers: Headers?, body: String, status: Status) : this() {
         this.request = request
         this.statusCode = statusCode
         this.headers = headers

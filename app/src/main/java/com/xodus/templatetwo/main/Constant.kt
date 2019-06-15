@@ -4,20 +4,16 @@ import com.xodus.templatetwo.BuildConfig
 
 enum class Constant {
 
-    API_Base("http://www.xodus.ir/templateone/api/"), TAG(BuildConfig.APPLICATION_ID.toUpperCase()),
-    API_Main(""),
-    API_ErrorReport("error/report"),
-    API_UpdateFCMToken("fcm-token"),
-    API_DownloadFile("download-file"),
-    PREF_NotificationToken("NotificationToken"),
-    PREF_AccessToken("AccessToken"),
-    PREF_FCMToken("FCMToken"),
-    PREF_Language("Language"),
-    PREF_Log("LOG"),
-    PREF_CurrentClass("CurrentClass"),
-    PREF_CurrentMethod("CurrentMethod"),
-    PREF_LicenceKey("LicenceKey"),
-    PREF_LicenceMarket("LicenceMarket")
+    TAG(BuildConfig.APPLICATION_ID.toUpperCase()),
+    PREF_NOTIFICATION_TOKEN("NotificationToken"),
+    PREF_ACCESS_TOKEN("AccessToken"),
+    PREF_FCM_TOKEN("FCMToken"),
+    PREF_LANGUAGE("Language"),
+    PREF_LOG("LOG"),
+    PREF_CURRENT_CLASS("CurrentClass"),
+    PREF_CURRENT_METHOD("CurrentMethod"),
+    PREF_LICENCE_KEY("LicenceKey"),
+    PREF_LICENCE_MARKET("LicenceMarket")
     ;
 
     var value = ""
@@ -44,7 +40,7 @@ enum class Constant {
     }
 
     fun toString(vararg vars: String): String {
-        return String.format(this.value!!, *vars)
+        return String.format(this.value, *vars)
     }
 
 

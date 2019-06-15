@@ -11,7 +11,10 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
 import com.xodus.templatetwo.extention.getRandomInt
 import com.xodus.templatetwo.extention.getRandomString
+import com.xodus.templatetwo.http.Client
 import com.xodus.templatetwo.http.OnResponseListener
+import com.xodus.templatetwo.http.Request
+import com.xodus.templatetwo.http.Response
 import org.greenrobot.eventbus.EventBus
 import java.util.*
 
@@ -21,6 +24,7 @@ open class BaseFragment : Fragment() {
     lateinit var appClass: ApplicationClass
     private var ID: String? = null
     lateinit var baseActivity: BaseActivity
+    lateinit var client: Client
     private var tabIndex: Int = 0
     var base: Boolean = false
     private var REQUEST_CODE: Int = 0
@@ -60,12 +64,7 @@ open class BaseFragment : Fragment() {
         }
         baseActivity = activity as BaseActivity
         appClass = baseActivity.appClass
-    }
-
-    fun registerClientListeners(
-        responseListener: OnResponseListener?
-    ) {
-        baseActivity.registerClientListener(responseListener)
+        client = baseActivity.client
     }
 
     private fun setBase() {

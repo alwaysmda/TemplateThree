@@ -145,7 +145,7 @@ fun Context.translateToPersian(_c: String): String {
     val faN = arrayOf("۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹")
 
 
-    if (ApplicationClass().getInstance(this).getStringPref(Constant.PREF_Language).equals("fa")) {
+    if (ApplicationClass().getInstance(this).getStringPref(Constant.PREF_LANGUAGE).equals("fa")) {
         for (i in 0..9) {
             c = c.replace(enN[i], faN[i])
         }
@@ -680,7 +680,7 @@ fun Context.getScreenDensity(): Float {
 }
 
 fun getColor(view: ImageView, x: Int, y: Int): Int {
-    return (view.drawable as BitmapDrawable).bitmap.getPixel(x,y)
+    return (view.drawable as BitmapDrawable).bitmap.getPixel(x, y)
 }
 
 //    fun generateSignature(key: String, value: String): String? {
@@ -851,7 +851,7 @@ fun getPrivateKeyFromRSA(filepath: String): PrivateKey? {
 //    public static File getDirectory(String variableName, String... paths) {
 fun getExternalSDCardDirectory(): File? {
     val path = System.getenv("SECONDARY_STORAGE")
-    path?.let {p ->
+    path?.let { p ->
         if (!TextUtils.isEmpty(p)) {
             if (p.contains(":")) {
                 for (_path in p.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()) {
@@ -966,23 +966,19 @@ fun getStringLog(vararg s: String): String {
     return value.toString()
 }
 
-fun log(s: String) {
-    log(Array(1) { s })
-}
-
-fun log(s: Array<String>) {
+fun log(vararg s: String) {
     log(false, *s)
 }
 
 fun log(toFile: Boolean, vararg s: String) {
-    Log.e(BuildConfig.APPLICATION_ID.toUpperCase() + getLocation(3), getStringLog(*s))
+    Log.e(BuildConfig.APPLICATION_ID.toUpperCase() + getLocation(4), getStringLog(*s))
     if (toFile) {
         log(false, "log", *s)
     }
 }
 
 fun Context.log(force: Boolean, toFile: Boolean, fileName: String, vararg s: String) {
-    if (force || ApplicationClass().getInstance(this).getBooleanPref(Constant.PREF_Log)) {
+    if (force || ApplicationClass().getInstance(this).getBooleanPref(Constant.PREF_LOG)) {
         try {
             Thread(Runnable {
                 val file = File(
@@ -1072,7 +1068,7 @@ fun convertTimestampToCalendar(timestamp: Long): Calendar {
 
 
 fun convertBundleToString(bundle: Bundle?): String {
-    var content : String
+    var content: String
     if (bundle == null) {
         return "{}"
     } else {
@@ -1177,7 +1173,6 @@ fun Context.getDominantColor(resourceId: Int): Int {
 //        cursor?.close()
 //    }
 //}
-
 
 
 fun setEditTextCursorColor(view: EditText, @ColorInt color: Int) {
@@ -1369,7 +1364,8 @@ fun Activity.shareImage(url: String?) {
         log("GlobalClass: shareImage: Error: url is null")
         return
     }
-    val client = Client(this, object : OnResponseListener {
+    val client = Client(this)
+    client.request(API.Download(url, getDataDirectory().path, "temp.jpg", object : OnResponseListener {
         override fun onResponse(response: Response) {
             if (response.statusName === Response.StatusName.OK) {
                 shareImage(File(response.body))
@@ -1381,13 +1377,12 @@ fun Activity.shareImage(url: String?) {
         override fun onProgress(request: Request, bytesWritten: Long, totalSize: Long, percent: Int) {
 
         }
-    })
-    client.request(API.Download(url, getDataDirectory().path, "temp.jpg"))
+    }))
 }
 
 fun validateJSON(jsonString: String): Boolean {
-    var isObject : Boolean
-    var isArray : Boolean
+    var isObject: Boolean
+    var isArray: Boolean
     var jsonObject: JSONObject? = null
     var jsonArray: JSONArray? = null
     try {
@@ -1450,7 +1445,6 @@ fun getIntentImages(data: Intent): ArrayList<Uri> {
     }
     return uriList
 }
-
 
 
 //OTHERS START

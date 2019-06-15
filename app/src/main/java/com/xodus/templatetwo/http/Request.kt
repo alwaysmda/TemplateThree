@@ -9,6 +9,8 @@ open class Request {
         POST, GET, PUT, DELETE, DOWNLOAD, RAW
     }
 
+
+
     var ID: Int = 0
     var tag: String = ""
     var method: Method = Method.GET
@@ -19,6 +21,7 @@ open class Request {
     var raw: String = ""
     var retryMax: Int = 0
     var retryAttempt: Int = 0
+    lateinit var onResponse : OnResponseListener
 
     fun putHeader(key: String, value: String) {
         headers[key] = value

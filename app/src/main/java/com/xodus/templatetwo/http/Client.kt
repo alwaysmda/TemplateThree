@@ -14,8 +14,7 @@ import com.xodus.templatetwo.http.Response.Status.FAILURE
 import com.xodus.templatetwo.http.Response.Status.SUCCESS
 import com.xodus.templatetwo.http.Response.StatusName.*
 import com.xodus.templatetwo.main.ApplicationClass
-import com.xodus.templatetwo.main.Constant.PREF_AccessToken
-import com.xodus.templatetwo.main.Constant.PREF_Language
+import com.xodus.templatetwo.main.Constant
 import okhttp3.*
 import okio.BufferedSink
 import okio.Okio
@@ -29,7 +28,7 @@ import java.net.URL
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class Client(private val context: Context, private val listener: OnResponseListener?) {
+class Client(private val context: Context) {
     private val appClass: ApplicationClass = ApplicationClass().getInstance(context)
     private var client: OkHttpClient? = null
     private lateinit var requestBuilder: okhttp3.Request.Builder
@@ -37,6 +36,7 @@ class Client(private val context: Context, private val listener: OnResponseListe
     private lateinit var callbackString: Callback
     private lateinit var callbackFile: Callback
     private val requestList = HashMap<String, Request>()
+
 
 
     init {
@@ -61,9 +61,9 @@ class Client(private val context: Context, private val listener: OnResponseListe
                 Handler(context.mainLooper)
                     .post {
                         val response =
-                            Response(requestList[call.request().tag()]!!, 0, null, e.message, FAILURE)
+                            Response(requestList[call.request().tag()]!!, 0, null, e.message ?: "", FAILURE)
                         requestList.remove(call.request().tag())
-                        log(response.toString())
+                        log(response.toJSONObject().toString())
                         responseHandler(response)
                     }
             }
@@ -81,7 +81,7 @@ class Client(private val context: Context, private val listener: OnResponseListe
                                 if (res.isSuccessful) SUCCESS else FAILURE
                             )
                             requestList.remove(res.request().tag())
-                            log(response.toString())
+                            log(response.toJSONObject().toString())
                             responseHandler(response)
                         }
                 } catch (e: IOException) {
@@ -95,7 +95,7 @@ class Client(private val context: Context, private val listener: OnResponseListe
             override fun onFailure(call: Call, e: IOException) {
                 Handler(context.mainLooper)
                     .post {
-                        val response = Response(requestList[call.request().tag()]!!, 0, null, e.message, FAILURE)
+                        val response = Response(requestList[call.request().tag()]!!, 0, null, e.message ?: "", FAILURE)
                         requestList.remove(call.request().tag())
                         log(response.toString())
                         responseHandler(response)
@@ -160,7 +160,7 @@ class Client(private val context: Context, private val listener: OnResponseListe
                 Handler(context.mainLooper)
                     .post {
                         try {
-                            listener?.onProgress(request, finalBytesWritten, totalSize, finalPercent)
+                            request.onResponse.onProgress(request,finalBytesWritten,totalSize,finalPercent)
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
@@ -172,8 +172,8 @@ class Client(private val context: Context, private val listener: OnResponseListe
     }
 
     private fun addMainHeaders(request: Request) {
-        if (appClass.getStringPref(PREF_AccessToken) != null) {
-            request.putHeader("Authorization", "Bearer " + appClass.getStringPref(PREF_AccessToken))
+        if (appClass.getStringPref(Constant.PREF_ACCESS_TOKEN) != null) {
+            request.putHeader("Authorization", "Bearer " + appClass.getStringPref(Constant.PREF_ACCESS_TOKEN))
         }
         request.putHeader("Device-Id", getAndroidID(context))
         request.putHeader(
@@ -186,7 +186,7 @@ class Client(private val context: Context, private val listener: OnResponseListe
                     + "IR; "
                     + getAndroidID(context)
                     + "; "
-                    + appClass.getStringPref(PREF_Language) + ")")
+                    + appClass.getStringPref(Constant.PREF_LANGUAGE) + ")")
         )
     }
 
@@ -194,7 +194,7 @@ class Client(private val context: Context, private val listener: OnResponseListe
     fun request(request: Request) {
         val url = getUrl(request) ?: return
         addMainHeaders(request)
-        log(request.toString())
+        log(request.toJSONObject().toString())
         requestBuilder = okhttp3.Request.Builder()
         applyHeaders(request)
         applyParams(request)
@@ -247,7 +247,7 @@ class Client(private val context: Context, private val listener: OnResponseListe
 
         if (url == null) {
             val response = Response(request, 0, null, message, FAILURE)
-            log(response.toString())
+            log(response.toJSONObject().toString())
             responseHandler(response)
         }
         return url
@@ -304,12 +304,12 @@ class Client(private val context: Context, private val listener: OnResponseListe
     }
 
     private fun responseHandler(response: Response) {
-        if (response.status === FAILURE && response.request!!.retryMax > response.request!!.retryMax) {
-            response.request?.addRetryAttempt()
-            request(response.request!!)
+        if (response.status === FAILURE && response.request.retryMax > response.request.retryMax) {
+            response.request.addRetryAttempt()
+            request(response.request)
             return
         }
-        listener?.onResponse(response)
+        response.request.onResponse.onResponse(response)
         when (response.statusName) {
             NoInternetConnection//0
             -> MaterialDialog.Builder(context)
@@ -317,8 +317,8 @@ class Client(private val context: Context, private val listener: OnResponseListe
                 .title("No Connection")
                 .content("Please check your internet connection and try again.")
                 .positiveText("Retry").onPositive { dialog, _ ->
-                    response.request?.retryAttempt = 0
-                    request(response.request!!)
+                    response.request.retryAttempt = 0
+                    request(response.request)
                     dialog.dismiss()
                 }
                 .negativeText("Cancel")
