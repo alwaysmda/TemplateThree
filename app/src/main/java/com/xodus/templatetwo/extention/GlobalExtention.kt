@@ -9,7 +9,6 @@ import android.content.ClipboardManager
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.Resources
-import android.database.Cursor
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -21,7 +20,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
-import android.provider.MediaStore
 import android.provider.Settings
 import android.text.*
 import android.text.style.ClickableSpan
@@ -141,8 +139,8 @@ fun translateToEnglish(c: Int): String {
     return translateToEnglish(c.toString())
 }
 
-fun Context.translateToPersian(c: String): String {
-    var c = c
+fun Context.translateToPersian(_c: String): String {
+    var c = _c
     val enN = arrayOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
     val faN = arrayOf("۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹")
 
@@ -159,8 +157,8 @@ fun Context.translateToPersian(c: String): String {
     return c
 }
 
-fun translateToEnglish(c: String): String {
-    var c = c
+fun translateToEnglish(_c: String): String {
+    var c = _c
     val faN = arrayOf("۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹")
     val enN = arrayOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
     for (i in 0..9) {
@@ -336,8 +334,8 @@ fun reduceBitmapQuality(bitmap: Bitmap, format: Bitmap.CompressFormat, quality: 
     return BitmapFactory.decodeByteArray(BYTE, 0, BYTE.size)
 }
 
-fun reduceBitmapSize(bitmap: Bitmap, format: Bitmap.CompressFormat, maxSize: Int): Bitmap {
-    var bitmap = bitmap
+fun reduceBitmapSize(_bitmap: Bitmap, format: Bitmap.CompressFormat, maxSize: Int): Bitmap {
+    var bitmap = _bitmap
     val bytearrayoutputstream = ByteArrayOutputStream()
     bitmap.compress(format, 90, bytearrayoutputstream)
     val BYTE = bytearrayoutputstream.toByteArray()
@@ -386,8 +384,7 @@ fun Context.convertDrawableToBitmap(resourceId: Int): Bitmap {
 
 
 fun convertDrawableToBitmap(drawable: Drawable): Bitmap {
-    var bitmap: Bitmap? = null
-
+    val bitmap: Bitmap?
     if (drawable is BitmapDrawable) {
         if (drawable.bitmap != null) {
             return drawable.bitmap
@@ -472,29 +469,27 @@ fun getMCryptAESKey(password: String): String? {
 }
 
 fun moveFile(inputPath: String, inputFile: String, outputPath: String): Boolean {
-    var `in`: InputStream? = null
-    var out: OutputStream? = null
+    val inputStream: InputStream?
+    val outputStream: OutputStream?
     try {
         //create output directory if it doesn't exist
         val dir = File(outputPath)
         if (!dir.exists()) {
             dir.mkdirs()
         }
-        `in` = FileInputStream(inputPath + inputFile)
-        out = FileOutputStream(outputPath + inputFile)
+        inputStream = FileInputStream(inputPath + inputFile)
+        outputStream = FileOutputStream(outputPath + inputFile)
         val buffer = ByteArray(1024)
         var read: Int
-        read = `in`.read(buffer)
+        read = inputStream.read(buffer)
         while (read != -1) {
-            out.write(buffer, 0, read)
-            read = `in`.read(buffer)
+            outputStream.write(buffer, 0, read)
+            read = inputStream.read(buffer)
         }
-        `in`.close()
-        `in` = null
+        inputStream.close()
         // write the output file
-        out.flush()
-        out.close()
-        out = null
+        outputStream.flush()
+        outputStream.close()
         // delete the original file
         File(inputPath + inputFile).delete()
     } catch (e: Exception) {
@@ -525,31 +520,29 @@ fun deleteFolder(path: String) {
 }
 
 fun copyFile(inputPath: String, inputFile: String, outputPath: String): Boolean {
-    var `in`: InputStream? = null
-    var out: OutputStream? = null
+    var inputStream: InputStream?
+    var outputStream: OutputStream?
     try {
         //create output directory if it doesn't exist
         val dir = File(outputPath)
         if (!dir.exists()) {
             dir.mkdirs()
         }
-        `in` = FileInputStream(inputPath + inputFile)
-        out = FileOutputStream(outputPath + inputFile)
+        inputStream = FileInputStream(inputPath + inputFile)
+        outputStream = FileOutputStream(outputPath + inputFile)
         val buffer = ByteArray(1024)
         var read: Int
-        read = `in`.read(buffer)
+        read = inputStream.read(buffer)
         while (read != -1) {
-            out.write(buffer, 0, read)
-            read = `in`.read(buffer)
+            outputStream.write(buffer, 0, read)
+            read = inputStream.read(buffer)
         }
-        `in`.close()
-        `in` = null
+        inputStream.close()
         // write the output file (You have now copied the file)
-        out.flush()
-        out.close()
-        out = null
-    } catch (fnfe1: FileNotFoundException) {
-        Log.e("tag", fnfe1.message)
+        outputStream.flush()
+        outputStream.close()
+    } catch (e: FileNotFoundException) {
+        Log.e("tag", e.message)
         return false
     } catch (e: Exception) {
         Log.e("tag", e.message)
@@ -560,29 +553,27 @@ fun copyFile(inputPath: String, inputFile: String, outputPath: String): Boolean 
 }
 
 fun copyFile(inputPath: String, outputPath: String): Boolean {
-    var `in`: InputStream? = null
-    var out: OutputStream? = null
+    var inputStream: InputStream?
+    var outputStream: OutputStream?
     try {
         //create output directory if it doesn't exist
         val dir = File(outputPath.substring(0, outputPath.lastIndexOf("/")))
         if (!dir.exists()) {
             dir.mkdirs()
         }
-        `in` = FileInputStream(inputPath)
-        out = FileOutputStream(outputPath)
+        inputStream = FileInputStream(inputPath)
+        outputStream = FileOutputStream(outputPath)
         val buffer = ByteArray(1024)
         var read: Int
-        read = `in`.read(buffer)
+        read = inputStream.read(buffer)
         while (read != -1) {
-            out.write(buffer, 0, read)
-            read = `in`.read(buffer)
+            outputStream.write(buffer, 0, read)
+            read = inputStream.read(buffer)
         }
-        `in`.close()
-        `in` = null
+        inputStream.close()
         // write the output file (You have now copied the file)
-        out.flush()
-        out.close()
-        out = null
+        outputStream.flush()
+        outputStream.close()
     } catch (fnfe1: FileNotFoundException) {
         Log.e("tag", fnfe1.message)
         return false
@@ -603,7 +594,7 @@ fun renameFile(path: String, fileName: String, newName: String): Boolean {
 }
 
 fun createFileFromString(data: String?, inputPath: String, fileName: String): Boolean {
-    if (data != null) {
+    data?.let {
         // Get the directory for the user's public pictures directory.
         val path = File(inputPath)
         // Make sure the path directory exists.
@@ -617,7 +608,7 @@ fun createFileFromString(data: String?, inputPath: String, fileName: String): Bo
             file.createNewFile()
             val fOut = FileOutputStream(file)
             val myOutWriter = OutputStreamWriter(fOut)
-            myOutWriter.append(data)
+            myOutWriter.append(it)
             myOutWriter.close()
             fOut.flush()
             fOut.close()
@@ -628,7 +619,7 @@ fun createFileFromString(data: String?, inputPath: String, fileName: String): Bo
 
         Log.e(Constant.TAG.toString(), "History File Created")
         return true
-    } else {
+    }.run {
         Log.e(Constant.TAG.toString(), "No Data")
         return false
     }
@@ -689,10 +680,7 @@ fun Context.getScreenDensity(): Float {
 }
 
 fun getColor(view: ImageView, x: Int, y: Int): Int {
-    view.isDrawingCacheEnabled = true
-    val hotspots = Bitmap.createBitmap(view.drawingCache)
-    view.isDrawingCacheEnabled = false
-    return hotspots.getPixel(x, y)
+    return (view.drawable as BitmapDrawable).bitmap.getPixel(x,y)
 }
 
 //    fun generateSignature(key: String, value: String): String? {
@@ -713,12 +701,12 @@ fun getColor(view: ImageView, x: Int, y: Int): Int {
 //    }
 
 fun unpackZip(path: String, zipname: String): Boolean {
-    val `is`: InputStream
+    val inputStream: InputStream
     val zis: ZipInputStream
     try {
         var filename: String
-        `is` = FileInputStream(path + zipname)
-        zis = ZipInputStream(BufferedInputStream(`is`))
+        inputStream = FileInputStream(path + zipname)
+        zis = ZipInputStream(BufferedInputStream(inputStream))
         var ze: ZipEntry
         val buffer = ByteArray(1024)
         var count: Int
@@ -801,10 +789,10 @@ fun unzip(inputPath: String, fileName: String, outputPath: String): Boolean {
     return true
 }
 
-fun convertStreamToString(`is`: InputStream): String {
+fun convertStreamToString(inputStream: InputStream): String {
     var sb = StringBuilder()
     try {
-        val reader = BufferedReader(InputStreamReader(`is`))
+        val reader = BufferedReader(InputStreamReader(inputStream))
         sb = StringBuilder()
         var line: String
         line = reader.readLine()
@@ -863,18 +851,20 @@ fun getPrivateKeyFromRSA(filepath: String): PrivateKey? {
 //    public static File getDirectory(String variableName, String... paths) {
 fun getExternalSDCardDirectory(): File? {
     val path = System.getenv("SECONDARY_STORAGE")
-    if (!TextUtils.isEmpty(path)) {
-        if (path.contains(":")) {
-            for (_path in path.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()) {
-                val file = File(_path)
+    path?.let {p ->
+        if (!TextUtils.isEmpty(p)) {
+            if (p.contains(":")) {
+                for (_path in p.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()) {
+                    val file = File(_path)
+                    if (file.exists()) {
+                        return file
+                    }
+                }
+            } else {
+                val file = File(p)
                 if (file.exists()) {
                     return file
                 }
-            }
-        } else {
-            val file = File(path)
-            if (file.exists()) {
-                return file
             }
         }
     }
@@ -942,7 +932,7 @@ fun Context.scanMedia(path: String) {
         this,
         arrayOf(path),
         null
-    ) { path, uri -> Log.e(Constant.TAG.toString(), "SCAN COMPLETE|PATH=$path|URI=$uri") }
+    ) { p, uri -> Log.e(Constant.TAG.toString(), "SCAN COMPLETE|PATH=$p|URI=$uri") }
 }
 
 fun <T : Any> extractModel(obj: T, output: String): String {
@@ -1082,7 +1072,7 @@ fun convertTimestampToCalendar(timestamp: Long): Calendar {
 
 
 fun convertBundleToString(bundle: Bundle?): String {
-    var content = ""
+    var content : String
     if (bundle == null) {
         return "{}"
     } else {
@@ -1230,8 +1220,6 @@ fun Context.setEditTextCursor(view: EditText, @DrawableRes drawable: Int) {
         fSelectHandleLeft.isAccessible = true
         fSelectHandleRight.isAccessible = true
         fSelectHandleCenter.isAccessible = true
-
-        val res = resources
 
         fSelectHandleLeft.set(editor, drawable)
         fSelectHandleRight.set(editor, drawable)
@@ -1398,8 +1386,8 @@ fun Activity.shareImage(url: String?) {
 }
 
 fun validateJSON(jsonString: String): Boolean {
-    var isObject = false
-    var isArray = false
+    var isObject : Boolean
+    var isArray : Boolean
     var jsonObject: JSONObject? = null
     var jsonArray: JSONArray? = null
     try {
@@ -1451,12 +1439,13 @@ fun openGallery(activity: Activity, requestCode: Int, multiple: Boolean) {
 
 fun getIntentImages(data: Intent): ArrayList<Uri> {
     val uriList = ArrayList<Uri>()
-    if (data.data != null) {
-        uriList.add(data.data)
-    } else if (data.clipData != null) {
-        val mClipData = data.clipData
-        for (i in 0 until mClipData!!.itemCount) {
-            uriList.add(mClipData.getItemAt(i).uri)
+    data.data?.let {
+        uriList.add(it)
+    }.run {
+        data.clipData?.let {
+            for (i in 0 until it.itemCount) {
+                uriList.add(it.getItemAt(i).uri)
+            }
         }
     }
     return uriList

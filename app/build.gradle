@@ -1,4 +1,4 @@
-    apply plugin: 'com.android.application'
+apply plugin: 'com.android.application'
 
 apply plugin: 'kotlin-android'
 
@@ -13,7 +13,6 @@ android {
         versionCode 1
         versionName "1.0"
         flavorDimensions "xodus"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -27,7 +26,7 @@ android {
             buildConfigField "String", "IAP_INETENT", "\"ir.cafebazaar.pardakht.InAppBillingService.BIND\""
             buildConfigField "String", "IAP_PACKAGE", "\"com.farsitel.bazaar\""
             buildConfigField "String", "MARKET_INTENT", "\"bazaar://details?id=\""
-            buildConfigField "String", "MARKET_COMMENT", "\"myket://comment?id=\""
+            buildConfigField "String", "MARKET_COMMENT", "\"bazaar://comment?id=\""
             buildConfigField "String", "DEVICE_ID_ADD_ON", "\"\""
             buildConfigField "String", "MARKET", "\"bazaar\""
             buildConfigField "String", "ROUTE", "\"bazaar\""
