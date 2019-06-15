@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.xodus.templatetwo.R
 import com.xodus.templatetwo.extention.log
 import com.xodus.templatetwo.extention.toast
+import com.xodus.templatetwo.http.API
 import com.xodus.templatetwo.http.OnResponseListener
 import com.xodus.templatetwo.http.Request
 import com.xodus.templatetwo.http.Response
@@ -55,7 +56,8 @@ class TemplateFragment : BaseFragment(), View.OnClickListener, OnResponseListene
         v.home_tvMessage.text = getID()
 
 //        var adapter = TemplateAdapter(appClass, ArrayList()) { viewHolder, view, i -> onRecyclerItemClick(viewHolder,view,i)}
-//        client.request(API.GET("https://www.httpbin.org/get", this))
+//       client.request(API.GET("https://www.httpbin.org/get",this))
+
     }
 
     private fun setupToolbar(v: View) {

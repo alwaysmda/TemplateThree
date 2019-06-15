@@ -38,7 +38,6 @@ class Client(private val context: Context) {
     private val requestList = HashMap<String, Request>()
 
 
-
     init {
         initClient()
         initCallback()
@@ -110,7 +109,10 @@ class Client(private val context: Context) {
                 if (!directory.exists()) {
                     directory.mkdirs()
                 }
-                val file = File(request?.params?.get(API.PARAM_NAME_DOWNLOAD_PATH)?.toString(), request?.params?.get(API.PARAM_NAME_DOWNLOAD_NAME)?.toString())
+                val file = File(
+                    request?.params?.get(API.PARAM_NAME_DOWNLOAD_PATH)?.toString(),
+                    request?.params?.get(API.PARAM_NAME_DOWNLOAD_NAME)?.toString()
+                )
                 if (file.exists()) {
                     file.delete()
                 }
@@ -160,7 +162,7 @@ class Client(private val context: Context) {
                 Handler(context.mainLooper)
                     .post {
                         try {
-                            request.onResponse.onProgress(request,finalBytesWritten,totalSize,finalPercent)
+                            request.onResponse.onProgress(request, finalBytesWritten, totalSize, finalPercent)
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
@@ -179,6 +181,7 @@ class Client(private val context: Context) {
         request.putHeader(
             "User-Agent",
             (BuildConfig.APPLICATION_ID.substring(BuildConfig.APPLICATION_ID.lastIndexOf('.')).toUpperCase()
+                    + " "
                     + getPackageInfo(context).versionName
                     + " (Android; "
                     + PackageInfoCompat.getLongVersionCode(getPackageInfo(context)) + "; "

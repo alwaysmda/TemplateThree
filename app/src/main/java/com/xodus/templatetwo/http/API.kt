@@ -1,10 +1,17 @@
 package com.xodus.templatetwo.http
 
+import androidx.core.content.pm.PackageInfoCompat
+import com.xodus.templatetwo.BuildConfig
+import com.xodus.templatetwo.extention.getAndroidID
+import com.xodus.templatetwo.extention.getPackageInfo
+import com.xodus.templatetwo.main.ApplicationClass
+import com.xodus.templatetwo.main.Constant
 import com.xodus.templatetwo.main.Constant.*
 import java.util.HashMap
 
 open class API : Request() {
     protected val BASE_API = "https://www.xodus.ir/api/v1"
+
 
     companion object {
         const val PARAM_NAME_DOWNLOAD_PATH = "KEY_NAME_DOWNLOAD_PATH"
@@ -12,7 +19,12 @@ open class API : Request() {
     }
 
 
-    class GetMain(urlParam: String, params: HashMap<String, Any>, headers: HashMap<String, String>, onResponse: OnResponseListener) : API() {
+    class GetMain(
+        urlParam: String,
+        params: HashMap<String, Any>,
+        headers: HashMap<String, String>,
+        onResponse: OnResponseListener
+    ) : API() {
         init {
             this.ID = 1
             this.requestName = javaClass.simpleName
@@ -84,7 +96,13 @@ open class API : Request() {
 
     }
 
-    class ReportError(eTime: String, eClass: String, eMethod: String, eMessage: String, onResponse: OnResponseListener) : API() {
+    class ReportError(
+        eTime: String,
+        eClass: String,
+        eMethod: String,
+        eMessage: String,
+        onResponse: OnResponseListener
+    ) : API() {
 
         init {
             this.ID = 6
@@ -141,7 +159,15 @@ open class API : Request() {
     }
 
 
-    class VerifyToken(market: String, sku: String, type: String, token: String, payload: String, extraData: String, onResponse: OnResponseListener) :
+    class VerifyToken(
+        market: String,
+        sku: String,
+        type: String,
+        token: String,
+        payload: String,
+        extraData: String,
+        onResponse: OnResponseListener
+    ) :
         API() {
 
         init {
