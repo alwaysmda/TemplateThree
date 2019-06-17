@@ -4,24 +4,33 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.util.ArrayList
 
-class Template {
-    var templateString: String? = null
-    var templateInt: Int = 0
+data class Template(
+    var templateString: String = "",
+    var templateInt: Int = 0,
     var isTemplateBoolean: Boolean = false
+) {
 
-    constructor() {}
+//    class Builder {
+//        private var templateString: String = ""
+//        private var templateInt: Int = 0
+//        private var isTemplateBoolean: Boolean = false
+//
+//        fun templateString(templateString: String) = apply { this.templateString = templateString }
+//        fun templateInt(templateInt: Int) = apply { this.templateInt = templateInt }
+//        fun isTemplateBoolean(isTemplateBoolean: Boolean) = apply { this.isTemplateBoolean = isTemplateBoolean }
+//
+//        fun build() = Template(
+//            templateString,
+//            templateInt,
+//            isTemplateBoolean
+//        )
+//    }
 
-    constructor(templateString: String, templateInt: Int, templateBoolean: Boolean) {
-        this.templateString = templateString
-        this.templateInt = templateInt
-        this.isTemplateBoolean = templateBoolean
-    }
-
-    constructor(item: Template) {
-        this.templateString = item.templateString
-        this.templateInt = item.templateInt
-        this.isTemplateBoolean = item.isTemplateBoolean
-    }
+    constructor(item: Template) : this(
+        item.templateString,
+        item.templateInt,
+        item.isTemplateBoolean
+    )
 
     fun toJson(): JSONObject {
         val jsonObject = JSONObject()
@@ -83,14 +92,12 @@ class Template {
         fun toModel(jsonObject: JSONObject): Template {
             val item = Template()
             try {
-
                 item.templateString = jsonObject.getString("string")
                 item.templateInt = jsonObject.getInt("int")
                 item.isTemplateBoolean = jsonObject.getBoolean("boolean")
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-
             return item
         }
 
