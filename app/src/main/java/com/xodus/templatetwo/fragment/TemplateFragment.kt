@@ -79,6 +79,10 @@ class TemplateFragment : BaseFragment(), View.OnClickListener, OnResponseListene
         val l: Unit = items.sortBy { it.length } // Unit : sorts the list
         val m: Unit = items.forEach { second.add(it) } //Unit : loops through the list
 
+        var data : String = ""
+        items.forEach{ data+= "$it," }
+
+        log("DATA IS",data.dropLast(1))
 
         val result: ArrayList<Any> = ArrayList()
         result.add(a)

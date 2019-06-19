@@ -50,6 +50,8 @@ import com.xodus.templatetwo.R
 import com.xodus.templatetwo.http.*
 import com.xodus.templatetwo.main.ApplicationClass
 import com.xodus.templatetwo.main.Constant
+import org.apache.commons.codec.binary.Hex
+import org.apache.commons.codec.digest.DigestUtils
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -63,6 +65,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
 
 
 fun getLocation(): String {
@@ -683,22 +687,22 @@ fun getColor(view: ImageView, x: Int, y: Int): Int {
     return (view.drawable as BitmapDrawable).bitmap.getPixel(x, y)
 }
 
-//    fun generateSignature(key: String, value: String): String? {
-//        var result: String? = null
-//        try {
-//            val keyBytes = key.toByteArray()
-//            val signingKey = SecretKeySpec(keyBytes, "HmacSHA256")
-//            val mac = Mac.getInstance("HmacSHA256")
-//            mac.init(signingKey)
-//            val rawHmac = mac.doFinal(value.toByteArray())
-//            val hexBytes = Hex().encode(rawHmac)
-//            result = String(hexBytes, Charsets.UTF_8)
-//        } catch (e: Exception) {
-//            Log.e(TAG.toString(), e.message)
-//        }
-//
-//        return result
-//    }
+fun HMACSHA256(key: String, value: String): String? {
+    var result: String? = null
+    try {
+        val keyBytes = key.toByteArray()
+        val signingKey = SecretKeySpec(keyBytes, "HmacSHA256")
+        val mac = Mac.getInstance("HmacSHA256")
+        mac.init(signingKey)
+        val rawHmac = mac.doFinal(value.toByteArray())
+        val hexBytes = Hex().encode(rawHmac)
+        result = String(hexBytes, Charsets.UTF_8)
+    } catch (e: Exception) {
+        log(e.message)
+    }
+    return result
+}
+
 
 fun unpackZip(path: String, zipname: String): Boolean {
     val inputStream: InputStream
@@ -958,7 +962,7 @@ fun <T : Any> extractModel(obj: T, output: String): String {
     return result
 }
 
-fun getStringLog(vararg s: Any): String {
+fun getStringLog(vararg s: Any?): String {
     val value = StringBuilder()
     for (item in s) {
         value.append(item.toString()).append("\n")
@@ -966,11 +970,11 @@ fun getStringLog(vararg s: Any): String {
     return value.toString()
 }
 
-fun log(vararg s: Any) {
+fun log(vararg s: Any?) {
     Log.e(BuildConfig.APPLICATION_ID.toUpperCase() + getLocation(3), getStringLog(*s))
 }
 
-fun Context.logToFile(force: Boolean, fileName: String, vararg s: Any) {
+fun Context.logToFile(force: Boolean, fileName: String, vararg s: Any?) {
     if (force || ApplicationClass().getInstance(this).getBooleanPref(Constant.PREF_LOG)) {
         try {
             Thread(Runnable {
