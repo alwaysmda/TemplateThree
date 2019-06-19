@@ -9,12 +9,7 @@ import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
-import com.xodus.templatetwo.extention.getRandomInt
-import com.xodus.templatetwo.extention.getRandomString
 import com.xodus.templatetwo.http.Client
-import com.xodus.templatetwo.http.OnResponseListener
-import com.xodus.templatetwo.http.Request
-import com.xodus.templatetwo.http.Response
 import org.greenrobot.eventbus.EventBus
 import java.util.*
 

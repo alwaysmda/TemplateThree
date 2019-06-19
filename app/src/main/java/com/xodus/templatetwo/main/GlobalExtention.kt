@@ -1,4 +1,4 @@
-package com.xodus.templatetwo.extention
+package com.xodus.templatetwo.main
 
 import android.app.Activity
 import android.app.AlarmManager
@@ -9,6 +9,7 @@ import android.content.ClipboardManager
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.database.Cursor
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -20,6 +21,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
+import android.provider.MediaStore
 import android.provider.Settings
 import android.text.*
 import android.text.style.ClickableSpan
@@ -48,10 +50,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.xodus.templatetwo.BuildConfig
 import com.xodus.templatetwo.R
 import com.xodus.templatetwo.http.*
-import com.xodus.templatetwo.main.ApplicationClass
-import com.xodus.templatetwo.main.Constant
 import org.apache.commons.codec.binary.Hex
-import org.apache.commons.codec.digest.DigestUtils
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -440,8 +439,8 @@ fun convertFileToBitmap(file: File): Bitmap {
     return BitmapFactory.decodeFile(file.path)
 }
 
-fun getAndroidID(context: Context): String {
-    return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+fun Context.getAndroidID(): String {
+    return Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
 }
 
 fun getUUID(): String {
@@ -453,8 +452,8 @@ fun getUUID(name: String): String {
 }
 
 
-fun getPackageInfo(context: Context): PackageInfo {
-    return context.packageManager.getPackageInfo(context.packageName, 0)
+fun Context.getPackageInfo(): PackageInfo {
+    return packageManager.getPackageInfo(packageName, 0)
 }
 
 fun getMCryptAESKey(password: String): String? {
@@ -1155,18 +1154,18 @@ fun Context.getDominantColor(resourceId: Int): Int {
     return getDominantColor(Bitmap.createScaledBitmap(convertDrawableToBitmap(resourceId), 1, 1, true))
 }
 
-//fun Context.convertUriToPath(contentUri: Uri): String {
-//    var cursor: Cursor? = null
-//    try {
-//        val proj = arrayOf(MediaStore.Images.Media.DATA)
-//        cursor = contentResolver.query(contentUri, proj, null, null, null)
-//        val column_index = cursor!!.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-//        cursor.moveToFirst()
-//        return cursor.getString(column_index)
-//    } finally {
-//        cursor?.close()
-//    }
-//}
+fun Context.convertUriToPath(contentUri: Uri): String {
+    var cursor: Cursor? = null
+    try {
+        val proj = arrayOf(MediaStore.Images.Media.DATA)
+        cursor = contentResolver.query(contentUri, proj, null, null, null)
+        val column_index = cursor!!.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+        cursor.moveToFirst()
+        return cursor.getString(column_index)
+    } finally {
+        cursor?.close()
+    }
+}
 
 
 fun setEditTextCursorColor(view: EditText, @ColorInt color: Int) {

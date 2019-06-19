@@ -5,10 +5,10 @@ import android.os.Handler
 import androidx.core.content.pm.PackageInfoCompat
 import com.afollestad.materialdialogs.MaterialDialog
 import com.xodus.templatetwo.BuildConfig
-import com.xodus.templatetwo.extention.getAndroidID
-import com.xodus.templatetwo.extention.getPackageInfo
-import com.xodus.templatetwo.extention.getRandomString
-import com.xodus.templatetwo.extention.log
+import com.xodus.templatetwo.main.getAndroidID
+import com.xodus.templatetwo.main.getPackageInfo
+import com.xodus.templatetwo.main.getRandomString
+import com.xodus.templatetwo.main.log
 import com.xodus.templatetwo.http.Request.Method.*
 import com.xodus.templatetwo.http.Response.Status.FAILURE
 import com.xodus.templatetwo.http.Response.Status.SUCCESS
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit
 
 class Client(private val context: Context) {
     private val appClass: ApplicationClass = ApplicationClass().getInstance(context)
-    private var client: OkHttpClient? = null
+    lateinit private var client: OkHttpClient
     private lateinit var requestBuilder: okhttp3.Request.Builder
     private lateinit var requestBody: RequestBody
     private lateinit var callbackString: Callback
@@ -51,27 +51,27 @@ class Client(private val context: Context) {
             .writeTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .build()
-//        var clientBuilder = OkHttpClient.Builder()
-//            .hostnameVerifier { _, _ -> true }
-//            .connectTimeout(30, TimeUnit.SECONDS)
-//            .writeTimeout(30, TimeUnit.SECONDS)
-//            .readTimeout(30, TimeUnit.SECONDS)
-//        clientBuilder = getCertificatePinner()?.let {
-//            clientBuilder.certificatePinner(it)
-//        }.run {
-//            clientBuilder
-//        }
-//        clientBuilder = getProxy()?.let {
-//            clientBuilder.proxy(it)
-//        }.run {
-//            clientBuilder
-//        }
-//        clientBuilder = getProxyAuthenticator()?.let {
-//            clientBuilder.proxyAuthenticator(it)
-//        }.run {
-//            clientBuilder
-//        }
-//        client = clientBuilder.build()
+        //        var clientBuilder = OkHttpClient.Builder()
+        //            .hostnameVerifier { _, _ -> true }
+        //            .connectTimeout(30, TimeUnit.SECONDS)
+        //            .writeTimeout(30, TimeUnit.SECONDS)
+        //            .readTimeout(30, TimeUnit.SECONDS)
+        //        clientBuilder = getCertificatePinner()?.let {
+        //            clientBuilder.certificatePinner(it)
+        //        }.run {
+        //            clientBuilder
+        //        }
+        //        clientBuilder = getProxy()?.let {
+        //            clientBuilder.proxy(it)
+        //        }.run {
+        //            clientBuilder
+        //        }
+        //        clientBuilder = getProxyAuthenticator()?.let {
+        //            clientBuilder.proxyAuthenticator(it)
+        //        }.run {
+        //            clientBuilder
+        //        }
+        //        client = clientBuilder.build()
     }
 
     private fun initCallback() {
@@ -198,17 +198,17 @@ class Client(private val context: Context) {
         if (appClass.getStringPref(Constant.PREF_ACCESS_TOKEN) != null) {
             request.putHeader("Authorization", "Bearer " + appClass.getStringPref(Constant.PREF_ACCESS_TOKEN))
         }
-        request.putHeader("Device-Id", getAndroidID(context))
+        request.putHeader("Device-Id", appClass.getAndroidID())
         request.putHeader(
             "User-Agent",
             (BuildConfig.APPLICATION_ID.substring(BuildConfig.APPLICATION_ID.lastIndexOf('.')).toUpperCase()
                     + " "
-                    + getPackageInfo(context).versionName
+                    + appClass.getPackageInfo().versionName
                     + " (Android; "
-                    + PackageInfoCompat.getLongVersionCode(getPackageInfo(context)) + "; "
+                    + PackageInfoCompat.getLongVersionCode(appClass.getPackageInfo()) + "; "
                     + BuildConfig.MARKET + "; "
                     + "IR; "
-                    + getAndroidID(context)
+                    + appClass.getAndroidID()
                     + "; "
                     + appClass.getStringPref(Constant.PREF_LANGUAGE) + ")")
         )
@@ -228,27 +228,27 @@ class Client(private val context: Context) {
         val call: Call
         when (request._method) {
             DOWNLOAD -> {
-                call = client!!.newCall(requestBuilder.url(url).get().build())
+                call = client.newCall(requestBuilder.url(url).get().build())
                 call.enqueue(callbackFile)
             }
-            GET -> {
-                call = client!!.newCall(requestBuilder.url(url).get().build())
+            GET      -> {
+                call = client.newCall(requestBuilder.url(url).get().build())
                 call.enqueue(callbackString)
             }
-            POST -> {
-                call = client!!.newCall(requestBuilder.url(url).post(requestBody).build())
+            POST     -> {
+                call = client.newCall(requestBuilder.url(url).post(requestBody).build())
                 call.enqueue(callbackString)
             }
-            PUT -> {
-                call = client!!.newCall(requestBuilder.url(url).put(requestBody).build())
+            PUT      -> {
+                call = client.newCall(requestBuilder.url(url).put(requestBody).build())
                 call.enqueue(callbackString)
             }
-            DELETE -> {
-                call = client!!.newCall(requestBuilder.url(url).delete(requestBody).build())
+            DELETE   -> {
+                call = client.newCall(requestBuilder.url(url).delete(requestBody).build())
                 call.enqueue(callbackString)
             }
-            RAW -> {
-                call = client!!.newCall(requestBuilder.url(url).post(requestBody).build())
+            RAW      -> {
+                call = client.newCall(requestBuilder.url(url).post(requestBody).build())
                 call.enqueue(callbackString)
             }
         }
@@ -290,7 +290,7 @@ class Client(private val context: Context) {
         val body = MultipartBody.Builder()
 
         when (request._method) {
-            GET, DOWNLOAD -> {
+            GET, DOWNLOAD     -> {
             }
             POST, PUT, DELETE -> {
                 body.setType(MultipartBody.FORM)
@@ -299,11 +299,10 @@ class Client(private val context: Context) {
                         val item = request._params[key]
                         if (item != null) {
                             if (item is File) {
-                                val file = item as File?
                                 body.addFormDataPart(
                                     key,
-                                    file!!.name,
-                                    RequestBody.create(MediaType.parse("multipart/form-data"), file)
+                                    item.name,
+                                    RequestBody.create(MediaType.parse("multipart/form-data"), item)
                                 )
                             } else {
                                 body.addFormDataPart(key, item.toString())
@@ -315,7 +314,7 @@ class Client(private val context: Context) {
                     requestBody = RequestBody.create(null, ByteArray(0))
                 }
             }
-            RAW -> requestBody = if (request._raw.isEmpty()) {
+            RAW               -> requestBody = if (request._raw.isEmpty()) {
                 RequestBody.create(MediaType.parse("application/json; charset=utf-8"), ByteArray(0))
             } else {
                 RequestBody.create(MediaType.parse("application/json; charset=utf-8"), request._raw)
@@ -324,7 +323,7 @@ class Client(private val context: Context) {
     }
 
     fun cancelAllRequests() {
-        client!!.dispatcher().cancelAll()
+        client.dispatcher().cancelAll()
     }
 
     private fun responseHandler(response: Response) {
@@ -335,7 +334,7 @@ class Client(private val context: Context) {
         }
         response.request._onResponse.onResponse(response)
         when (response.statusName) {
-            NoInternetConnection//0
+            NoInternetConnection //0
             -> MaterialDialog.Builder(context)
                 .cancelable(false)
                 .title("No Connection")
@@ -347,37 +346,37 @@ class Client(private val context: Context) {
                 }
                 .negativeText("Cancel")
                 .onNegative { dialog, _ -> dialog.dismiss() }.show()
-            OK//200
+            OK //200
             -> {
             }
-            Created//201
+            Created //201
             -> {
             }
-            NoContent//204
+            NoContent //204
             -> {
             }
-            NotModified//304
+            NotModified //304
             -> {
             }
-            BadRequest//400
+            BadRequest //400
             -> {
             }
-            Unauthorized//401
+            Unauthorized //401
             -> {
             }
-            Forbidden//403
+            Forbidden //403
             -> {
             }
-            NotFound//404
+            NotFound //404
             -> {
             }
-            Conflict//409
+            Conflict //409
             -> {
             }
-            InternalServerError//500
+            InternalServerError //500
             -> {
             }
-            Other//Other
+            Other //Other
             -> {
             }
         }

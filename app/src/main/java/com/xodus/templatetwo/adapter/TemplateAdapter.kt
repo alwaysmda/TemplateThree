@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.xodus.templatetwo.R
-import com.xodus.templatetwo.extention.inflate
+import com.xodus.templatetwo.main.inflate
 import com.xodus.templatetwo.model.Template
 import kotlinx.android.synthetic.main.row_template.view.*
 

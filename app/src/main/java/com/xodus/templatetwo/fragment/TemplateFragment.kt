@@ -7,9 +7,8 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.xodus.templatetwo.R
-import com.xodus.templatetwo.extention.log
-import com.xodus.templatetwo.extention.toast
-import com.xodus.templatetwo.http.API
+import com.xodus.templatetwo.main.log
+import com.xodus.templatetwo.main.toast
 import com.xodus.templatetwo.http.OnResponseListener
 import com.xodus.templatetwo.http.Request
 import com.xodus.templatetwo.http.Response
@@ -55,8 +54,13 @@ class TemplateFragment : BaseFragment(), View.OnClickListener, OnResponseListene
         //View
         v.home_tvMessage.text = getID()
 
-//        var adapter = TemplateAdapter(appClass, ArrayList()) { viewHolder, view, i -> onRecyclerItemClick(viewHolder, view, i) }
-//        client.request(API.Get(this, "https://www.httpbin.org/get"))
+        //        var adapter = TemplateAdapter(appClass, ArrayList()) { viewHolder, view, i -> onRecyclerItemClick(viewHolder, view, i) }
+        //        client.request(API.Get(this, "https://www.httpbin.org/get"))
+
+        doKotlin()
+    }
+
+    private fun doKotlin() {
         val items = ArrayList<String>()
         items.add("123")
         items.add("234")
@@ -65,24 +69,50 @@ class TemplateFragment : BaseFragment(), View.OnClickListener, OnResponseListene
 
         val second = ArrayList<String>()
 
-        val a: Boolean = items.all { it.isNotEmpty() } //boolean : if lambda condition is valid for all
-        val b: Boolean = items.any { it.isEmpty() } //boolean : if lambda is valid for any
-        val c: Any = items.getOrElse(6) { items.size * 2 } //String or Any : returns item in index or the function result (can be type) if null
-        val d: Int = items.count { it.length < 5 } //int : number of items with lambda condition
-        val e: String = items.last { it.contains("3") } //String : the last item with lambda condition
-        val f: String = items.first { it.contains("3") } //String : the first item with lambda condition
-        val g: List<Int> = items.map { it.length } //List : ArrayList of lambda condition result
-        val h: List<Boolean> = items.map { it.contains("3") } //List : ArrayList of lambda condition result
-        val i: ArrayList<String> = items.mapTo(second, { it }) //ArrayList : ArrayList of lambda condition result (destination and result are same)
-        val j: Map<String, Int> = items.associate { Pair(it + "K", it.length) } //Map<String,T> : created map in lambda condition
-        val k: Map<String, Int> = items.associateBy({ it + "K" }, { it.length }) //Map<String,Any> : created map in lambda conditions. first is for key, second is for value
-        val l: Unit = items.sortBy { it.length } // Unit : sorts the list
-        val m: Unit = items.forEach { second.add(it) } //Unit : loops through the list
+        //boolean : if lambda condition is valid for all
+        val a: Boolean = items.all { it.isNotEmpty() }
 
-        var data : String = ""
-        items.forEach{ data+= "$it," }
+        //boolean : if lambda is valid for any
+        val b: Boolean = items.any { it.isEmpty() }
 
-        log("DATA IS",data.dropLast(1))
+        //Any : returns item in index or the function result (can be type) if null
+        val c: Any = items.getOrElse(6) { items.size * 2 }
+
+        //int : number of items with lambda condition
+        val d: Int = items.count { it.length < 5 }
+
+        //String : the last item with lambda condition
+        val e: String = items.last { it.contains("3") }
+
+        //String : the first item with lambda condition
+        val f: String = items.first { it.contains("3") }
+
+        //List : ArrayList of lambda condition result
+        val g: List<Int> = items.map { it.length }
+
+        //List : ArrayList of lambda condition result
+        val h: List<Boolean> = items.map { it.contains("3") }
+
+        //ArrayList : ArrayList of lambda condition result (destination and result are same)
+        val i: ArrayList<String> = items.mapTo(second, { it })
+
+        //Map<String,T> : created map in lambda condition
+        val j: Map<String, Int> = items.associate { Pair(it + "K", it.length) }
+
+        //Map<String,Any> : created map in lambda conditions. first is for key, second is for value
+        val k: Map<String, Int> = items.associateBy({ it + "K" }, { it.length })
+
+        // Unit : sorts the list
+        val l: Unit = items.sortBy { it.length }
+
+        //Unit : loops through the list
+        val m: Unit = items.forEach { second.add(it) }
+
+
+        var data: String = ""
+        items.forEach { data += "$it," }
+
+        log("DATA IS", data.dropLast(1))
 
         val result: ArrayList<Any> = ArrayList()
         result.add(a)

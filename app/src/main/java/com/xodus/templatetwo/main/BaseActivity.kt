@@ -12,13 +12,8 @@ import androidx.fragment.app.Fragment
 import com.xodus.templatetwo.R
 import com.xodus.templatetwo.event.OnActivityResultEvent
 import com.xodus.templatetwo.event.OnRequestPermissionResultEvent
-import com.xodus.templatetwo.extention.convertBitmapToDrawable
-import com.xodus.templatetwo.extention.convertViewToBitmap
 import com.xodus.templatetwo.fragment.TemplateFragment
 import com.xodus.templatetwo.http.Client
-import com.xodus.templatetwo.http.OnResponseListener
-import com.xodus.templatetwo.http.Request
-import com.xodus.templatetwo.http.Response
 import kotlinx.android.synthetic.main.activity_base.*
 import org.greenrobot.eventbus.EventBus
 import java.util.ArrayList
@@ -318,7 +313,7 @@ class BaseActivity : AppCompatActivity() {
                     currentTabIndex = 0
                     tabSelected()
                 }
-                R.id.navigation_feed -> if (currentTabIndex == 1) {
+                R.id.navigation_feed    -> if (currentTabIndex == 1) {
                     tabReselected()
                 } else {
                     currentTabIndex = 1

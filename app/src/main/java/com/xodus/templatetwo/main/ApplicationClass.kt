@@ -9,16 +9,23 @@ import android.content.Intent
 import com.pddstudio.preferences.encrypted.EncryptedPreferences
 import com.xodus.templatetwo.BuildConfig
 import com.xodus.templatetwo.MainActivity
+import com.xodus.templatetwo.billing.Market
 import com.xodus.templatetwo.main.Constant.*;
 
 open class ApplicationClass : Application() {
 
     private lateinit var encryptedPreferences: EncryptedPreferences
+    private lateinit var market: Market
 
     override fun onCreate() {
         super.onCreate()
-        encryptedPreferences =
-            EncryptedPreferences.Builder(this).withEncryptionPassword(BuildConfig.APPLICATION_ID).build()
+        encryptedPreferences = EncryptedPreferences.Builder(this).withEncryptionPassword(BuildConfig.APPLICATION_ID).build()
+        market = when (BuildConfig.FLAVOR) {
+            "bazaar"   -> Market.init(Market.MarketType.BAZAAR)
+            "myket"    -> Market.init(Market.MarketType.MYKET)
+            "iranapps" -> Market.init(Market.MarketType.IRANAPPS)
+            else       -> Market.init(Market.MarketType.BAZAAR)
+        }
     }
 
     fun getStringPref(key: Constant): String? {
