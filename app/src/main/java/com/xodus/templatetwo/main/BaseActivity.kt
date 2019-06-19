@@ -49,7 +49,6 @@ class BaseActivity : AppCompatActivity() {
         appClass = ApplicationClass().getInstance(this)
         client = Client(this)
         initFragmentTable(
-            TemplateFragment.newInstance(),
             TemplateFragment.newInstance()
         )
         initBottomBar()

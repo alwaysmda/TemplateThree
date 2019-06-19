@@ -1,12 +1,5 @@
 package com.xodus.templatetwo.http
 
-import androidx.core.content.pm.PackageInfoCompat
-import com.xodus.templatetwo.BuildConfig
-import com.xodus.templatetwo.extention.getAndroidID
-import com.xodus.templatetwo.extention.getPackageInfo
-import com.xodus.templatetwo.main.ApplicationClass
-import com.xodus.templatetwo.main.Constant
-import com.xodus.templatetwo.main.Constant.*
 import java.util.HashMap
 
 open class API : Request() {
@@ -18,6 +11,56 @@ open class API : Request() {
         const val PARAM_NAME_DOWNLOAD_NAME = "KEY_NAME_DOWNLOAD_NAME"
     }
 
+    class Get(onResponse: OnResponseListener, url: String) : API() {
+        companion object {
+            var ID = 1
+        }
+
+        init {
+            _ID = ID
+            _name = javaClass.simpleName
+            _onResponse = onResponse
+            _method = Method.GET
+            _url = url
+            _retryMax = 3
+        }
+    }
+
+    class Post(onResponse: OnResponseListener, url: String, vararg params: Pair<String, Any>) : API() {
+        companion object {
+            var ID = 2
+        }
+
+        init {
+            _ID = ID
+            _name = javaClass.simpleName
+            _onResponse = onResponse
+            _method = Method.POST
+            _url = url
+            params.map { _params[it.first] = it.second }
+            params.forEach { _params[it.first] = it.second }
+
+            for (t in params) {
+                _params[t.first] = t.second
+            }
+        }
+    }
+
+    class Download(onResponse: OnResponseListener, url: String, path: String, name: String) : API() {
+        companion object {
+            var ID = 3
+        }
+
+        init {
+            _ID = ID
+            _name = javaClass.simpleName
+            _onResponse = onResponse
+            _method = Method.DOWNLOAD
+            _url = url
+            _params[PARAM_NAME_DOWNLOAD_PATH] = path
+            _params[PARAM_NAME_DOWNLOAD_NAME] = name
+        }
+    }
 
     class GetMain(
         urlParam: String,
@@ -25,76 +68,41 @@ open class API : Request() {
         headers: HashMap<String, String>,
         onResponse: OnResponseListener
     ) : API() {
+        companion object {
+            var ID = 4
+        }
+
         init {
-            this.ID = 1
-            this.requestName = javaClass.simpleName
-            this.onResponse = onResponse
-            this.method = Method.POST
-            this.url = BASE_API
-            this.params = params
-            this.headers = headers
-            this.retryMax = Integer.MAX_VALUE
+            _ID = ID
+            _name = javaClass.simpleName
+            _onResponse = onResponse
+            _method = Method.POST
+            _url = BASE_API
+            _params = params
+            _headers = headers
+            _retryMax = Integer.MAX_VALUE
         }
     }
 
 
     class UpdateFCMToken(token: String, onResponse: OnResponseListener) : API() {
 
+        companion object {
+            var ID = 5
+        }
+
         init {
-            this.ID = 2
-            this.requestName = javaClass.simpleName
-            this.onResponse = onResponse
-            this.method = Method.POST
-            this.url = "$BASE_API/token/update"
+            _ID = ID
+            _name = javaClass.simpleName
+            _onResponse = onResponse
+            _method = Method.POST
+            _url = "$BASE_API/token/update"
             val params = HashMap<String, Any>()
             params["token"] = token
-            this.params = params
+            _params = params
         }
     }
 
-
-    class Download(url: String, path: String, name: String, onResponse: OnResponseListener) : API() {
-
-        init {
-            this.ID = 3
-            this.requestName = javaClass.simpleName
-            this.onResponse = onResponse
-            this.method = Method.DOWNLOAD
-            this.url = url
-            val downloadData = HashMap<String, Any>()
-            downloadData[PARAM_NAME_DOWNLOAD_PATH] = path
-            downloadData[PARAM_NAME_DOWNLOAD_NAME] = name
-            this.params = downloadData
-        }
-    }
-
-
-    class GET(url: String, onResponse: OnResponseListener) : API() {
-
-        init {
-            this.ID = 4
-            this.requestName = javaClass.simpleName
-            this.onResponse = onResponse
-            this.method = Method.GET
-            this.url = url
-            retryMax = 3
-        }
-
-    }
-
-
-    class POST(url: String, params: HashMap<String, Any>, onResponse: OnResponseListener) : API() {
-
-        init {
-            this.ID = 5
-            this.requestName = javaClass.simpleName
-            this.onResponse = onResponse
-            this.method = Method.POST
-            this.url = url
-            this.params = params
-        }
-
-    }
 
     class ReportError(
         eTime: String,
@@ -103,57 +111,71 @@ open class API : Request() {
         eMessage: String,
         onResponse: OnResponseListener
     ) : API() {
+        companion object {
+            var ID = 6
+        }
 
         init {
-            this.ID = 6
-            this.requestName = javaClass.simpleName
-            this.onResponse = onResponse
-            this.method = Method.POST
-            this.url = "$BASE_API/log/error"
+            _ID = ID
+            _name = javaClass.simpleName
+            _onResponse = onResponse
+            _method = Method.POST
+            _url = "$BASE_API/log/error"
             val params = HashMap<String, Any>()
             params["time"] = eTime
             params["class"] = eClass
             params["method"] = eMethod
             params["message"] = eMessage
-            this.params = params
+            _params = params
         }
     }
 
 
     class GetLicenseKey(market: String, onResponse: OnResponseListener) : API() {
+        companion object {
+            var ID = 7
+        }
 
         init {
-            this.ID = 7
-            this.requestName = javaClass.simpleName
-            this.onResponse = onResponse
-            this.method = Method.POST
-            this.url = "$BASE_API/billing/get-key"
+            _ID = ID
+            _name = javaClass.simpleName
+            _onResponse = onResponse
+            _method = Method.POST
+            _url = "$BASE_API/billing/get-key"
             val params = HashMap<String, Any>()
             params["market"] = market
-            this.params = params
+            _params = params
         }
 
     }
 
     class GetSKU(onResponse: OnResponseListener) : API() {
+        companion object {
+            var ID = 8
+        }
+
         init {
-            this.ID = 8
-            this.requestName = javaClass.simpleName
-            this.onResponse = onResponse
-            this.method = Method.GET
-            this.url = "$BASE_API/billing/get-sku"
+            _ID = ID
+            _name = javaClass.simpleName
+            _onResponse = onResponse
+            _method = Method.GET
+            _url = "$BASE_API/billing/get-sku"
         }
 
     }
 
 
     class GetPayload(onResponse: OnResponseListener) : API() {
+        companion object {
+            var ID = 9
+        }
+
         init {
-            this.ID = 9
-            this.requestName = javaClass.simpleName
-            this.onResponse = onResponse
-            this.method = Method.GET
-            this.url = "$BASE_API/billing/get-payload"
+            _ID = ID
+            _name = javaClass.simpleName
+            _onResponse = onResponse
+            _method = Method.GET
+            _url = "$BASE_API/billing/get-payload"
         }
 
     }
@@ -169,13 +191,16 @@ open class API : Request() {
         onResponse: OnResponseListener
     ) :
         API() {
+        companion object {
+            var ID = 10
+        }
 
         init {
-            this.ID = 10
-            this.requestName = javaClass.simpleName
-            this.onResponse = onResponse
-            this.method = Method.POST
-            this.url = "$BASE_API/billing/verify-token"
+            _ID = ID
+            _name = javaClass.simpleName
+            _onResponse = onResponse
+            _method = Method.POST
+            _url = "$BASE_API/billing/verify-token"
             val params = HashMap<String, Any>()
             params["market"] = market
             params["sku"] = sku
@@ -183,7 +208,7 @@ open class API : Request() {
             params["token"] = token
             params["payload"] = payload
             params["data"] = extraData
-            this.params = params
+            _params = params
         }
 
     }

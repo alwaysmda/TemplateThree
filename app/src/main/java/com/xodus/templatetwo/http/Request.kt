@@ -11,24 +11,24 @@ open class Request {
 
 
 
-    var ID: Int = 0
-    var tag: String = ""
-    var method: Method = Method.GET
-    var url: String = ""
-    var requestName: String = ""
-    var headers: HashMap<String, String> = HashMap()
-    var params: HashMap<String, Any> = HashMap()
-    var raw: String = ""
-    var retryMax: Int = 0
-    var retryAttempt: Int = 0
-    lateinit var onResponse : OnResponseListener
+    var _ID: Int = 0
+    var _tag: String = ""
+    var _method: Method = Method.GET
+    var _url: String = ""
+    var _name: String = ""
+    var _headers: HashMap<String, String> = HashMap()
+    var _params: HashMap<String, Any> = HashMap()
+    var _raw: String = ""
+    var _retryMax: Int = 0
+    var _retryAttempt: Int = 0
+    lateinit var _onResponse : OnResponseListener
 
     fun putHeader(key: String, value: String) {
-        headers[key] = value
+        _headers[key] = value
     }
 
     fun addRetryAttempt() {
-        retryAttempt++
+        _retryAttempt++
     }
 
 
@@ -37,21 +37,21 @@ open class Request {
         val paramObject = JSONObject()
         val headerObject = JSONObject()
         try {
-                for (key in params.keys) {
-                    paramObject.put(key, params[key])
+                for (key in _params.keys) {
+                    paramObject.put(key, _params[key])
                 }
-                for (key in headers.keys) {
-                    headerObject.put(key, headers[key])
+                for (key in _headers.keys) {
+                    headerObject.put(key, _headers[key])
                 }
-            jsonObject.put("id", ID)
-            jsonObject.put("method", method)
-            jsonObject.put("url", url)
-            jsonObject.put("name", requestName)
-            jsonObject.put("raw", raw)
+            jsonObject.put("id", _ID)
+            jsonObject.put("method", _method)
+            jsonObject.put("url", _url)
+            jsonObject.put("name", _name)
+            jsonObject.put("raw", _raw)
             jsonObject.put("params", paramObject)
             jsonObject.put("headers", headerObject)
-            jsonObject.put("retry_max", retryMax)
-            jsonObject.put("retry_attempt", retryAttempt)
+            jsonObject.put("retry_max", _retryMax)
+            jsonObject.put("retry_attempt", _retryAttempt)
         } catch (e: JSONException) {
             e.printStackTrace()
         }

@@ -38,9 +38,9 @@ class TemplateFragment : BaseFragment(), View.OnClickListener, OnResponseListene
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-//        if (!EventBus.getDefault().isRegistered(this)) {
-//            EventBus.getDefault().register(this)
-//        }
+        //        if (!EventBus.getDefault().isRegistered(this)) {
+        //            EventBus.getDefault().register(this)
+        //        }
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         init(view)
         setupToolbar(view)
@@ -55,9 +55,48 @@ class TemplateFragment : BaseFragment(), View.OnClickListener, OnResponseListene
         //View
         v.home_tvMessage.text = getID()
 
-//        var adapter = TemplateAdapter(appClass, ArrayList()) { viewHolder, view, i -> onRecyclerItemClick(viewHolder,view,i)}
-//       client.request(API.GET("https://www.httpbin.org/get",this))
+//        var adapter = TemplateAdapter(appClass, ArrayList()) { viewHolder, view, i -> onRecyclerItemClick(viewHolder, view, i) }
+//        client.request(API.Get(this, "https://www.httpbin.org/get"))
+        val items = ArrayList<String>()
+        items.add("123")
+        items.add("234")
+        items.add("345")
+        items.add("567")
 
+        val second = ArrayList<String>()
+
+        val a: Boolean = items.all { it.isNotEmpty() } //boolean : if lambda condition is valid for all
+        val b: Boolean = items.any { it.isEmpty() } //boolean : if lambda is valid for any
+        val c: Any = items.getOrElse(6) { items.size * 2 } //String or Any : returns item in index or the function result (can be type) if null
+        val d: Int = items.count { it.length < 5 } //int : number of items with lambda condition
+        val e: String = items.last { it.contains("3") } //String : the last item with lambda condition
+        val f: String = items.first { it.contains("3") } //String : the first item with lambda condition
+        val g: List<Int> = items.map { it.length } //List : ArrayList of lambda condition result
+        val h: List<Boolean> = items.map { it.contains("3") } //List : ArrayList of lambda condition result
+        val i: ArrayList<String> = items.mapTo(second, { it }) //ArrayList : ArrayList of lambda condition result (destination and result are same)
+        val j: Map<String, Int> = items.associate { Pair(it + "K", it.length) } //Map<String,T> : created map in lambda condition
+        val k: Map<String, Int> = items.associateBy({ it + "K" }, { it.length }) //Map<String,Any> : created map in lambda conditions. first is for key, second is for value
+        val l: Unit = items.sortBy { it.length } // Unit : sorts the list
+        val m: Unit = items.forEach { second.add(it) } //Unit : loops through the list
+
+
+        val result: ArrayList<Any> = ArrayList()
+        result.add(a)
+        result.add(b)
+        result.add(c)
+        result.add(d)
+        result.add(e)
+        result.add(f)
+        result.add(g)
+        result.add(h)
+        result.add(i)
+        result.add(j)
+        result.add(k)
+        result.add(l)
+        result.add(m)
+        result.forEach {
+            log(it.javaClass.simpleName + " : " + it)
+        }
     }
 
     private fun setupToolbar(v: View) {
@@ -76,7 +115,7 @@ class TemplateFragment : BaseFragment(), View.OnClickListener, OnResponseListene
         when (v.id) {
             R.id.toolbar_tvTitle -> {
             }
-            R.id.home_tvMessage -> {
+            R.id.home_tvMessage  -> {
             }
         }
     }

@@ -51,6 +51,27 @@ class Client(private val context: Context) {
             .writeTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .build()
+//        var clientBuilder = OkHttpClient.Builder()
+//            .hostnameVerifier { _, _ -> true }
+//            .connectTimeout(30, TimeUnit.SECONDS)
+//            .writeTimeout(30, TimeUnit.SECONDS)
+//            .readTimeout(30, TimeUnit.SECONDS)
+//        clientBuilder = getCertificatePinner()?.let {
+//            clientBuilder.certificatePinner(it)
+//        }.run {
+//            clientBuilder
+//        }
+//        clientBuilder = getProxy()?.let {
+//            clientBuilder.proxy(it)
+//        }.run {
+//            clientBuilder
+//        }
+//        clientBuilder = getProxyAuthenticator()?.let {
+//            clientBuilder.proxyAuthenticator(it)
+//        }.run {
+//            clientBuilder
+//        }
+//        client = clientBuilder.build()
     }
 
     private fun initCallback() {
@@ -105,13 +126,13 @@ class Client(private val context: Context) {
             override fun onResponse(call: Call, res: okhttp3.Response) {
                 val request = requestList[res.request().tag()]
                 requestList.remove(res.request().tag())
-                val directory = File(request?.params?.get(API.PARAM_NAME_DOWNLOAD_PATH)?.toString())
+                val directory = File(request?._params?.get(API.PARAM_NAME_DOWNLOAD_PATH)?.toString())
                 if (!directory.exists()) {
                     directory.mkdirs()
                 }
                 val file = File(
-                    request?.params?.get(API.PARAM_NAME_DOWNLOAD_PATH)?.toString(),
-                    request?.params?.get(API.PARAM_NAME_DOWNLOAD_NAME)?.toString()
+                    request?._params?.get(API.PARAM_NAME_DOWNLOAD_PATH)?.toString(),
+                    request?._params?.get(API.PARAM_NAME_DOWNLOAD_NAME)?.toString()
                 )
                 if (file.exists()) {
                     file.delete()
@@ -162,7 +183,7 @@ class Client(private val context: Context) {
                 Handler(context.mainLooper)
                     .post {
                         try {
-                            request.onResponse.onProgress(request, finalBytesWritten, totalSize, finalPercent)
+                            request._onResponse.onProgress(request, finalBytesWritten, totalSize, finalPercent)
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
@@ -205,7 +226,7 @@ class Client(private val context: Context) {
         requestBuilder.tag(tag)
         requestList[tag] = request
         val call: Call
-        when (request.method) {
+        when (request._method) {
             DOWNLOAD -> {
                 call = client!!.newCall(requestBuilder.url(url).get().build())
                 call.enqueue(callbackFile)
@@ -237,7 +258,7 @@ class Client(private val context: Context) {
         var message = ""
         var url: URL? = null
         try {
-            url = URL(request.url)
+            url = URL(request._url)
             val uri = URI(url.protocol, url.userInfo, url.host, url.port, url.path, url.query, url.ref)
             url = uri.toURL()
         } catch (e: MalformedURLException) {
@@ -257,8 +278,8 @@ class Client(private val context: Context) {
     }
 
     private fun applyHeaders(request: Request) {
-        for (key in request.headers.keys) {
-            val item = request.headers[key]
+        for (key in request._headers.keys) {
+            val item = request._headers[key]
             if (item != null) {
                 requestBuilder.addHeader(key, item)
             }
@@ -268,14 +289,14 @@ class Client(private val context: Context) {
     private fun applyParams(request: Request) {
         val body = MultipartBody.Builder()
 
-        when (request.method) {
+        when (request._method) {
             GET, DOWNLOAD -> {
             }
             POST, PUT, DELETE -> {
                 body.setType(MultipartBody.FORM)
-                if (request.params.isNotEmpty()) {
-                    for (key in request.params.keys) {
-                        val item = request.params[key]
+                if (request._params.isNotEmpty()) {
+                    for (key in request._params.keys) {
+                        val item = request._params[key]
                         if (item != null) {
                             if (item is File) {
                                 val file = item as File?
@@ -294,10 +315,10 @@ class Client(private val context: Context) {
                     requestBody = RequestBody.create(null, ByteArray(0))
                 }
             }
-            RAW -> requestBody = if (request.raw.isEmpty()) {
+            RAW -> requestBody = if (request._raw.isEmpty()) {
                 RequestBody.create(MediaType.parse("application/json; charset=utf-8"), ByteArray(0))
             } else {
-                RequestBody.create(MediaType.parse("application/json; charset=utf-8"), request.raw)
+                RequestBody.create(MediaType.parse("application/json; charset=utf-8"), request._raw)
             }
         }
     }
@@ -307,12 +328,12 @@ class Client(private val context: Context) {
     }
 
     private fun responseHandler(response: Response) {
-        if (response.status === FAILURE && response.request.retryMax > response.request.retryMax) {
+        if (response.status === FAILURE && response.request._retryMax > response.request._retryMax) {
             response.request.addRetryAttempt()
             request(response.request)
             return
         }
-        response.request.onResponse.onResponse(response)
+        response.request._onResponse.onResponse(response)
         when (response.statusName) {
             NoInternetConnection//0
             -> MaterialDialog.Builder(context)
@@ -320,7 +341,7 @@ class Client(private val context: Context) {
                 .title("No Connection")
                 .content("Please check your internet connection and try again.")
                 .positiveText("Retry").onPositive { dialog, _ ->
-                    response.request.retryAttempt = 0
+                    response.request._retryAttempt = 0
                     request(response.request)
                     dialog.dismiss()
                 }

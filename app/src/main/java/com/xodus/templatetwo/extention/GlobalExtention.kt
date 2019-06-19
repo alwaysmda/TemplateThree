@@ -958,26 +958,19 @@ fun <T : Any> extractModel(obj: T, output: String): String {
     return result
 }
 
-fun getStringLog(vararg s: String): String {
+fun getStringLog(vararg s: Any): String {
     val value = StringBuilder()
     for (item in s) {
-        value.append(item).append("\n")
+        value.append(item.toString()).append("\n")
     }
     return value.toString()
 }
 
-fun log(vararg s: String) {
-    log(false, *s)
+fun log(vararg s: Any) {
+    Log.e(BuildConfig.APPLICATION_ID.toUpperCase() + getLocation(3), getStringLog(*s))
 }
 
-fun log(toFile: Boolean, vararg s: String) {
-    Log.e(BuildConfig.APPLICATION_ID.toUpperCase() + getLocation(4), getStringLog(*s))
-    if (toFile) {
-        log(false, "log", *s)
-    }
-}
-
-fun Context.log(force: Boolean, toFile: Boolean, fileName: String, vararg s: String) {
+fun Context.logToFile(force: Boolean, fileName: String, vararg s: Any) {
     if (force || ApplicationClass().getInstance(this).getBooleanPref(Constant.PREF_LOG)) {
         try {
             Thread(Runnable {
@@ -1004,7 +997,6 @@ fun Context.log(force: Boolean, toFile: Boolean, fileName: String, vararg s: Str
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
     }
 }
 
@@ -1050,11 +1042,11 @@ fun convertTimestampToDate(timestamp: Long): String {
 
 fun convertDateToTimestamp(date: String, dateFormat: String): Long {
     val sdf = SimpleDateFormat(dateFormat)
-    try {
-        return sdf.parse(date).time
+    return try {
+        sdf.parse(date).time
     } catch (e: Exception) {
         e.printStackTrace()
-        return 0
+        0
     }
 
 }
@@ -1068,16 +1060,14 @@ fun convertTimestampToCalendar(timestamp: Long): Calendar {
 
 
 fun convertBundleToString(bundle: Bundle?): String {
-    var content: String
-    if (bundle == null) {
-        return "{}"
-    } else {
-        content = "Bundle :\n{\n"
-        for (key in bundle.keySet()) {
-            content += "\"" + key + "\":\"" + bundle.get(key) + "\",\n"
+   return bundle?.let {
+        var content = "Bundle :\n{\n"
+        for (key in it.keySet()) {
+            content += "\"" + key + "\":\"" + it.get(key) + "\",\n"
         }
-        content = content.substring(0, content.length - 2) + "\n}"
-        return content
+       content.substring(0, content.length - 2) + "\n}"
+    }.run {
+       "{}"
     }
 }
 
@@ -1136,13 +1126,13 @@ fun <T> convertListToJSONArray(list: List<T>): JSONArray {
 
 fun setTextViewGradient(textView: TextView, firstColor: Int, secondColor: Int, center: Boolean) {
     val shader: Shader
-    if (center) {
-        shader = RadialGradient(
+    shader = if (center) {
+        RadialGradient(
             (textView.width / 2).toFloat(), (textView.height / 2).toFloat(), (textView.width / 2).toFloat(),
             firstColor, secondColor, Shader.TileMode.MIRROR
         )
     } else {
-        shader = RadialGradient(
+        RadialGradient(
             textView.x, textView.y, textView.width.toFloat(),
             firstColor, secondColor, Shader.TileMode.MIRROR
         )
@@ -1202,7 +1192,7 @@ fun setEditTextCursorColor(view: EditText, @ColorInt color: Int) {
 }
 
 
-fun Context.setEditTextCursor(view: EditText, @DrawableRes drawable: Int) {
+fun setEditTextCursor(view: EditText, @DrawableRes drawable: Int) {
     try {
         val fEditor = TextView::class.java.getDeclaredField("mEditor")
         fEditor.isAccessible = true
@@ -1365,19 +1355,19 @@ fun Activity.shareImage(url: String?) {
         return
     }
     val client = Client(this)
-    client.request(API.Download(url, getDataDirectory().path, "temp.jpg", object : OnResponseListener {
+    client.request(API.Download(object : OnResponseListener {
         override fun onResponse(response: Response) {
             if (response.statusName === Response.StatusName.OK) {
                 shareImage(File(response.body))
             } else {
-                log("GlobalClass: shareImage: Error: download image failed: code: " + response.statusCode + " url: " + response.request!!.url)
+                log("GlobalClass: shareImage: Error: download image failed: code: " + response.statusCode + " url: " + response.request._url)
             }
         }
 
         override fun onProgress(request: Request, bytesWritten: Long, totalSize: Long, percent: Int) {
 
         }
-    }))
+    }, url, getDataDirectory().path, "temp.jpg"))
 }
 
 fun validateJSON(jsonString: String): Boolean {
