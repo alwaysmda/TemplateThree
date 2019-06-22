@@ -51,124 +51,64 @@ class BaseActivity : AppCompatActivity() {
     }
 
 
-    fun replace(fragment: BaseFragment) {
-        val frag =
-            supportFragmentManager.findFragmentByTag(currentTabIndex.toString() + fragment.javaClass.toString()) as BaseFragment
-        if (startMode == StartMode.MultiInstance) {
-            val fragmentTransaction = supportFragmentManager
-                .beginTransaction()
-                .setReorderingAllowed(true)
+    fun start(fragment: BaseFragment, replace: Boolean = false) {
+        val frag = supportFragmentManager.findFragmentByTag(currentTabIndex.toString() + fragment.javaClass.toString()) as BaseFragment?
+        val fragmentTransaction = supportFragmentManager
+            .beginTransaction()
+            .setReorderingAllowed(true)
 
-            val sharedElementList = currentFragment.getSharedElementListOut()
-            if (sharedElementList.isNotEmpty()) {
-                for (i in sharedElementList.indices) {
+        val sharedElementList = currentFragment.getSharedElementListOut()
+        if (sharedElementList.isNotEmpty()) {
+            for (i in sharedElementList.indices) {
+                if (sharedElementList[i].id != 0)
                     fragmentTransaction.addSharedElement(
                         sharedElementList[i].view!!,
-                        sharedElementList[i].tag!!
+                        sharedElementList[i].tag
                     )
-                }
-                fragment.sharedElementListIn = sharedElementList
             }
-
-            fragmentTransaction
-                .remove(currentFragment)
-                .add(R.id.main_frameLayout, fragment, currentTabIndex.toString() + fragment.javaClass.toString())
-                .commit()
-            fragmentTable[currentTabIndex].removeAt(fragmentTable[currentTabIndex].size - 1)
-            fragmentTable[currentTabIndex].add(fragment)
-            currentFragment = fragment
-        } else {
-            frag.arguments = fragment.arguments
-            val fragmentTransaction = supportFragmentManager
-                .beginTransaction()
-                .setReorderingAllowed(true)
-
-            val sharedElementList = currentFragment.getSharedElementListOut()
-            if (sharedElementList.isNotEmpty()) {
-                for (i in sharedElementList.indices) {
-                    fragmentTransaction.addSharedElement(
-                        sharedElementList[i].view!!,
-                        sharedElementList[i].tag!!
-                    )
-                }
-                fragment.sharedElementListIn = sharedElementList
-            }
-
-            fragmentTransaction
-                .remove(currentFragment)
-                .show(frag)
-                .commit()
-            fragmentTable[currentTabIndex].removeAt(fragmentTable[currentTabIndex].size - 1)
-            for (i in 0 until fragmentTable[currentTabIndex].size) {
-                if (fragmentTable[currentTabIndex][i].tag.equals(currentTabIndex.toString() + fragment.javaClass.toString())) {
-                    fragmentTable[currentTabIndex].removeAt(i)
-                    fragmentTable[currentTabIndex].add(frag)
-                    break
-                }
-            }
-            currentFragment = frag
+            fragment.sharedElementListIn = sharedElementList
         }
+
+        if (replace) {
+            fragmentTransaction.remove(currentFragment)
+            if (frag == null || startMode == StartMode.MultiInstance) {
+                fragmentTransaction.add(R.id.main_frameLayout, fragment, currentTabIndex.toString() + fragment.javaClass.toString())
+                currentFragment = fragment
+                fragmentTable[currentTabIndex].removeAt(fragmentTable[currentTabIndex].size - 1)
+                fragmentTable[currentTabIndex].add(currentFragment)
+            } else {
+                fragmentTransaction.show(frag)
+                currentFragment = frag
+                fragmentTable[currentTabIndex].removeAt(fragmentTable[currentTabIndex].size - 1)
+                for (i in 0 until fragmentTable[currentTabIndex].size) {
+                    if (fragmentTable[currentTabIndex][i].tag.equals(currentTabIndex.toString() + fragment.javaClass.toString())) {
+                        fragmentTable[currentTabIndex].removeAt(i)
+                        fragmentTable[currentTabIndex].add(currentFragment)
+                        break
+                    }
+                }
+            }
+        } else {
+            fragmentTransaction.hide(currentFragment)
+            if (frag == null || startMode == StartMode.MultiInstance) {
+                fragmentTransaction.add(R.id.main_frameLayout, fragment, currentTabIndex.toString() + fragment.javaClass.toString())
+                currentFragment = fragment
+                fragmentTable[currentTabIndex].add(currentFragment)
+            } else {
+                fragmentTransaction.show(frag)
+                currentFragment = frag
+                for (i in 0 until fragmentTable[currentTabIndex].size) {
+                    if (fragmentTable[currentTabIndex][i].tag.equals(currentTabIndex.toString() + fragment.javaClass.toString())) {
+                        fragmentTable[currentTabIndex].removeAt(i)
+                        fragmentTable[currentTabIndex].add(currentFragment)
+                        break
+                    }
+                }
+            }
+        }
+        fragmentTransaction.commit()
     }
 
-
-    fun start(fragment: BaseFragment) {
-        val frag =
-            supportFragmentManager.findFragmentByTag(currentTabIndex.toString() + fragment.javaClass.toString()) as BaseFragment
-        if (startMode == StartMode.MultiInstance) {
-            val fragmentTransaction = supportFragmentManager
-                .beginTransaction()
-                .setReorderingAllowed(true)
-
-            val sharedElementList = currentFragment.getSharedElementListOut()
-            if (sharedElementList.isNotEmpty()) {
-                for (i in sharedElementList.indices) {
-                    if (sharedElementList[i].id != 0)
-                        fragmentTransaction.addSharedElement(
-                            sharedElementList[i].view!!,
-                            sharedElementList[i].tag!!
-                        )
-                }
-                fragment.sharedElementListIn = sharedElementList
-            }
-
-            fragmentTransaction
-                .hide(currentFragment)
-                .add(R.id.main_frameLayout, fragment, currentTabIndex.toString() + fragment.javaClass.toString())
-                .commit()
-            fragmentTable[currentTabIndex].add(fragment)
-            currentFragment = fragment
-        } else {
-            frag.arguments = fragment.arguments
-            val fragmentTransaction = supportFragmentManager
-                .beginTransaction()
-                .setReorderingAllowed(true)
-
-            val sharedElementList = currentFragment.getSharedElementListOut()
-            if (sharedElementList.isNotEmpty()) {
-                for (i in sharedElementList.indices) {
-                    if (sharedElementList[i].id != 0)
-                        fragmentTransaction.addSharedElement(
-                            sharedElementList[i].view!!,
-                            sharedElementList[i].tag!!
-                        )
-                }
-                fragment.sharedElementListIn = sharedElementList
-            }
-
-            fragmentTransaction
-                .show(frag)
-                .hide(currentFragment)
-                .commit()
-            currentFragment = frag
-            for (i in 0 until fragmentTable[currentTabIndex].size) {
-                if (fragmentTable[currentTabIndex][i].tag.equals(currentTabIndex.toString() + fragment.javaClass.toString())) {
-                    fragmentTable[currentTabIndex].removeAt(i)
-                    fragmentTable[currentTabIndex].add(currentFragment)
-                }
-            }
-            currentFragment = frag
-        }
-    }
 
     fun show(fragment: BaseFragment) {
         val fragmentTransaction = supportFragmentManager
@@ -180,7 +120,7 @@ class BaseActivity : AppCompatActivity() {
             for (i in sharedElementList.indices) {
                 fragmentTransaction.addSharedElement(
                     sharedElementList[i].view!!,
-                    sharedElementList[i].tag!!
+                    sharedElementList[i].tag
                 )
             }
             fragment.sharedElementListIn = sharedElementList
@@ -335,30 +275,23 @@ class BaseActivity : AppCompatActivity() {
                     .setReorderingAllowed(true)
                 val sharedElementList = currentFragment.sharedElementListIn
                 if (currentFragment.view != null && sharedElementList.isNotEmpty()) {
-                    val recyclerView =
-                        currentFragmentList[currentFragmentList.size - 2].sharedElementRecyclerView
+                    val recyclerView = currentFragmentList[currentFragmentList.size - 2].sharedElementRecyclerView
                     recyclerView?.let { rv ->
-                        {
-                            val tag = currentFragment.sharedElementRecyclerViewReturnView?.tag.toString()
-                            val holder =
-                                rv.findViewHolderForAdapterPosition(currentFragment.sharedElementRecyclerViewPosition)
-                            holder?.let { viewHolder ->
-                                val view: View? =
-                                    viewHolder.itemView.findViewById(currentFragmentList[currentFragmentList.size - 2].sharedElementRecyclerViewViewID)
-                                view?.let { _view ->
-                                    ViewCompat.setTransitionName(_view, tag)
-                                    fragmentTransaction.addSharedElement(_view, tag)
-                                }
+                        val tag = currentFragment.sharedElementRecyclerViewReturnView?.tag.toString()
+                        val holder = rv.findViewHolderForAdapterPosition(currentFragment.sharedElementRecyclerViewPosition)
+                        holder?.let { viewHolder ->
+                            val view: View? = viewHolder.itemView.findViewById(currentFragmentList[currentFragmentList.size - 2].sharedElementRecyclerViewViewID)
+                            view?.let { _view ->
+                                ViewCompat.setTransitionName(_view, tag)
+                                fragmentTransaction.addSharedElement(_view, tag)
                             }
                         }
                     } ?: run {
                         for (i in sharedElementList.indices) {
                             if (sharedElementList[i].isEnable) {
                                 val tag = sharedElementList[i].tag
-                                tag?.let { string ->
-                                    val view: View? = currentFragment.view?.findViewWithTag(string)
-                                    view?.let { fragmentTransaction.addSharedElement(it, string) }
-                                }
+                                val view: View? = currentFragment.view?.findViewWithTag(tag)
+                                view?.let { fragmentTransaction.addSharedElement(it, tag) }
                             }
                         }
                     }

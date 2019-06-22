@@ -171,7 +171,7 @@ open class BaseFragment : Fragment() {
      * @param fragment the desired fragment to start
      */
     fun replace(fragment: BaseFragment) {
-        baseActivity.replace(fragment)
+        baseActivity.start(fragment, true)
     }
 
     /**
