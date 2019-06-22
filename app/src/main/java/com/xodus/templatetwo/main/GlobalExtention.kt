@@ -622,7 +622,7 @@ fun createFileFromString(data: String?, inputPath: String, fileName: String): Bo
 
         Log.e(Constant.TAG.toString(), "History File Created")
         return true
-    }.run {
+    } ?: run {
         Log.e(Constant.TAG.toString(), "No Data")
         return false
     }
@@ -1069,7 +1069,7 @@ fun convertBundleToString(bundle: Bundle?): String {
             content += "\"" + key + "\":\"" + it.get(key) + "\",\n"
         }
        content.substring(0, content.length - 2) + "\n}"
-    }.run {
+    } ?: run {
        "{}"
     }
 }
@@ -1429,7 +1429,7 @@ fun getIntentImages(data: Intent): ArrayList<Uri> {
     val uriList = ArrayList<Uri>()
     data.data?.let {
         uriList.add(it)
-    }.run {
+    } ?: run {
         data.clipData?.let {
             for (i in 0 until it.itemCount) {
                 uriList.add(it.getItemAt(i).uri)

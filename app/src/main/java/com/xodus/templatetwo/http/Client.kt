@@ -58,17 +58,17 @@ class Client(private val context: Context) {
         //            .readTimeout(30, TimeUnit.SECONDS)
         //        clientBuilder = getCertificatePinner()?.let {
         //            clientBuilder.certificatePinner(it)
-        //        }.run {
+        //        } ?: run {
         //            clientBuilder
         //        }
         //        clientBuilder = getProxy()?.let {
         //            clientBuilder.proxy(it)
-        //        }.run {
+        //        } ?: run {
         //            clientBuilder
         //        }
         //        clientBuilder = getProxyAuthenticator()?.let {
         //            clientBuilder.proxyAuthenticator(it)
-        //        }.run {
+        //        } ?: run {
         //            clientBuilder
         //        }
         //        client = clientBuilder.build()
