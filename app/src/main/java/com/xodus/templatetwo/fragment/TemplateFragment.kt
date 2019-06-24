@@ -13,6 +13,7 @@ import com.xodus.templatetwo.http.OnResponseListener
 import com.xodus.templatetwo.http.Request
 import com.xodus.templatetwo.http.Response
 import com.xodus.templatetwo.main.BaseFragment
+import com.xodus.templatetwo.main.getShape
 import kotlinx.android.synthetic.main.fragment_home.view.*
 import kotlinx.android.synthetic.main.toolbar_template.view.*
 import org.greenrobot.eventbus.EventBus
@@ -58,6 +59,7 @@ class TemplateFragment : BaseFragment(), View.OnClickListener, OnResponseListene
         //        client.request(API.Get(this, "https://www.httpbin.org/get"))
 
         doKotlin()
+
     }
 
     private fun doKotlin() {
@@ -155,7 +157,7 @@ class TemplateFragment : BaseFragment(), View.OnClickListener, OnResponseListene
     }
 
     fun onRecyclerItemClick(viewHolder: RecyclerView.ViewHolder, view: View?, position: Int) {
-        context?.toast("Item $position of type ${view?.javaClass?.simpleName} is clicked!")
+        toast("Item $position of type ${view?.javaClass?.simpleName} is clicked!")
     }
 
     override fun onResponse(response: Response) {

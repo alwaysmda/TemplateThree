@@ -1,6 +1,5 @@
 package com.xodus.templatetwo.adapter
 
-import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -11,7 +10,6 @@ import com.xodus.templatetwo.model.Template
 import kotlinx.android.synthetic.main.row_template.view.*
 
 class TemplateAdapter(
-    private val context: Context,
     val list: ArrayList<Template>,
     val action: (TemplateViewHolder, View?, Int) -> (Unit)
 ) : RecyclerView.Adapter<TemplateAdapter.TemplateViewHolder>() {
@@ -40,7 +38,7 @@ class TemplateAdapter(
     }
 
     fun updateList(newList: ArrayList<Template>) {
-        val diffResult = DiffUtil.calculateDiff( object : DiffUtil.Callback() {
+        val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
             override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
                 TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
             }

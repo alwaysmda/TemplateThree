@@ -20,14 +20,12 @@ import java.util.ArrayList
 
 class BaseActivity : AppCompatActivity() {
 
-    lateinit var appClass: ApplicationClass
     private lateinit var fragmentTable: ArrayList<ArrayList<BaseFragment>>
     private lateinit var currentFragment: BaseFragment
     private var currentTabIndex = 0
     private val startMode = StartMode.MultiInstance
     private val exitMode = ExitMode.BackToFirstTab
     private var barHeight: Int = 0
-    lateinit var client: Client
 
     private enum class StartMode {
         SingleInstance, MultiInstance
@@ -41,8 +39,6 @@ class BaseActivity : AppCompatActivity() {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_base)
-        appClass = ApplicationClass().getInstance(this)
-        client = Client(this)
         initFragmentTable(
             TemplateFragment.newInstance()
         )

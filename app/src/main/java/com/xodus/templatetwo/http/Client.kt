@@ -28,9 +28,16 @@ import java.net.URL
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class Client(private val context: Context) {
-    private val appClass: ApplicationClass = ApplicationClass().getInstance(context)
-    lateinit private var client: OkHttpClient
+class Client() {
+    companion object{
+        @Volatile private var instance : Client? = null
+        fun getInstance() = instance ?: synchronized(this) {
+            instance ?: Client().also { instance = it }
+        }
+    }
+
+    private val appClass: ApplicationClass = ApplicationClass.getInstance()
+    private lateinit var client: OkHttpClient
     private lateinit var requestBuilder: okhttp3.Request.Builder
     private lateinit var requestBody: RequestBody
     private lateinit var callbackString: Callback
@@ -78,7 +85,7 @@ class Client(private val context: Context) {
 
         callbackString = object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Handler(context.mainLooper)
+                Handler(appClass.mainLooper)
                     .post {
                         val response =
                             Response(requestList[call.request().tag()]!!, 0, null, e.message ?: "", FAILURE)
@@ -91,7 +98,7 @@ class Client(private val context: Context) {
             override fun onResponse(call: Call, res: okhttp3.Response) {
                 try {
                     val result = res.body()!!.string()
-                    Handler(context.mainLooper)
+                    Handler(appClass.mainLooper)
                         .post {
                             val response = Response(
                                 requestList[res.request().tag()]!!,
@@ -113,7 +120,7 @@ class Client(private val context: Context) {
 
         callbackFile = object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Handler(context.mainLooper)
+                Handler(appClass.mainLooper)
                     .post {
                         val response = Response(requestList[call.request().tag()]!!, 0, null, e.message ?: "", FAILURE)
                         requestList.remove(call.request().tag())
@@ -148,7 +155,7 @@ class Client(private val context: Context) {
                 val sink = Okio.buffer(Okio.sink(file))
                 handleWrites(request, sink, res.body()!!.source(), res.body()!!.contentLength())
                 sink.close()
-                Handler(context.mainLooper)
+                Handler(appClass.mainLooper)
                     .post {
                         try {
                             responseHandler(response)
@@ -180,7 +187,7 @@ class Client(private val context: Context) {
                 }
                 val finalBytesWritten = bytesWritten
                 val finalPercent = percent
-                Handler(context.mainLooper)
+                Handler(appClass.mainLooper)
                     .post {
                         try {
                             request._onResponse.onProgress(request, finalBytesWritten, totalSize, finalPercent)
@@ -198,17 +205,17 @@ class Client(private val context: Context) {
         if (appClass.getStringPref(Constant.PREF_ACCESS_TOKEN) != null) {
             request.putHeader("Authorization", "Bearer " + appClass.getStringPref(Constant.PREF_ACCESS_TOKEN))
         }
-        request.putHeader("Device-Id", appClass.getAndroidID())
+        request.putHeader("Device-Id", getAndroidID())
         request.putHeader(
             "User-Agent",
             (BuildConfig.APPLICATION_ID.substring(BuildConfig.APPLICATION_ID.lastIndexOf('.')).toUpperCase()
                     + " "
-                    + appClass.getPackageInfo().versionName
+                    + getPackageInfo().versionName
                     + " (Android; "
-                    + PackageInfoCompat.getLongVersionCode(appClass.getPackageInfo()) + "; "
+                    + PackageInfoCompat.getLongVersionCode(getPackageInfo()) + "; "
                     + BuildConfig.MARKET + "; "
                     + "IR; "
-                    + appClass.getAndroidID()
+                    + getAndroidID()
                     + "; "
                     + appClass.getStringPref(Constant.PREF_LANGUAGE) + ")")
         )
@@ -335,7 +342,7 @@ class Client(private val context: Context) {
         response.request._onResponse.onResponse(response)
         when (response.statusName) {
             NoInternetConnection //0
-            -> MaterialDialog.Builder(context)
+            -> MaterialDialog.Builder(appClass)
                 .cancelable(false)
                 .title("No Connection")
                 .content("Please check your internet connection and try again.")

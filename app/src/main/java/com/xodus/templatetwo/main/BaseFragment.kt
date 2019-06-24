@@ -58,8 +58,8 @@ open class BaseFragment : Fragment() {
             sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
         }
         baseActivity = activity as BaseActivity
-        appClass = baseActivity.appClass
-        client = baseActivity.client
+        appClass = ApplicationClass.getInstance()
+        client = Client.getInstance()
     }
 
     private fun setBase() {

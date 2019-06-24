@@ -8,17 +8,21 @@ import android.content.Context
 import android.content.Intent
 import com.pddstudio.preferences.encrypted.EncryptedPreferences
 import com.xodus.templatetwo.BuildConfig
-import com.xodus.templatetwo.MainActivity
 import com.xodus.templatetwo.billing.Market
 import com.xodus.templatetwo.main.Constant.*;
 
 open class ApplicationClass : Application() {
+    companion object {
+        @Volatile private lateinit var instance : ApplicationClass
+        fun getInstance() = instance
+    }
 
     private lateinit var encryptedPreferences: EncryptedPreferences
     private lateinit var market: Market
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
         encryptedPreferences = EncryptedPreferences.Builder(this).withEncryptionPassword(BuildConfig.APPLICATION_ID).build()
         market = when (BuildConfig.FLAVOR) {
             "bazaar"   -> Market.init(Market.MarketType.BAZAAR)
@@ -69,7 +73,7 @@ open class ApplicationClass : Application() {
 
 
     fun handleUncaughtException(paramThread: Thread, paramThrowable: Throwable) {
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, BaseActivity::class.java)
         intent.putExtra("crash", true)
         intent.putExtra("message", paramThrowable.toString())
         intent.putExtra("method", getStringPref(PREF_CURRENT_METHOD))
@@ -115,9 +119,5 @@ open class ApplicationClass : Application() {
                 + "\n Line No.: " + Integer.toString(mCrashInfo!!.throwLineNumber)
                 + CharCategory.LINE_SEPARATOR)
         //          + "Class: " + crashInfo.throwClassName + LINE_SEPARATOR
-    }
-
-    fun getInstance(context: Context): ApplicationClass {
-        return context.applicationContext as ApplicationClass
     }
 }

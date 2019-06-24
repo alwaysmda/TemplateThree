@@ -1,5 +1,6 @@
 package com.xodus.templatetwo.main
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlarmManager
 import android.app.Application
@@ -133,22 +134,13 @@ fun getRandomInt(length: Int): Int {
     return Integer.valueOf(sb.toString())
 }
 
-
-fun Context.translateToPersian(c: Int): String {
-    return translateToPersian(c.toString())
-}
-
-fun translateToEnglish(c: Int): String {
-    return translateToEnglish(c.toString())
-}
-
-fun Context.translateToPersian(_c: String): String {
-    var c = _c
+fun translateToPersian(_c: Any): String {
+    var c = _c.toString()
     val enN = arrayOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
     val faN = arrayOf("۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹")
 
 
-    if (ApplicationClass().getInstance(this).getStringPref(Constant.PREF_LANGUAGE).equals("fa")) {
+    if (ApplicationClass.getInstance().getStringPref(Constant.PREF_LANGUAGE).equals("fa")) {
         for (i in 0..9) {
             c = c.replace(enN[i], faN[i])
         }
@@ -160,8 +152,8 @@ fun Context.translateToPersian(_c: String): String {
     return c
 }
 
-fun translateToEnglish(_c: String): String {
-    var c = _c
+fun translateToEnglish(_c: Any): String {
+    var c = _c.toString()
     val faN = arrayOf("۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹")
     val enN = arrayOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
     for (i in 0..9) {
@@ -171,7 +163,7 @@ fun translateToEnglish(_c: String): String {
 }
 
 
-fun Context.getShape(
+fun getShape(
     orientation: GradientDrawable.Orientation,
     firstColor: Int,
     secondColor: Int,
@@ -202,7 +194,7 @@ fun Context.getShape(
     return shape
 }
 
-fun Context.getShape(
+fun getShape(
     orientation: GradientDrawable.Orientation,
     firstColor: Int,
     secondColor: Int,
@@ -230,7 +222,7 @@ fun Context.getShape(
     )
 }
 
-fun Context.getShape(
+fun getShape(
     orientation: GradientDrawable.Orientation,
     firstColor: Int,
     secondColor: Int,
@@ -241,7 +233,7 @@ fun Context.getShape(
     return getShape(orientation, firstColor, secondColor, borderColor, borderWidth, radius, radius, radius, radius)
 }
 
-fun Context.getShape(
+fun getShape(
     orientation: GradientDrawable.Orientation,
     firstColor: Int,
     secondColor: Int,
@@ -260,7 +252,7 @@ fun Context.getShape(
     )
 }
 
-fun Context.getShape(
+fun getShape(
     backgroundColor: Int,
     borderColor: Int,
     borderWidth: Int,
@@ -279,12 +271,12 @@ fun Context.getShape(
     )
 }
 
-fun Context.getShape(
+fun getShape(
     backgroundColor: Int,
     topLeftRadius: Int,
-    topRightRadius: Int,
-    downRightRadius: Int,
-    downLeftRadius: Int
+    topRightRadius: Int = topLeftRadius,
+    downRightRadius: Int = topLeftRadius,
+    downLeftRadius: Int = topLeftRadius
 ): GradientDrawable {
     return getShape(
         GradientDrawable.Orientation.RIGHT_LEFT,
@@ -299,35 +291,18 @@ fun Context.getShape(
     )
 }
 
-fun Context.getShape(
-    backgroundColor: Int,
-    radius: Int
-): GradientDrawable {
-    return getShape(
-        GradientDrawable.Orientation.RIGHT_LEFT,
-        backgroundColor,
-        backgroundColor,
-        R.color.md_transparent_1000,
-        0,
-        radius,
-        radius,
-        radius,
-        radius
-    )
-}
-
-fun Context.convertImageToBase64(imageResource: Int): String {
-    val bm = BitmapFactory.decodeResource(resources, imageResource)
+fun convertImageToBase64(imageResource: Int): String {
+    val bm = BitmapFactory.decodeResource(ApplicationClass.getInstance().resources, imageResource)
     val baos = ByteArrayOutputStream()
     bm.compress(Bitmap.CompressFormat.JPEG, 100, baos) //bm is the bitmap object
     val b = baos.toByteArray()
     return Base64.encodeToString(b, Base64.DEFAULT)
 }
 
-fun Context.convertBase64ToBitmapDrawable(encodedBase64String: String): BitmapDrawable {
+fun convertBase64ToBitmapDrawable(encodedBase64String: String): BitmapDrawable {
     val decodedString = Base64.decode(encodedBase64String, Base64.DEFAULT)
     val decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
-    return BitmapDrawable(resources, decodedByte)
+    return BitmapDrawable(ApplicationClass.getInstance().resources, decodedByte)
 }
 
 fun reduceBitmapQuality(bitmap: Bitmap, format: Bitmap.CompressFormat, quality: Int): Bitmap {
@@ -377,31 +352,29 @@ fun pathToBitmap(path: String): Bitmap? {
     }
 }
 
-fun Context.convertBitmapToDrawable(bitmap: Bitmap): Drawable {
-    return BitmapDrawable(resources, bitmap)
+fun convertBitmapToDrawable(bitmap: Bitmap): Drawable {
+    return BitmapDrawable(ApplicationClass.getInstance().resources, bitmap)
 }
 
-fun Context.convertDrawableToBitmap(resourceId: Int): Bitmap {
-    return BitmapFactory.decodeResource(resources, resourceId)
+fun convertDrawableToBitmap(resourceId: Int): Bitmap {
+    return BitmapFactory.decodeResource(ApplicationClass.getInstance().resources, resourceId)
 }
 
 
 fun convertDrawableToBitmap(drawable: Drawable): Bitmap {
-    val bitmap: Bitmap?
+
     if (drawable is BitmapDrawable) {
-        if (drawable.bitmap != null) {
-            return drawable.bitmap
+        drawable.bitmap?.let {
+            return it
         }
     }
-
-    if (drawable.intrinsicWidth <= 0 || drawable.intrinsicHeight <= 0) {
-        bitmap =
-            Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888) // Single color bitmap will be created of 1x1 pixel
+    val bitmap = if (drawable.intrinsicWidth <= 0 || drawable.intrinsicHeight <= 0) {
+        Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888) // Single color bitmap will be created of 1x1 pixel
     } else {
-        bitmap = Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+        Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
     }
 
-    val canvas = Canvas(bitmap!!)
+    val canvas = Canvas(bitmap)
     drawable.setBounds(0, 0, canvas.width, canvas.height)
     drawable.draw(canvas)
     return bitmap
@@ -422,15 +395,15 @@ fun convertBitmapToFile(bitmap: Bitmap, path: String, fileName: String): File? {
     val bitmapdata = bos.toByteArray()
 
     //write the bytes in file
-    try {
+    return try {
         val fos = FileOutputStream(file)
         fos.write(bitmapdata)
         fos.flush()
         fos.close()
-        return file
+        file
     } catch (e: IOException) {
         e.printStackTrace()
-        return null
+        null
     }
 
 }
@@ -439,21 +412,19 @@ fun convertFileToBitmap(file: File): Bitmap {
     return BitmapFactory.decodeFile(file.path)
 }
 
-fun Context.getAndroidID(): String {
-    return Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+@SuppressLint("HardwareIds")
+fun getAndroidID(): String {
+    return Settings.Secure.getString(ApplicationClass.getInstance().contentResolver, Settings.Secure.ANDROID_ID)
 }
 
-fun getUUID(): String {
-    return UUID.randomUUID().toString()
-}
 
-fun getUUID(name: String): String {
+fun getUUID(name: String? = null): String {
     return UUID.fromString(name).toString()
 }
 
 
-fun Context.getPackageInfo(): PackageInfo {
-    return packageManager.getPackageInfo(packageName, 0)
+fun getPackageInfo(): PackageInfo {
+    return ApplicationClass.getInstance().packageManager.getPackageInfo(ApplicationClass.getInstance().packageName, 0)
 }
 
 fun getMCryptAESKey(password: String): String? {
@@ -504,12 +475,12 @@ fun moveFile(inputPath: String, inputFile: String, outputPath: String): Boolean 
 }
 
 fun deleteFile(inputPath: String, inputFile: String): Boolean {
-    try {
+    return try {
         // delete the original file
-        return File(inputPath + inputFile).delete()
+        File(inputPath + inputFile).delete()
     } catch (e: Exception) {
         Log.e("tag", e.message)
-        return false
+        false
     }
 
 }
@@ -652,34 +623,34 @@ private fun getSoftButtonsBarHeight(activity: Activity): Int {
     return 0
 }
 
-fun Context.getStatusBarHeight(): Int {
+fun getStatusBarHeight(): Int {
     var result = 0
-    val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+    val resourceId = ApplicationClass.getInstance().resources.getIdentifier("status_bar_height", "dimen", "android")
     if (resourceId > 0) {
-        result = resources.getDimensionPixelSize(resourceId)
+        result = ApplicationClass.getInstance().resources.getDimensionPixelSize(resourceId)
     }
     return result
 }
 
-fun Context.convertDPtoPX(dp: Float): Float {
-    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, resources.displayMetrics)
+fun convertDPtoPX(dp: Float): Float {
+    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, ApplicationClass.getInstance().resources.displayMetrics)
 }
 
-fun Context.convertPXtoDP(px: Float): Float {
-    return px / (resources.displayMetrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)
+fun convertPXtoDP(px: Float): Float {
+    return px / (ApplicationClass.getInstance().resources.displayMetrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)
 }
 
-fun Context.convertSPtoPX(sp: Float): Int {
-    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, resources.displayMetrics)
+fun convertSPtoPX(sp: Float): Int {
+    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, ApplicationClass.getInstance().resources.displayMetrics)
         .toInt()
 }
 
-fun Context.convertDPtoSP(dp: Float): Int {
-    return (convertDPtoPX(dp) / resources.displayMetrics.scaledDensity).toInt()
+fun convertDPtoSP(dp: Float): Int {
+    return (convertDPtoPX(dp) / ApplicationClass.getInstance().resources.displayMetrics.scaledDensity).toInt()
 }
 
-fun Context.getScreenDensity(): Float {
-    return resources.displayMetrics.density
+fun getScreenDensity(): Float {
+    return ApplicationClass.getInstance().resources.displayMetrics.density
 }
 
 fun getColor(view: ImageView, x: Int, y: Int): Int {
@@ -882,13 +853,13 @@ fun getDataDirectory(): File {
     return File(Environment.getExternalStorageDirectory().path + "/Android/data/" + BuildConfig.APPLICATION_ID)
 }
 
-fun hideSoftKeyboard(activity: Activity) {
+fun Activity.hideSoftKeyboard() {
     try {
-        val inputMethodManager = activity.getSystemService(
+        val inputMethodManager = this.getSystemService(
             Activity.INPUT_METHOD_SERVICE
         ) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(
-            activity.currentFocus!!.windowToken, 0
+            this.currentFocus!!.windowToken, 0
         )
     } catch (e: Exception) {
 
@@ -896,18 +867,18 @@ fun hideSoftKeyboard(activity: Activity) {
 
 }
 
-fun Context.showSoftKeyboard() {
-    val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+fun showSoftKeyboard() {
+    val imm = ApplicationClass.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY)
 }
 
-fun Context.copyToClipboard(text: String) {
-    val clipboard = getSystemService(Application.CLIPBOARD_SERVICE) as ClipboardManager
+fun copyToClipboard(text: String) {
+    val clipboard = ApplicationClass.getInstance().getSystemService(Application.CLIPBOARD_SERVICE) as ClipboardManager
     val clip = ClipData.newPlainText("copy", text)
     clipboard.primaryClip = clip
 }
 
-fun shortenNumber(number: Double, decimalCount: Int): String {
+fun shortenNumber(number: Double, decimalCount: Int=1): String {
     val format = "%." + decimalCount + "f"
     return if (number < 1000) {
         String.format(format, number)
@@ -920,19 +891,15 @@ fun shortenNumber(number: Double, decimalCount: Int): String {
     }
 }
 
-fun shortenNumber(number: Double): String {
-    return shortenNumber(number, 1)
-}
-
 fun separateNumberBy3(number: Long): String {
     val formatter = DecimalFormat("#,###,###")
     return formatter.format(number)
 }
 
-fun Context.scanMedia(path: String) {
+fun scanMedia(path: String) {
     Log.e(Constant.TAG.toString(), "SCANNING=" + Uri.fromFile(File(path)))
     MediaScannerConnection.scanFile(
-        this,
+        ApplicationClass.getInstance(),
         arrayOf(path),
         null
     ) { p, uri -> Log.e(Constant.TAG.toString(), "SCAN COMPLETE|PATH=$p|URI=$uri") }
@@ -973,8 +940,8 @@ fun log(vararg s: Any?) {
     Log.e(BuildConfig.APPLICATION_ID.toUpperCase() + getLocation(3), getStringLog(*s))
 }
 
-fun Context.logToFile(force: Boolean, fileName: String, vararg s: Any?) {
-    if (force || ApplicationClass().getInstance(this).getBooleanPref(Constant.PREF_LOG)) {
+fun logToFile(force: Boolean, fileName: String, vararg s: Any?) {
+    if (force || ApplicationClass.getInstance().getBooleanPref(Constant.PREF_LOG)) {
         try {
             Thread(Runnable {
                 val file = File(
@@ -1039,11 +1006,7 @@ fun convertTimestampToDate(timestamp: Long, dateFormat: String): String {
 }
 
 
-fun convertTimestampToDate(timestamp: Long): String {
-    return convertTimestampToDate(timestamp, "yyyy/MM/dd hh:mm")
-}
-
-fun convertDateToTimestamp(date: String, dateFormat: String): Long {
+fun convertDateToTimestamp(date: String, dateFormat: String="yyyy/MM/dd hh:mm"): Long {
     val sdf = SimpleDateFormat(dateFormat)
     return try {
         sdf.parse(date).time
@@ -1063,14 +1026,14 @@ fun convertTimestampToCalendar(timestamp: Long): Calendar {
 
 
 fun convertBundleToString(bundle: Bundle?): String {
-   return bundle?.let {
+    return bundle?.let {
         var content = "Bundle :\n{\n"
         for (key in it.keySet()) {
             content += "\"" + key + "\":\"" + it.get(key) + "\",\n"
         }
-       content.substring(0, content.length - 2) + "\n}"
+        content.substring(0, content.length - 2) + "\n}"
     } ?: run {
-       "{}"
+        "{}"
     }
 }
 
@@ -1150,15 +1113,15 @@ fun getDominantColor(bitmap: Bitmap): Int {
     return color
 }
 
-fun Context.getDominantColor(resourceId: Int): Int {
+fun getDominantColor(resourceId: Int): Int {
     return getDominantColor(Bitmap.createScaledBitmap(convertDrawableToBitmap(resourceId), 1, 1, true))
 }
 
-fun Context.convertUriToPath(contentUri: Uri): String {
+fun convertUriToPath(contentUri: Uri): String {
     var cursor: Cursor? = null
     try {
         val proj = arrayOf(MediaStore.Images.Media.DATA)
-        cursor = contentResolver.query(contentUri, proj, null, null, null)
+        cursor = ApplicationClass.getInstance().contentResolver.query(contentUri, proj, null, null, null)
         val column_index = cursor!!.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
         cursor.moveToFirst()
         return cursor.getString(column_index)
@@ -1245,9 +1208,9 @@ fun darkenColor(color: Int, factor: Float): Int {
 /**
  * <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
  */
-fun Context.isNetworkAvailable(): Boolean {
+fun isNetworkAvailable(): Boolean {
     val connectivityManager =
-        getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        ApplicationClass.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     val activeNetworkInfo = connectivityManager.activeNetworkInfo
     return activeNetworkInfo != null && activeNetworkInfo.isConnected
 }
@@ -1282,13 +1245,12 @@ fun mergeJSONObjects(jsonObject1: JSONObject, jsonObject2: JSONObject): JSONObje
     return merged
 }
 
-fun Context.isAppAvailable(appName: String): Boolean {
-    val pm = packageManager
-    try {
-        pm.getPackageInfo(appName, PackageManager.GET_ACTIVITIES)
-        return true
+fun isAppAvailable(appName: String): Boolean {
+    return try {
+        ApplicationClass.getInstance().packageManager.getPackageInfo(appName, PackageManager.GET_ACTIVITIES)
+        true
     } catch (e: PackageManager.NameNotFoundException) {
-        return false
+        false
     }
 
 }
@@ -1302,32 +1264,17 @@ fun convertFahrenheitToCelsius(temperatureInFahrenheit: Int): Int {
 }
 
 
-interface OnTextViewAnimationListener {
-    fun onAnimationFinished()
-}
-
-
-fun animateTextViewText(textView: TextView, text: String) {
-    animateTextViewText(textView, text, 60, null)
-}
-
-fun animateTextViewText(textView: TextView, text: String, delay: Int) {
-    animateTextViewText(textView, text, delay, null)
-}
-
 fun animateTextViewText(
     textView: TextView,
     text: String,
-    delay: Int,
-    animationListener: OnTextViewAnimationListener?
+    delay: Int = 60,
+    onFinish: () -> (Unit?) = {}
 ) {
 
     for (i in 0 until text.length) {
         Handler().postDelayed({ textView.text = text.substring(0, i + 1) }, (i * delay).toLong())
     }
-    if (animationListener != null) {
-        Handler().postDelayed({ animationListener.onAnimationFinished() }, (text.length * delay).toLong())
-    }
+    Handler().postDelayed({ onFinish() }, (text.length * delay).toLong())
 }
 
 
@@ -1357,7 +1304,7 @@ fun Activity.shareImage(url: String?) {
         log("GlobalClass: shareImage: Error: url is null")
         return
     }
-    val client = Client(this)
+    val client = Client.getInstance()
     client.request(API.Download(object : OnResponseListener {
         override fun onResponse(response: Response) {
             if (response.statusName === Response.StatusName.OK) {
@@ -1439,9 +1386,26 @@ fun getIntentImages(data: Intent): ArrayList<Uri> {
     return uriList
 }
 
+fun animateViews(views: Array<View>, show: Boolean, duration: Long = 500, startDelay: Long = 0, delay: Long = 100, onFinish: () -> (Unit?) = {}) {
+    var time = 0L
+    var alpha = if (show) 1F else 0F
+    for (view in views) {
+        view.animate().alpha(alpha).setStartDelay(startDelay + time).setDuration(duration).start()
+        time += delay
+    }
+    Handler().postDelayed({ onFinish() }, time + startDelay)
+}
 
-//OTHERS START
+fun toast(message: String) {
+    Toast.makeText(ApplicationClass.getInstance(), message, Toast.LENGTH_SHORT).show()
+}
 
+
+/**=====================================================================================================================================**/
+/**=====================================================================================================================================**/
+/**====================================================== O T H E R S   S T A R T ======================================================**/
+/**=====================================================================================================================================**/
+/**=====================================================================================================================================**/
 
 /**
  * Adds TextWatcher to the EditText
@@ -1489,8 +1453,8 @@ fun Snackbar.action(@StringRes actionRes: Int, color: Int? = null, listener: (Vi
 /**
  * Check if the Internet connectivity is available
  */
-fun Context.isInternetAvailable(): Boolean {
-    val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+fun isInternetAvailable(): Boolean {
+    val connectivityManager = ApplicationClass.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     val activeNetworkInfo = connectivityManager.activeNetworkInfo
     return activeNetworkInfo != null && activeNetworkInfo.isConnected
 }
@@ -1646,6 +1610,3 @@ fun View.showKeyboard(show: Boolean) {
 
 //OTHERS END
 
-fun Context.toast(message: String) {
-    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-}
