@@ -878,7 +878,7 @@ fun copyToClipboard(text: String) {
     clipboard.primaryClip = clip
 }
 
-fun shortenNumber(number: Double, decimalCount: Int=1): String {
+fun shortenNumber(number: Double, decimalCount: Int = 1): String {
     val format = "%." + decimalCount + "f"
     return if (number < 1000) {
         String.format(format, number)
@@ -1006,7 +1006,7 @@ fun convertTimestampToDate(timestamp: Long, dateFormat: String): String {
 }
 
 
-fun convertDateToTimestamp(date: String, dateFormat: String="yyyy/MM/dd hh:mm"): Long {
+fun convertDateToTimestamp(date: String, dateFormat: String = "yyyy/MM/dd hh:mm"): Long {
     val sdf = SimpleDateFormat(dateFormat)
     return try {
         sdf.parse(date).time
@@ -1268,13 +1268,15 @@ fun animateTextViewText(
     textView: TextView,
     text: String,
     delay: Int = 60,
-    onFinish: () -> (Unit?) = {}
+    startDelay: Long = 0,
+    onFinish: () -> Unit = {}
 ) {
-
-    for (i in 0 until text.length) {
-        Handler().postDelayed({ textView.text = text.substring(0, i + 1) }, (i * delay).toLong())
-    }
-    Handler().postDelayed({ onFinish() }, (text.length * delay).toLong())
+    Handler().postDelayed({
+        for (i in 0 until text.length) {
+            Handler().postDelayed({ textView.text = text.substring(0, i + 1) }, (i * delay).toLong())
+        }
+        Handler().postDelayed({ onFinish() }, (text.length * delay).toLong())
+    }, startDelay)
 }
 
 
@@ -1608,5 +1610,5 @@ fun View.showKeyboard(show: Boolean) {
     }
 }
 
-//OTHERS END
+
 

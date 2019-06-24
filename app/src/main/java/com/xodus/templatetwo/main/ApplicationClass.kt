@@ -6,6 +6,7 @@ import android.app.ApplicationErrorReport
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Typeface
 import com.pddstudio.preferences.encrypted.EncryptedPreferences
 import com.xodus.templatetwo.BuildConfig
 import com.xodus.templatetwo.billing.Market
@@ -18,17 +19,36 @@ open class ApplicationClass : Application() {
     }
 
     private lateinit var encryptedPreferences: EncryptedPreferences
-    private lateinit var market: Market
+    lateinit var market: Market
+    var fontIranSansBold: Typeface? = null
+    var fontIranSansLight: Typeface? = null
 
     override fun onCreate() {
         super.onCreate()
         instance = this
         encryptedPreferences = EncryptedPreferences.Builder(this).withEncryptionPassword(BuildConfig.APPLICATION_ID).build()
+        initMarket()
+        initFont()
+    }
+
+    private fun initMarket() {
         market = when (BuildConfig.FLAVOR) {
-            "bazaar"   -> Market.init(Market.MarketType.BAZAAR)
-            "myket"    -> Market.init(Market.MarketType.MYKET)
-            "iranapps" -> Market.init(Market.MarketType.IRANAPPS)
-            else       -> Market.init(Market.MarketType.BAZAAR)
+            "bazaar"     -> Market.init(Market.MarketType.BAZAAR)
+             "myket"       -> Market.init(Market.MarketType.MYKET)
+             "iranapps" -> Market.init(Market.MarketType.IRANAPPS)
+             "googleplay" -> Market.init(Market.MarketType.GOOGLEPLAY)
+            else                       -> Market.init(Market.MarketType.BAZAAR)
+        }
+    }
+
+    private fun initFont() {
+        assets.list("")?.let {
+            if (it.contains("iran_sans_bold.ttf")) {
+                fontIranSansBold = Typeface.createFromAsset(assets, "iran_sans_bold.ttf")
+            }
+            if (it.contains("iran_sans_light.ttf")) {
+                fontIranSansLight = Typeface.createFromAsset(assets, "iran_sans_light.ttf")
+            }
         }
     }
 

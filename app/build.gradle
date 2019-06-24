@@ -22,64 +22,44 @@ android {
     }
 
     productFlavors {
-        bazaar {
-            buildConfigField "String", "IAP_INETENT", "\"ir.cafebazaar.pardakht.InAppBillingService.BIND\""
-            buildConfigField "String", "IAP_PACKAGE", "\"com.farsitel.bazaar\""
-            buildConfigField "String", "MARKET_INTENT", "\"bazaar://details?id=\""
-            buildConfigField "String", "MARKET_COMMENT", "\"bazaar://comment?id=\""
-            buildConfigField "String", "DEVICE_ID_ADD_ON", "\"\""
-            buildConfigField "String", "MARKET", "\"bazaar\""
-            buildConfigField "String", "ROUTE", "\"bazaar\""
-            buildConfigField "String", "MARKET_PER", "\"بازار\""
-            buildConfigField "String", "MARKET_SHARE_LINK", "\"https://cafebazaar.ir/app/$applicationId/?l=fa\""
-        }
-        myket {
-            buildConfigField "String", "IAP_INETENT", "\"ir.mservices.market.InAppBillingService.BIND\""
-            buildConfigField "String", "IAP_PACKAGE", "\"ir.mservices.market\""
-            buildConfigField "String", "MARKET_INTENT", "\"http://myket.ir/app/\""
-            buildConfigField "String", "MARKET_COMMENT", "\"myket://comment?id=\""
-            buildConfigField "String", "DEVICE_ID_ADD_ON", "\".myket\""
-            buildConfigField "String", "MARKET", "\"myket\""
-            buildConfigField "String", "ROUTE", "\"myket\""
-            buildConfigField "String", "MARKET_PER", "\"مایکت\""
-            buildConfigField "String", "MARKET_SHARE_LINK", "\"http://myket.ir/app/$applicationId\""
-
-        }
-        iranapps {
-            buildConfigField "String", "IAP_INETENT", "\"ir.tgbs.iranapps.billing.InAppBillingService.BIND\""
-            buildConfigField "String", "IAP_PACKAGE", "\"ir.tgbs.android.iranapp\""
-            buildConfigField "String", "MARKET_INTENT", "\"iranapps://app/\""
-            buildConfigField "String", "MARKET_COMMENT", "\"http://iranapps.ir/app/\""
-            buildConfigField "String", "DEVICE_ID_ADD_ON", "\".iranapps\""
-            buildConfigField "String", "MARKET", "\"iranapps\""
-            buildConfigField "String", "ROUTE", "\"iranapps\""
-            buildConfigField "String", "MARKET_PER", "\"ایران اپس\""
-            buildConfigField "String", "MARKET_SHARE_LINK", "\"http://iranapps.com/app/$applicationId\""
-
-        }
-        googleplay {
-            //applicationId "com.xodus.templateone.googleplay" //TODO
-            buildConfigField "String", "IAP_INETENT", "\"com.android.vending.billing.InAppBillingService.BIND\""
-            buildConfigField "String", "IAP_PACKAGE", "\"com.android.vending\""
-            buildConfigField "String", "MARKET_INTENT", "\"https://play.google.com/store/apps/details?id=$applicationId\""
-            buildConfigField "String", "DEVICE_ID_ADD_ON", "\".googleplay\""
-            buildConfigField "String", "MARKET", "\"googleplay\""
-            buildConfigField "String", "ROUTE", "\"bazaar\""
-            buildConfigField "String", "MARKET_PER", "\"گوگل پلی\""
-        }
+        bazaar {}
+        myket {}
+        iranapps {}
+        googleplay {}
     }
     sourceSets {
+        main {
+            java.srcDirs = ['src/main/java']
+            res.srcDirs = ['src/main/res']
+            assets.srcDirs = ['src/main/assets']
+            resources.srcDirs = ['srs/main']
+        }
         bazaar {
-            manifest.srcFile 'src/bazaar/AndroidManifest.xml'
+            manifest.srcFile 'src/main/AndroidManifestBazaar.xml'
+            res.srcDirs = ['src/ourmarket/res']
+            java.srcDirs = ['src/ourmarket/java']
+            assets.srcDirs = ['src/ourmarket/assets']
+            resources.srcDirs = ['srs/ourmarket']
         }
         iranapps {
-            manifest.srcFile 'src/iranapps/AndroidManifest.xml'
+            manifest.srcFile 'src/main/AndroidManifestIranapps.xml'
+            res.srcDirs = ['src/ourmarket/res']
+            java.srcDirs = ['src/ourmarket/java']
+            assets.srcDirs = ['src/ourmarket/assets']
+            resources.srcDirs = ['srs/ourmarket']
         }
         myket {
-            manifest.srcFile 'src/myket/AndroidManifest.xml'
+            manifest.srcFile 'src/main/AndroidManifestMyket.xml'
+            res.srcDirs = ['src/ourmarket/res']
+            java.srcDirs = ['src/ourmarket/java']
+            assets.srcDirs = ['src/ourmarket/assets']
+            resources.srcDirs = ['srs/ourmarket']
         }
         googleplay {
-            manifest.srcFile 'src/googleplay/AndroidManifest.xml'
+            res.srcDirs = ['src/googleplay/res']
+            java.srcDirs = ['src/googleplay/java']
+            assets.srcDirs = ['src/googleplay/assets']
+            resources.srcDirs = ['srs/googleplay']
         }
     }
 
@@ -91,7 +71,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.1.0-alpha05'
     implementation 'androidx.core:core-ktx:1.2.0-alpha01'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'

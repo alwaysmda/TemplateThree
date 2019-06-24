@@ -213,7 +213,7 @@ class Client() {
                     + getPackageInfo().versionName
                     + " (Android; "
                     + PackageInfoCompat.getLongVersionCode(getPackageInfo()) + "; "
-                    + BuildConfig.MARKET + "; "
+                    + appClass.market.name + "; "
                     + "IR; "
                     + getAndroidID()
                     + "; "
