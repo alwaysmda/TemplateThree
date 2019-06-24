@@ -11,10 +11,13 @@ import com.pddstudio.preferences.encrypted.EncryptedPreferences
 import com.xodus.templatetwo.BuildConfig
 import com.xodus.templatetwo.billing.Market
 import com.xodus.templatetwo.main.Constant.*;
+import kotlin.system.exitProcess
 
 open class ApplicationClass : Application() {
     companion object {
-        @Volatile private lateinit var instance : ApplicationClass
+        @Volatile
+        private lateinit var instance: ApplicationClass
+
         fun getInstance() = instance
     }
 
@@ -26,18 +29,22 @@ open class ApplicationClass : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            handleUncaughtException(throwable)
+        }
         encryptedPreferences = EncryptedPreferences.Builder(this).withEncryptionPassword(BuildConfig.APPLICATION_ID).build()
         initMarket()
         initFont()
     }
 
+
     private fun initMarket() {
         market = when (BuildConfig.FLAVOR) {
             "bazaar"     -> Market.init(Market.MarketType.BAZAAR)
-             "myket"       -> Market.init(Market.MarketType.MYKET)
-             "iranapps" -> Market.init(Market.MarketType.IRANAPPS)
-             "googleplay" -> Market.init(Market.MarketType.GOOGLEPLAY)
-            else                       -> Market.init(Market.MarketType.BAZAAR)
+            "myket"      -> Market.init(Market.MarketType.MYKET)
+            "iranapps"   -> Market.init(Market.MarketType.IRANAPPS)
+            "googleplay" -> Market.init(Market.MarketType.GOOGLEPLAY)
+            else         -> Market.init(Market.MarketType.BAZAAR)
         }
     }
 
@@ -53,7 +60,7 @@ open class ApplicationClass : Application() {
     }
 
     fun getStringPref(key: Constant): String? {
-        val f: String? = encryptedPreferences.getString(key.toString(), "")
+        val f = encryptedPreferences.getString(key.toString(), "")
         return if (f == "") null else f
     }
 
@@ -65,22 +72,24 @@ open class ApplicationClass : Application() {
         return encryptedPreferences.getInt(key.toString(), 0)
     }
 
-    fun setPref(key: Constant, value: String?) {
-        encryptedPreferences.edit()
-            .putString(key.toString(), value ?: "")
-            .apply()
-    }
-
-    fun setPref(key: Constant, value: Boolean) {
-        encryptedPreferences.edit()
-            .putBoolean(key.toString(), value)
-            .apply()
-    }
-
-    fun setPref(key: Constant, value: Int) {
-        encryptedPreferences.edit()
-            .putInt(key.toString(), value)
-            .apply()
+    fun setPref(key: Constant, value: Any) {
+        when (value) {
+            is String  -> {
+                encryptedPreferences.edit().putString(key.value, value).apply()
+            }
+            is Int     -> {
+                encryptedPreferences.edit().putInt(key.value, value).apply()
+            }
+            is Boolean -> {
+                encryptedPreferences.edit().putBoolean(key.value, value).apply()
+            }
+            is Float   -> {
+                encryptedPreferences.edit().putFloat(key.value, value).apply()
+            }
+            is Long    -> {
+                encryptedPreferences.edit().putLong(key.value, value).apply()
+            }
+        }
     }
 
     fun setCurrentClass(currentClass: String) {
@@ -92,52 +101,24 @@ open class ApplicationClass : Application() {
     }
 
 
-    fun handleUncaughtException(paramThread: Thread, paramThrowable: Throwable) {
-        val intent = Intent(this, BaseActivity::class.java)
-        intent.putExtra("crash", true)
-        intent.putExtra("message", paramThrowable.toString())
-        intent.putExtra("method", getStringPref(PREF_CURRENT_METHOD))
-        intent.putExtra("class", getStringPref(PREF_CURRENT_CLASS))
-        intent.putExtra("time", System.currentTimeMillis())
-        intent.addFlags(
-            Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    or Intent.FLAG_ACTIVITY_NEW_TASK
-        )
-
-        val pendingIntent = PendingIntent.getActivity(baseContext, 0, intent, PendingIntent.FLAG_ONE_SHOT)
-        val mgr = baseContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 500, pendingIntent)
-        System.exit(2)
-    }
-
-    private var mCrashInfo: ApplicationErrorReport.CrashInfo? = null
-    private var mErrorMessage = ""
-
-    private fun reportError(exception: Throwable): String {
-
-        mCrashInfo = ApplicationErrorReport.CrashInfo(exception)
-
-        if (mCrashInfo!!.exceptionMessage == null) {
-
-            mErrorMessage = "<unknown error>"
-        } else {
-
-            mErrorMessage = mCrashInfo!!.exceptionMessage
-                .replace(": " + mCrashInfo!!.exceptionClassName, "")
+    private fun handleUncaughtException(paramThrowable: Throwable) {
+        if (!getBooleanPref(PREF_CRASH_REPEATING)) {
+            setPref(PREF_CRASH_REPEATING, true)
+            val intent = Intent(this, BaseActivity::class.java)
+            intent.putExtra("crash", true)
+            intent.putExtra("message", paramThrowable.toString())
+            intent.putExtra("method", getStringPref(PREF_CURRENT_METHOD) ?: paramThrowable.stackTrace[2].methodName + ":" + paramThrowable.stackTrace[2].lineNumber)
+            intent.putExtra("class", getStringPref(PREF_CURRENT_CLASS) ?: paramThrowable.stackTrace[2].fileName + ":" + paramThrowable.stackTrace[2].className)
+            intent.putExtra("time", System.currentTimeMillis())
+            intent.addFlags(
+                Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        or Intent.FLAG_ACTIVITY_NEW_TASK
+            )
+            val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT)
+            val mgr = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 500, pendingIntent)
         }
-
-        val throwFile = if (mCrashInfo!!.throwFileName == null)
-            "<unknown file>"
-        else
-            mCrashInfo!!.throwFileName
-
-        return ("\n************ " + mCrashInfo!!.exceptionClassName + " ************\n"
-                + mErrorMessage + CharCategory.LINE_SEPARATOR
-                + "\n File: " + throwFile
-                + "\n Method: " + mCrashInfo!!.throwMethodName + "()"
-                + "\n Line No.: " + Integer.toString(mCrashInfo!!.throwLineNumber)
-                + CharCategory.LINE_SEPARATOR)
-        //          + "Class: " + crashInfo.throwClassName + LINE_SEPARATOR
+        exitProcess(2)
     }
 }

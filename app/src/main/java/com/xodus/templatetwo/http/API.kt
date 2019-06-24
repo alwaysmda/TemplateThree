@@ -37,9 +37,6 @@ open class API : Request() {
             _onResponse = onResponse
             _method = Method.POST
             _url = url
-            params.map { _params[it.first] = it.second }
-            params.forEach { _params[it.first] = it.second }
-
             for (t in params) {
                 _params[t.first] = t.second
             }
@@ -97,9 +94,7 @@ open class API : Request() {
             _onResponse = onResponse
             _method = Method.POST
             _url = "$BASE_API/token/update"
-            val params = HashMap<String, Any>()
-            params["token"] = token
-            _params = params
+            _params["token"] = token
         }
     }
 
@@ -121,12 +116,11 @@ open class API : Request() {
             _onResponse = onResponse
             _method = Method.POST
             _url = "$BASE_API/log/error"
-            val params = HashMap<String, Any>()
-            params["time"] = eTime
-            params["class"] = eClass
-            params["method"] = eMethod
-            params["message"] = eMessage
-            _params = params
+//            _url = "https://www.httpbin.org/post"
+            _params["time"] = eTime
+            _params["class"] = eClass
+            _params["method"] = eMethod
+            _params["message"] = eMessage
         }
     }
 
@@ -142,9 +136,7 @@ open class API : Request() {
             _onResponse = onResponse
             _method = Method.POST
             _url = "$BASE_API/billing/get-key"
-            val params = HashMap<String, Any>()
-            params["market"] = market
-            _params = params
+            _params["market"] = market
         }
 
     }
@@ -201,14 +193,12 @@ open class API : Request() {
             _onResponse = onResponse
             _method = Method.POST
             _url = "$BASE_API/billing/verify-token"
-            val params = HashMap<String, Any>()
-            params["market"] = market
-            params["sku"] = sku
-            params["type"] = type
-            params["token"] = token
-            params["payload"] = payload
-            params["data"] = extraData
-            _params = params
+            _params["market"] = market
+            _params["sku"] = sku
+            _params["type"] = type
+            _params["token"] = token
+            _params["payload"] = payload
+            _params["data"] = extraData
         }
 
     }

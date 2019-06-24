@@ -3,8 +3,10 @@ package com.xodus.templatetwo.main
 import android.animation.ValueAnimator
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -13,19 +15,20 @@ import com.xodus.templatetwo.R
 import com.xodus.templatetwo.event.OnActivityResultEvent
 import com.xodus.templatetwo.event.OnRequestPermissionResultEvent
 import com.xodus.templatetwo.fragment.TemplateFragment
-import com.xodus.templatetwo.http.Client
+import com.xodus.templatetwo.http.*
 import kotlinx.android.synthetic.main.activity_base.*
 import org.greenrobot.eventbus.EventBus
 import java.util.ArrayList
 
-class BaseActivity : AppCompatActivity() {
-
+class BaseActivity : AppCompatActivity(), OnResponseListener {
     private lateinit var fragmentTable: ArrayList<ArrayList<BaseFragment>>
     private lateinit var currentFragment: BaseFragment
     private var currentTabIndex = 0
     private val startMode = StartMode.MultiInstance
     private val exitMode = ExitMode.BackToFirstTab
     private var barHeight: Int = 0
+    private val client = Client.getInstance()
+    private val appClass = ApplicationClass.getInstance()
 
     private enum class StartMode {
         SingleInstance, MultiInstance
@@ -38,6 +41,7 @@ class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
+        handleIntent()
         setContentView(R.layout.activity_base)
         initFragmentTable(
             TemplateFragment.newInstance()
@@ -46,6 +50,49 @@ class BaseActivity : AppCompatActivity() {
         bar.post { barHeight = bar.height }
     }
 
+    override fun onResume() {
+        super.onResume()
+        Handler().postDelayed({appClass.setPref(Constant.PREF_CRASH_REPEATING,false)},2000)
+    }
+
+    override fun onResponse(response: Response) {
+        log("BASE ACTIVITY",response.toJSONObject().toString())
+    }
+
+    override fun onProgress(request: Request, bytesWritten: Long, totalSize: Long, percent: Int) {
+
+    }
+
+    private fun handleIntent() {
+        intent.extras?.let {
+            val jsonObject = convertBundleToJson(it)
+            try {
+                if (jsonObject.has("crash")) {
+                    Toast.makeText(appClass, "-=REPORTING CRASH=-", Toast.LENGTH_SHORT).show()
+                    client.request(
+                        API.ReportError(
+                            jsonObject.getString("time"),
+                            jsonObject.getString("class"),
+                            jsonObject.getString("method"),
+                            jsonObject.getString("message"),
+                            this))
+                } else if (jsonObject.has("class")) {
+                    if (jsonObject.getString("class") == "BaseActivity") {
+                        if (jsonObject.has("action")) {
+                            when (jsonObject.getString("action")) {
+                                "toast" -> toast(jsonObject.toString())
+                                "pref" -> appClass.setPref(Constant.valueOf(jsonObject.getString("pref_key")), jsonObject.get("pref_value"))
+                            }
+                        }
+                    } else {
+                        startActivity(Intent(this, Class.forName(applicationInfo.packageName.replace(".debug", "") + ".activity." + jsonObject.getString("class"))).putExtras(it))
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 
     fun start(fragment: BaseFragment, replace: Boolean = false) {
         val frag = supportFragmentManager.findFragmentByTag(currentTabIndex.toString() + fragment.javaClass.toString()) as BaseFragment?
