@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="appClass"
+            type="main.ApplicationClass"/>
+        <variable
+            name="viewModel"
+            type="viewmodel.TemplateViewModel"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:background="@color/md_blue_grey_50"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include
+            android:id="@+id/template_toolbar"
+            layout="@layout/toolbar_template"
+            app:viewModel="@{viewModel}"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/template_rvTemp"
+            android:layout_marginTop="48dp"
+            android:layout_width="match_parent"
+            android:padding="4dp"
+            android:layout_height="match_parent"
+            android:adapter="@{viewModel.adapter}"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="3"
+            android:orientation="vertical"
+            android:layoutAnimation="@{appClass.recyclerViewAnimation}"
+            />
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

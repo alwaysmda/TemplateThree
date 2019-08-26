@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">TemplateThree</string>
+    <string name="md_store_rate_bazaar">با کلیک برروی گزینه‌ی «امتیاز دادن» و نوشتن یک نظر در بازار ۵۰ سکه‌ی رایگان کسب کنید!</string>
+    <string name="md_store_rate_myket">با کلیک برروی گزینه‌ی «امتیاز دادن» و نوشتن یک نظر در مایکت ۵۰ سکه‌ی رایگان کسب کنید!</string>
+    <string name="md_store_rate_iranapps">با کلیک برروی گزینه‌ی «امتیاز دادن» و نوشتن یک نظر در ایران‌اپس ۵۰ سکه‌ی رایگان کسب کنید!</string>
+    <string name="md_store_rate_googleplay">با کلیک برروی گزینه‌ی «امتیاز دادن» و نوشتن یک نظر در گوگل پلی ۵۰ سکه‌ی رایگان کسب کنید!</string>
+    <string name="market_unavailable_bazaar">بازار نصب نیست</string>
+    <string name="market_unavailable_happyinsta">Google Play is not Installed</string>
+    <string name="market_unavailable_myket">مایکت نصب نیست</string>
+    <string name="market_unavailable_iranapps">ایران‌اپس نصب نیست</string>
+    <string name="login_not_connected">به اینترنت متصل نیستید، بعد از اتصال، مجددا امتحان کنید.</string>
+</resources>
