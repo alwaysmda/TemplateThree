@@ -21,6 +21,6 @@
 
     <style name="Widget.BottomNavigationViewFonted"
             parent="Widget.Design.BottomNavigationView">
-        <item name="fontFamily">@font/font_light</item>
+        <item name="fontFamily">@font/font_fa_medium</item>
     </style>
 </resources>

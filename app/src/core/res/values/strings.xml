@@ -1,12 +1,11 @@
 <resources>
-    <string name="app_name">TemplateThree</string>
-    <string name="md_store_rate_bazaar">با کلیک برروی گزینه‌ی «امتیاز دادن» و نوشتن یک نظر در بازار ۵۰ سکه‌ی رایگان کسب کنید!</string>
-    <string name="md_store_rate_myket">با کلیک برروی گزینه‌ی «امتیاز دادن» و نوشتن یک نظر در مایکت ۵۰ سکه‌ی رایگان کسب کنید!</string>
-    <string name="md_store_rate_iranapps">با کلیک برروی گزینه‌ی «امتیاز دادن» و نوشتن یک نظر در ایران‌اپس ۵۰ سکه‌ی رایگان کسب کنید!</string>
-    <string name="md_store_rate_googleplay">با کلیک برروی گزینه‌ی «امتیاز دادن» و نوشتن یک نظر در گوگل پلی ۵۰ سکه‌ی رایگان کسب کنید!</string>
-    <string name="market_unavailable_bazaar">بازار نصب نیست</string>
-    <string name="market_unavailable_happyinsta">Google Play is not Installed</string>
-    <string name="market_unavailable_myket">مایکت نصب نیست</string>
-    <string name="market_unavailable_iranapps">ایران‌اپس نصب نیست</string>
-    <string name="login_not_connected">به اینترنت متصل نیستید، بعد از اتصال، مجددا امتحان کنید.</string>
+    <string name="app_name">Template Three</string>
+    <string name="error_title_no_internet">No Connection</string>
+    <string name="error_text_no_internet">Check your internet connection and try again.</string>
+    <string name="try_again">Try Again</string>
+    <string name="error_title_connection_error">Connection Error</string>
+    <string name="error_text_connection_error">Server is out of reach. Please try again.</string>
+    <string name="one">One</string>
+    <string name="two">Two</string>
+    <string name="three">Three</string>
 </resources>

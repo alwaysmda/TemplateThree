@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">نمونه سوم</string>
+    <string name="error_title_no_internet">به اینترنت وصل نیستید</string>
+    <string name="error_text_no_internet">اتصال دستگاه به اینترنت را چک کنید و دوباره امتحان کنید.</string>
+    <string name="try_again">تلاش مجدد</string>
+    <string name="error_title_connection_error">خطای اتصال</string>
+    <string name="error_text_connection_error">سرور در دسترس نیست. لطفا مجددا امتحان کنید.</string>
+    <string name="one">یک</string>
+    <string name="two">دو</string>
+    <string name="three">سه</string>
+</resources>

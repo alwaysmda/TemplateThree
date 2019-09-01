@@ -1,6 +1,7 @@
 package main
 
 import android.animation.ValueAnimator
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -12,6 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.animation.doOnEnd
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
+import com.franmontiel.localechanger.LocaleChanger
+import com.franmontiel.localechanger.utils.ActivityRecreationHelper
 import com.xodus.templatethree.R
 import event.OnActivityResultEvent
 import event.OnRequestPermissionResultEvent
@@ -51,8 +54,8 @@ class BaseActivity : AppCompatActivity(), OnResponseListener {
         handleIntent()
         setContentView(R.layout.activity_base)
         initFragmentTable(
-            TemplateFragment.newInstance(),
-            TemplateFragment.newInstance(),
+//            TemplateFragment.newInstance(),
+//            TemplateFragment.newInstance(),
             TemplateFragment.newInstance()
         )
         initBottomBar()
@@ -62,6 +65,18 @@ class BaseActivity : AppCompatActivity(), OnResponseListener {
     override fun onResume() {
         super.onResume()
         Handler().postDelayed({appClass.setPref(Constant.PREF_CRASH_REPEATING,false)},2000)
+        ActivityRecreationHelper.onResume(this)
+    }
+
+    override fun attachBaseContext(context: Context) {
+        val newBase = LocaleChanger.configureBaseContext(context)
+        super.attachBaseContext(newBase)
+        appClass.initFont()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        ActivityRecreationHelper.onDestroy(this)
     }
 
     override fun onResponse(response: Response) {

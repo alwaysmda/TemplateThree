@@ -1,11 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:padding="10dp"
-              android:layout_height="wrap_content">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView android:layout_width="wrap_content"
-              android:id="@+id/rowTemplate_tvTemplate"
-              android:layout_height="wrap_content"/>
-</LinearLayout>
+    <data>
+
+        <variable
+                name="appClass"
+                type="main.ApplicationClass" />
+
+        <variable
+                name="data"
+                type="model.Template" />
+
+        <variable
+                name="viewModel"
+                type="viewmodel.TemplateItemViewModel" />
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_margin="4dp"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="4dp">
+
+        <customview.TextViewFonted
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:onClick="@{() -> viewModel.onTvItemClick()}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{data.templateString}" />
+    </com.google.android.material.card.MaterialCardView>
+</layout>

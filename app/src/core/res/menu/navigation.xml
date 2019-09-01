@@ -4,14 +4,14 @@
     <item
             android:id="@+id/navigation_one"
             android:icon="@drawable/ic_launcher"
-            android:title="One" />
+            android:title="@string/one" />
 
     <item
             android:id="@+id/navigation_two"
             android:icon="@drawable/ic_launcher"
-            android:title="Two" />
+            android:title="@string/two" />
     <item
             android:id="@+id/navigation_three"
             android:icon="@drawable/ic_launcher"
-            android:title="Three" />
+            android:title="@string/three" />
 </menu>

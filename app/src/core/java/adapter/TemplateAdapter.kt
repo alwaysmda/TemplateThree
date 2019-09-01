@@ -1,21 +1,23 @@
 package adapter
 
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.library.baseAdapters.BR
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.xodus.templatethree.R
-import kotlinx.android.synthetic.main.row_template.view.*
+import com.xodus.templatethree.databinding.RowTemplateBinding
 import model.Template
-import util.inflate
+import viewmodel.TemplateViewModel
 
 class TemplateAdapter(
-    val list: ArrayList<String>,
-    val action: (TemplateViewHolder, View?, Int) -> (Unit)
+    private val viewModel: TemplateViewModel
 ) : RecyclerView.Adapter<TemplateAdapter.TemplateViewHolder>() {
+    var list: ArrayList<Template> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TemplateViewHolder {
-        return TemplateViewHolder(parent.inflate(R.layout.row_template))
+        return TemplateViewHolder(RowTemplateBinding.inflate(LayoutInflater.from(parent.context), parent, false), viewModel)
     }
 
     override fun getItemCount() = list.size
@@ -24,37 +26,36 @@ class TemplateAdapter(
         holder.bind(list[position])
     }
 
-    inner class TemplateViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
-        override fun onClick(v: View?) {
-            action(this, v, adapterPosition)
+    inner class TemplateViewHolder(val binding: RowTemplateBinding, val itemViewModel: TemplateViewModel) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(data: Template) {
+            binding.setVariable(BR.data, data)
+            binding.executePendingBindings()
+            //            itemViewModel.snack.observe(binding.lifecycleOwner!!, Observer {
+            //                viewModel.snack.value = it
+            //            })
         }
-
-        fun bind(data: String) {
-            itemView.setOnClickListener(this)
-            itemView.rowTemplate_tvTemplate.setOnClickListener(this)
-            itemView.rowTemplate_tvTemplate.text = data
-        }
-
     }
 
     fun updateList(newList: ArrayList<Template>) {
         val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
             override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                return list[oldItemPosition] == newList[newItemPosition]
             }
 
             override fun getOldListSize(): Int {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                return list.size
             }
 
             override fun getNewListSize(): Int {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                return newList.size
             }
 
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                return list[oldItemPosition] == newList[newItemPosition]
             }
         })
+        list.clear()
+        list.addAll(newList)
         diffResult.dispatchUpdatesTo(this)
     }
 

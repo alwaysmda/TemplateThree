@@ -7,20 +7,16 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
+import com.franmontiel.localechanger.utils.ActivityRecreationHelper
 import com.xodus.templatethree.R
 import com.xodus.templatethree.databinding.FragmentTemplateBinding
-import main.ApplicationClass
 import main.BaseFragment
 import org.greenrobot.eventbus.EventBus
-import org.kodein.di.KodeinAware
-import org.kodein.di.android.x.closestKodein
-import org.kodein.di.generic.instance
-import util.ViewModelFactory
 import util.snack
 import viewmodel.TemplateViewModel
 
-class TemplateFragment : BaseFragment(), KodeinAware {
+class TemplateFragment : BaseFragment() {
 
 
     companion object {
@@ -34,11 +30,7 @@ class TemplateFragment : BaseFragment(), KodeinAware {
 
 
     //Element
-    override val kodein by closestKodein()
-    private val viewModelFactory: ViewModelFactory by instance()
-    private val appClass: ApplicationClass by instance()
     private lateinit var binding: FragmentTemplateBinding //todo : FragmentTemplateBinding
-    private lateinit var viewModel: TemplateViewModel //todo : TemplateViewModel (also add to factory)
 
     //View
 
@@ -54,14 +46,22 @@ class TemplateFragment : BaseFragment(), KodeinAware {
         //        if (!EventBus.getDefault().isRegistered(this)) {
         //            EventBus.getDefault().register(this)
         //        }
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_template, container, false) //todo : fragment_template
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(TemplateViewModel::class.java) //todo : TemplateViewModel
-        binding.viewModel = viewModel
-        binding.appClass = appClass
-        viewModel.handleIntent(arguments)
+        binding = DataBindingUtil.inflate<FragmentTemplateBinding>(inflater, R.layout.fragment_template, container, false).apply {
+            //todo : fragment_template
+            viewModel = ViewModelProvider(this@TemplateFragment, viewModelFactory).get(TemplateViewModel::class.java) //todo : TemplateViewModel
+            lifecycleOwner = viewLifecycleOwner
+            viewModel = viewModel
+            appClass = this@TemplateFragment.appClass
+        }
+        return binding.root
+    }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.viewModel?.handleIntent(arguments)
         init(binding.root)
         observe()
-        return binding.root
     }
 
 
@@ -81,17 +81,20 @@ class TemplateFragment : BaseFragment(), KodeinAware {
     }
 
     private fun observe() {
-        viewModel.showDialog.observe(viewLifecycleOwner, Observer {
+        binding.viewModel?.showDialog?.observe(viewLifecycleOwner, Observer {
             it.show(fragmentManager)
         })
-        viewModel.doBack.observe(viewLifecycleOwner, Observer {
+        binding.viewModel?.doBack?.observe(viewLifecycleOwner, Observer {
             doBack()
         })
-        viewModel.snack.observe(viewLifecycleOwner, Observer {
+        binding.viewModel?.snack?.observe(viewLifecycleOwner, Observer {
             snack(view, it)
         })
-        viewModel.startFragment.observe(viewLifecycleOwner, Observer {
+        binding.viewModel?.startFragment?.observe(viewLifecycleOwner, Observer {
             start(it)
+        })
+        binding.viewModel?.reset?.observe(viewLifecycleOwner, Observer {
+            ActivityRecreationHelper.recreate(baseActivity, true)
         })
     }
 }

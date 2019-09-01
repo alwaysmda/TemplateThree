@@ -2,18 +2,18 @@
 <resources>
     <declare-styleable name="TextViewFonted">
         <attr name="tvf_font" format="enum">
-            <enum name="light" value="0"/>
+            <enum name="medium" value="0"/>
             <enum name="bold" value="1"/>
-            <enum name="medium" value="2"/>
+            <enum name="light" value="2"/>
             <enum name="ultraBold" value="3"/>
             <enum name="ultraLight" value="4"/>
         </attr>
     </declare-styleable>
     <declare-styleable name="EditTextFonted">
         <attr name="etf_font" format="enum">
-            <enum name="light" value="0"/>
+            <enum name="medium" value="0"/>
             <enum name="bold" value="1"/>
-            <enum name="medium" value="2"/>
+            <enum name="light" value="2"/>
             <enum name="ultraBold" value="3"/>
             <enum name="ultraLight" value="4"/>
         </attr>

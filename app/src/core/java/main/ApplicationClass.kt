@@ -5,11 +5,13 @@ import android.app.Application
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Typeface
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import androidx.core.content.res.ResourcesCompat
 import billing.Market
+import com.franmontiel.localechanger.LocaleChanger
 import com.google.firebase.FirebaseApp
 import com.pddstudio.preferences.encrypted.EncryptedPreferences
 import com.xodus.templatethree.BuildConfig
@@ -25,6 +27,7 @@ import org.kodein.di.generic.provider
 import org.kodein.di.generic.singleton
 import util.ViewModelFactory
 import util.copyToClipboard
+import java.util.*
 import kotlin.system.exitProcess
 
 open class ApplicationClass : Application(), KodeinAware {
@@ -60,17 +63,25 @@ open class ApplicationClass : Application(), KodeinAware {
 //            handleUncaughtException(throwable)
 //        }
         encryptedPreferences = EncryptedPreferences.Builder(applicationContext).withEncryptionPassword(BuildConfig.APPLICATION_ID).build()
+        initSharedPreferences()
         initMarket()
         initFont()
         recyclerViewAnimation = AnimationUtils.loadLayoutAnimation(applicationContext, R.anim.anim_layout_animation)
         FirebaseApp.initializeApp(this)
-        //LocaleChanger.initialize(applicationContext, listOf(Locale(Constant.CON_LANG_EN.value), Locale(Constant.CON_LANG_FA.value)))
+        LocaleChanger.initialize(applicationContext, listOf(Locale(CON_LANG_EN.value), Locale(Constant.CON_LANG_FA.value)))
     }
 
-    //    override fun onConfigurationChanged(newConfig: Configuration) {
-    //        super.onConfigurationChanged(newConfig)
-    //        LocaleChanger.onConfigurationChanged()
-    //    }
+        override fun onConfigurationChanged(newConfig: Configuration) {
+            super.onConfigurationChanged(newConfig)
+            LocaleChanger.onConfigurationChanged()
+        }
+
+   private fun initSharedPreferences(){
+        if(getBooleanPref(PREF_PREFERENCES_INITIALIZED).not()){
+            setPref(PREF_LANGUAGE,CON_LANG_EN)
+            setPref(PREF_PREFERENCES_INITIALIZED,true)
+        }
+    }
 
     private fun initMarket() {
         market = when (BuildConfig.FLAVOR) {
@@ -82,33 +93,45 @@ open class ApplicationClass : Application(), KodeinAware {
         }
     }
 
-    private fun initFont() {
-        if (resources.getIdentifier("font_light", "font", packageName) != 0) {
-            fontLight = ResourcesCompat.getFont(this, resources.getIdentifier("font_light", "font", packageName))
-        }
+    fun initFont() {
+        if(getStringPref(PREF_LANGUAGE) == CON_LANG_FA.value) {
+            if (resources.getIdentifier("font_fa_light", "font", packageName) != 0) {
+                fontLight = ResourcesCompat.getFont(this, resources.getIdentifier("font_fa_light", "font", packageName))
+            }
 
-        fontBold = if (resources.getIdentifier("font_bold", "font", packageName) != 0) {
-            ResourcesCompat.getFont(this, resources.getIdentifier("font_bold", "font", packageName))
-        } else {
-            fontLight
-        }
+            fontBold = if (resources.getIdentifier("font_fa_bold", "font", packageName) != 0) {
+                ResourcesCompat.getFont(this, resources.getIdentifier("font_fa_bold", "font", packageName))
+            } else {
+                fontLight
+            }
 
-        fontMedium = if (resources.getIdentifier("font_medium", "font", packageName) != 0) {
-            ResourcesCompat.getFont(this, resources.getIdentifier("font_medium", "font", packageName))
-        } else {
-            fontLight
-        }
+            fontMedium = if (resources.getIdentifier("font_fa_medium", "font", packageName) != 0) {
+                ResourcesCompat.getFont(this, resources.getIdentifier("font_fa_medium", "font", packageName))
+            } else {
+                fontLight
+            }
 
-        fontUltraBold = if (resources.getIdentifier("font_ultra_bold", "font", packageName) != 0) {
-            ResourcesCompat.getFont(this, resources.getIdentifier("font_ultra_bold", "font", packageName))
-        } else {
-            fontLight
-        }
+            fontUltraBold = if (resources.getIdentifier("font_fa_ultra_bold", "font", packageName) != 0) {
+                ResourcesCompat.getFont(this, resources.getIdentifier("font_fa_ultra_bold", "font", packageName))
+            } else {
+                fontLight
+            }
 
-        fontUltraLight = if (resources.getIdentifier("font_ultra_light", "font", packageName) != 0) {
-            ResourcesCompat.getFont(this, resources.getIdentifier("font_ultra_light", "font", packageName))
-        } else {
-            fontLight
+            fontUltraLight = if (resources.getIdentifier("font_fa_ultra_light", "font", packageName) != 0) {
+                ResourcesCompat.getFont(this, resources.getIdentifier("font_fa_ultra_light", "font", packageName))
+            } else {
+                fontLight
+            }
+        }else if (getStringPref(PREF_LANGUAGE) == CON_LANG_EN.value){
+            if (resources.getIdentifier("font_en_light", "font", packageName) != 0) {
+                fontLight = ResourcesCompat.getFont(this, resources.getIdentifier("font_en_light", "font", packageName))
+            }
+
+            fontMedium = if (resources.getIdentifier("font_en_medium", "font", packageName) != 0) {
+                ResourcesCompat.getFont(this, resources.getIdentifier("font_en_medium", "font", packageName))
+            } else {
+                fontLight
+            }
         }
     }
 

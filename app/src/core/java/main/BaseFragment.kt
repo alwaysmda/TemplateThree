@@ -11,13 +11,20 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
 import http.Client
 import org.greenrobot.eventbus.EventBus
+import org.kodein.di.Kodein
+import org.kodein.di.KodeinAware
+import org.kodein.di.android.x.closestKodein
+import org.kodein.di.generic.instance
+import util.ViewModelFactory
 import util.getRandomInt
 import util.getRandomString
 import java.util.*
 
-open class BaseFragment : Fragment() {
+open class BaseFragment : Fragment(), KodeinAware {
 
-    //ELEMENT
+    override val kodein: Kodein by closestKodein()
+    val appClass : ApplicationClass by instance()
+    val viewModelFactory: ViewModelFactory by instance()
     private var ID: String? = null
     lateinit var baseActivity: BaseActivity
     private var tabIndex: Int = 0

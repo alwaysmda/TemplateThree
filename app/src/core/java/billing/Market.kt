@@ -18,9 +18,7 @@ data class Market(
     var intentComment: Intent = Intent(),
     var prefixLinkDetail: String = "",
     var prefixLinkComment: String = "",
-    var storeLink: String = "",
-    var rateText: Int = 0,
-    var notAvailable: Int = 0
+    var storeLink: String = ""
 ) {
 
     enum class MarketType {
@@ -29,21 +27,7 @@ data class Market(
         IRANAPPS,
         GOOGLEPLAY;
     }
-    //    class Builder {
-    //        private var templateString: String = ""
-    //        private var templateInt: Int = 0
-    //        private var isTemplateBoolean: Boolean = false
-    //
-    //        fun templateString(templateString: String) = apply { this.templateString = templateString }
-    //        fun templateInt(templateInt: Int) = apply { this.templateInt = templateInt }
-    //        fun isTemplateBoolean(isTemplateBoolean: Boolean) = apply { this.isTemplateBoolean = isTemplateBoolean }
-    //
-    //        fun build() = Template(
-    //            templateString,
-    //            templateInt,
-    //            isTemplateBoolean
-    //        )
-    //    }
+
 
     constructor(item: Market) : this(
         item.type,
@@ -55,9 +39,7 @@ data class Market(
         item.intentComment,
         item.prefixLinkDetail,
         item.prefixLinkComment,
-        item.storeLink,
-        item.rateText,
-        item.notAvailable
+        item.storeLink
     )
 
     fun toJson(): JSONObject {
@@ -73,8 +55,6 @@ data class Market(
             jsonObject.put("prefixLinkDetail", this.prefixLinkDetail)
             jsonObject.put("prefixLinkComment", this.prefixLinkComment)
             jsonObject.put("storeLink", this.storeLink)
-            jsonObject.put("rateText", this.rateText)
-            jsonObject.put("notAvailable", this.notAvailable)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -100,9 +80,7 @@ data class Market(
                         Intent(Intent.ACTION_VIEW, Uri.parse("bazaar://details?id=${BuildConfig.APPLICATION_ID}")).setPackage(PACKAGE_BAZAAR),
                         "bazaar://details?id=",
                         "bazaar://details?id=",
-                        "https://cafebazaar.ir/app/${BuildConfig.APPLICATION_ID}/?l=fa",
-                        R.string.md_store_rate_bazaar,
-                        R.string.market_unavailable_bazaar
+                        "https://cafebazaar.ir/app/${BuildConfig.APPLICATION_ID}/?l=fa"
                     )
                 }
                 MarketType.MYKET      -> {
@@ -116,9 +94,7 @@ data class Market(
                         Intent(Intent.ACTION_VIEW, Uri.parse("myket://comment?id=${BuildConfig.APPLICATION_ID}")).setPackage(PACKAGE_MYKET),
                         "myket://details?id=",
                         "myket://comment?id=",
-                        "http://myket.ir/app/${BuildConfig.APPLICATION_ID}",
-                        R.string.md_store_rate_myket,
-                        R.string.market_unavailable_myket
+                        "http://myket.ir/app/${BuildConfig.APPLICATION_ID}"
                     )
                 }
                 MarketType.IRANAPPS   -> {
@@ -132,9 +108,7 @@ data class Market(
                         Intent(Intent.ACTION_VIEW, Uri.parse("iranapps://app/${BuildConfig.APPLICATION_ID}")).setPackage(PACKAGE_IRANAPPS),
                         "iranapps://app/",
                         "iranapps://app/",
-                        "http://iranapps.com/app/${BuildConfig.APPLICATION_ID}",
-                        R.string.md_store_rate_iranapps,
-                        R.string.market_unavailable_iranapps
+                        "http://iranapps.com/app/${BuildConfig.APPLICATION_ID}"
                     )
                 }
                 MarketType.GOOGLEPLAY -> {
@@ -148,9 +122,7 @@ data class Market(
                         Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=${BuildConfig.APPLICATION_ID}")).setPackage(PACKAGE_GOOGLEPLAY),
                         "market://details?id=",
                         "market://details?id=",
-                        "http://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}",
-                        R.string.md_store_rate_googleplay,
-                        R.string.market_unavailable_happyinsta
+                        "http://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}"
                     )
                 }
             }

@@ -887,8 +887,9 @@ fun showSoftKeyboard() {
 
 fun copyToClipboard(text: String) {
     val clipboard = ApplicationClass.getInstance().getSystemService(Application.CLIPBOARD_SERVICE) as ClipboardManager
-    val clip = ClipData.newPlainText("copy", text)
-    clipboard.primaryClip = clip
+    val clip = ClipData.newPlainText(BuildConfig.APPLICATION_ID, text)
+    clipboard.setPrimaryClip(clip)
+
 }
 
 fun shortenNumber(number: Double, decimalCount: Int = 1): String {
@@ -1523,28 +1524,6 @@ fun ProgressBar.setTint(color: Int) {
     }
 }
 
-fun wrap(c: Context, language: String): ContextWrapper {
-    var context = c
-    val res = context.resources
-    val configuration = res.configuration
-    val newLocale = Locale(language)
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        configuration.setLocale(newLocale)
-        val localeList = LocaleList(newLocale)
-        LocaleList.setDefault(localeList)
-        configuration.locales = localeList
-        context = context.createConfigurationContext(configuration)
-
-    } else {
-        configuration.setLocale(newLocale)
-        context = context.createConfigurationContext(configuration)
-
-    }
-
-    return ContextWrapper(context)
-}
-
 
 /**=====================================================================================================================================**/
 /**=====================================================================================================================================**/
@@ -1656,7 +1635,10 @@ fun AlarmManager.setExactAndAllowWhileIdleCompat(alarmType: Int, timeMillis: Lon
  */
 fun SpannableString.withClickableSpan(clickablePart: String, onClickListener: () -> Unit): SpannableString {
     val clickableSpan = object : ClickableSpan() {
-        override fun onClick(widget: View?) = onClickListener.invoke()
+        override fun onClick(p0: View) {
+            onClickListener.invoke()
+        }
+
     }
     val clickablePartStart = indexOf(clickablePart)
     setSpan(
