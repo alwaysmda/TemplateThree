@@ -35,35 +35,35 @@ android {
             java.srcDirs = ["src/core/java"]
             res.srcDirs = ["src/core/res"]
             assets.srcDirs = ["src/core/assets"]
-            resources.srcDirs = ["src/core"]
+            resources.srcDirs = ["src/core/res"]
         }
         bazaar {
             manifest.srcFile "src/ourmarket/AndroidManifestBazaar.xml"
             res.srcDirs = ["src/ourmarket/res"]
             java.srcDirs = ["src/ourmarket/java"]
             assets.srcDirs = ["src/ourmarket/assets"]
-            resources.srcDirs = ["src/ourmarket"]
+            resources.srcDirs = ["src/ourmarket/res"]
         }
         iranapps {
             manifest.srcFile "src/ourmarket/AndroidManifestIranapps.xml"
             res.srcDirs = ["src/ourmarket/res"]
             java.srcDirs = ["src/ourmarket/java"]
             assets.srcDirs = ["src/ourmarket/assets"]
-            resources.srcDirs = ["src/ourmarket"]
+            resources.srcDirs = ["src/ourmarket/res"]
         }
         myket {
             manifest.srcFile "src/ourmarket/AndroidManifestMyket.xml"
             res.srcDirs = ["src/ourmarket/res"]
             java.srcDirs = ["src/ourmarket/java"]
             assets.srcDirs = ["src/ourmarket/assets"]
-            resources.srcDirs = ["src/ourmarket"]
+            resources.srcDirs = ["src/ourmarket/res"]
         }
         googleplay {
-            manifest.srcFile "src/ourmarket/AndroidManifestGoogleplay.xml"
+            manifest.srcFile "src/googleplay/AndroidManifestGoogleplay.xml"
             res.srcDirs = ["src/googleplay/res"]
             java.srcDirs = ["src/googleplay/java"]
             assets.srcDirs = ["src/googleplay/assets"]
-            resources.srcDirs = ["src/googleplay"]
+            resources.srcDirs = ["src/googleplay/res"]
         }
     }
 
@@ -85,8 +85,10 @@ dependencies {
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
-    //Kotlin
+    //Data Binding
     kapt "com.android.databinding:compiler:$android_plugin_version"
+
+    //Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     //Appcompat
@@ -131,4 +133,13 @@ dependencies {
 
     //Change Locale
     implementation "com.zeugmasolutions.localehelper:locale-helper-android:1.0.2"
+
+    //Room
+    kapt "androidx.room:room-compiler:2.1.0"
+    implementation "androidx.room:room-runtime:2.1.0"
+    implementation "androidx.room:room-ktx:2.1.0"
+
+    //Coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.1.1"
 }

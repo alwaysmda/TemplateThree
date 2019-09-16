@@ -1,12 +1,15 @@
 package viewmodel
 
 import adapter.TemplateAdapter
+import adapter.TemplateRoomAdapter
 import android.os.Bundle
+import android.text.Selection.selectAll
 import android.view.View
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.common.util.ArrayUtils.removeAll
 import com.xodus.templatethree.R
 import db.TemplateDao
 import dialog.CustomDialog
@@ -15,16 +18,23 @@ import http.Client
 import http.OnResponseListener
 import http.Request
 import http.Response
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import main.ApplicationClass
 import main.BaseFragment
 import main.Constant
 import model.Template
+import model.TemplateRoom
 import util.log
 import java.util.*
 import kotlin.collections.ArrayList
 
 
-class TemplateViewModel(private val repository: Client, private val appClass: ApplicationClass) : ViewModel(),
+class TemplateRoomViewModel(private val repository: Client, private val appClass: ApplicationClass, private val templateDao: TemplateDao) : ViewModel(),
     OnResponseListener {
     override fun onResponse(response: Response) {
         when (response.statusName) {
@@ -57,19 +67,7 @@ class TemplateViewModel(private val repository: Client, private val appClass: Ap
     }
 
     //Local
-    private val list: ArrayList<Template> = ArrayList(
-        arrayListOf(
-            Template("temp 1", 0, false),
-            Template("temp 2", 0, false),
-            Template("temp 3", 0, false),
-            Template("شماره ۴", 0, false),
-            Template("شماره ۵", 0, false),
-            Template("شماره ۶", 0, false),
-            Template("temp 7", 0, false),
-            Template("temp 8", 0, false),
-            Template("temp 9", 0, false)
-        )
-    )
+    private val list: ArrayList<TemplateRoom> = ArrayList()
 
     //Event
     val showDialog: MutableLiveData<CustomDialog> = MutableLiveData()
@@ -80,16 +78,79 @@ class TemplateViewModel(private val repository: Client, private val appClass: Ap
 
     //Binding
     val tvTitleText: ObservableInt = ObservableInt(R.string.app_name)
-    val adapter: ObservableField<TemplateAdapter> = ObservableField(TemplateAdapter(this))
+    val adapter: ObservableField<TemplateRoomAdapter> = ObservableField(TemplateRoomAdapter(this))
 
     init {
         tvTitleText.set(R.string.app_name)
-        adapter.get()?.updateList(list)
+        CoroutineScope(IO).launch {
+            list.addAll(selectAll())
+            updateRecyclerView()
+        }
     }
 
     fun handleIntent(bundle: Bundle?) {
         bundle?.let {
 
+        }
+    }
+
+    fun onBtnAddClick() {
+        CoroutineScope(IO).launch {
+            addItem(TemplateRoom(0, "Item ${list.size + 1}", true))
+            updateRecyclerView()
+        }
+    }
+
+    private suspend fun addItem(item: TemplateRoom) {
+        templateDao.insert(item)
+        list.add(item)
+    }
+
+    fun onBtnRemoveClick() {
+        CoroutineScope(IO).launch {
+            removeItem(list[list.size - 1])
+            updateRecyclerView()
+        }
+    }
+
+    private suspend fun removeItem(item: TemplateRoom) {
+        if (list.isNotEmpty()) {
+            templateDao.delete(list[list.size - 1]._templateInt.toLong())
+            list.remove(item)
+        }
+    }
+
+    fun onBtnResetClick() {
+        CoroutineScope(IO).launch {
+            removeAll()
+            list.clear()
+            updateRecyclerView()
+            delay(500)
+            insertAll()
+            list.addAll(selectAll())
+            updateRecyclerView()
+        }
+    }
+
+    private suspend fun removeAll() {
+        templateDao.deleteAll()
+    }
+
+    private suspend fun insertAll() {
+        templateDao.insertAll(arrayListOf(
+            TemplateRoom(0, "Temp 1", true),
+            TemplateRoom(1, "Temp 2", true),
+            TemplateRoom(2, "Temp 3", true)
+        ))
+    }
+
+    private suspend fun selectAll(): List<TemplateRoom> {
+        return templateDao.selectAll()
+    }
+
+    private suspend fun updateRecyclerView() {
+        withContext(Main) {
+            adapter.get()?.updateList(list)
         }
     }
 
@@ -103,7 +164,7 @@ class TemplateViewModel(private val repository: Client, private val appClass: Ap
         }
     }
 
-    fun onTvItemClick(data: Template, view: View) {
+    fun onTvItemClick(data: TemplateRoom, view: View) {
         log("${view.javaClass.simpleName} index=${list.indexOf(data)} data=$data")
     }
 

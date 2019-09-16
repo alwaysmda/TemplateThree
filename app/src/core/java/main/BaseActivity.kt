@@ -21,6 +21,7 @@ import kotlinx.android.synthetic.main.activity_base.*
 import org.greenrobot.eventbus.EventBus
 import util.*
 import view.TemplateFragment
+import view.TemplateRoomFragment
 import java.util.*
 
 class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener {
@@ -53,9 +54,10 @@ class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener {
         handleIntent()
         setContentView(R.layout.activity_base)
         initFragmentTable(
+            TemplateFragment.newInstance(),
+            TemplateRoomFragment.newInstance()
             //            TemplateFragment.newInstance(),
             //            TemplateFragment.newInstance(),
-            TemplateFragment.newInstance()
         )
         initBottomBar()
         bar.post { barHeight = bar.height }

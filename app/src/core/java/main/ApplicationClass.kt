@@ -14,6 +14,7 @@ import com.pddstudio.preferences.encrypted.EncryptedPreferences
 import com.xodus.templatethree.BuildConfig
 import com.xodus.templatethree.R
 import com.zeugmasolutions.localehelper.LocaleAwareApplication
+import db.TemplateDatabase
 import http.Client
 import main.Constant.*
 import org.kodein.di.Kodein
@@ -32,7 +33,9 @@ open class ApplicationClass : LocaleAwareApplication(), KodeinAware {
         import(androidXModule(this@ApplicationClass))
         bind() from singleton { this@ApplicationClass }
         bind() from singleton { Client() }
-        bind() from provider { ViewModelFactory(instance(), this@ApplicationClass) }
+        bind() from singleton { TemplateDatabase(instance()) }
+        bind() from singleton { instance<TemplateDatabase>().templateDao() }
+        bind() from provider { ViewModelFactory(instance(), instance(), instance()) }
     }
 
 
