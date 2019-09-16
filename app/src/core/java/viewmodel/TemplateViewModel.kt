@@ -7,7 +7,6 @@ import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.franmontiel.localechanger.LocaleChanger
 import com.xodus.templatethree.R
 import dialog.CustomDialog
 import http.API
@@ -19,6 +18,7 @@ import main.ApplicationClass
 import main.BaseFragment
 import main.Constant
 import model.Template
+import util.log
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -58,15 +58,15 @@ class TemplateViewModel(private val repository: Client, private val appClass: Ap
     //Local
     private val list: ArrayList<Template> = ArrayList(
         arrayListOf(
-            Template("temp 1",0,false),
-            Template("temp 2",0,false),
-            Template("temp 3",0,false),
-            Template("شماره ۴",0,false),
-            Template("شماره ۵",0,false),
-            Template("شماره ۶",0,false),
-            Template("temp 7",0,false),
-            Template("temp 8",0,false),
-            Template("temp 9",0,false)
+            Template("temp 1", 0, false),
+            Template("temp 2", 0, false),
+            Template("temp 3", 0, false),
+            Template("شماره ۴", 0, false),
+            Template("شماره ۵", 0, false),
+            Template("شماره ۶", 0, false),
+            Template("temp 7", 0, false),
+            Template("temp 8", 0, false),
+            Template("temp 9", 0, false)
         )
     )
 
@@ -75,10 +75,10 @@ class TemplateViewModel(private val repository: Client, private val appClass: Ap
     val snack: MutableLiveData<Int> = MutableLiveData()
     val doBack: MutableLiveData<Boolean> = MutableLiveData()
     val startFragment: MutableLiveData<BaseFragment> = MutableLiveData()
-    val reset: MutableLiveData<Boolean> = MutableLiveData()
+    val changeLocale: MutableLiveData<Locale> = MutableLiveData()
 
     //Binding
-    val tvTitleText: ObservableInt  = ObservableInt(R.string.app_name)
+    val tvTitleText: ObservableInt = ObservableInt(R.string.app_name)
     val adapter: ObservableField<TemplateAdapter> = ObservableField(TemplateAdapter(this))
 
     init {
@@ -94,13 +94,16 @@ class TemplateViewModel(private val repository: Client, private val appClass: Ap
 
     private fun onItemClick(holder: TemplateAdapter.TemplateViewHolder, view: View?, position: Int) {
         if (appClass.getStringPref(Constant.PREF_LANGUAGE) == Constant.CON_LANG_FA.value) {
-            appClass.setPref(Constant.PREF_LANGUAGE,Constant.CON_LANG_EN.value)
-            LocaleChanger.setLocale(Locale(Constant.CON_LANG_EN.value))
+            appClass.setPref(Constant.PREF_LANGUAGE, Constant.CON_LANG_EN.value)
+            changeLocale.value = Locale(Constant.CON_LANG_EN.value)
         } else {
-            appClass.setPref(Constant.PREF_LANGUAGE,Constant.CON_LANG_FA.value)
-            LocaleChanger.setLocale(Locale(Constant.CON_LANG_FA.value))
+            appClass.setPref(Constant.PREF_LANGUAGE, Constant.CON_LANG_FA.value)
+            changeLocale.value = Locale(Constant.CON_LANG_FA.value)
         }
-        reset.value = true
+    }
+
+    fun onTvItemClick(data: Template, view: View) {
+        log("${view.javaClass.simpleName} index=${list.indexOf(data)} data=$data")
     }
 
     fun onIvBackClick() {

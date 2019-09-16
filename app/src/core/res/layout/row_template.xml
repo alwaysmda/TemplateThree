@@ -3,7 +3,6 @@
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-
         <variable
                 name="appClass"
                 type="main.ApplicationClass" />
@@ -14,23 +13,23 @@
 
         <variable
                 name="viewModel"
-                type="viewmodel.TemplateItemViewModel" />
+                type="viewmodel.TemplateViewModel" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_margin="4dp"
             android:layout_height="wrap_content"
+            android:layout_margin="4dp"
             app:cardCornerRadius="4dp">
 
         <customview.TextViewFonted
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:gravity="center"
-                android:layout_gravity="center"
-                android:onClick="@{() -> viewModel.onTvItemClick()}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:onClick="@{(view) -> viewModel.onTvItemClick(data,view)}"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
                 android:text="@{data.templateString}" />
     </com.google.android.material.card.MaterialCardView>
 </layout>

@@ -1,38 +1,39 @@
 package adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import androidx.databinding.library.baseAdapters.BR
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.xodus.templatethree.databinding.RowTemplateBinding
+import com.xodus.templatethree.R
 import model.Template
 import viewmodel.TemplateViewModel
 
-class TemplateAdapter(
-    private val viewModel: TemplateViewModel
-) : RecyclerView.Adapter<TemplateAdapter.TemplateViewHolder>() {
+class TemplateAdapter(private val viewModel: TemplateViewModel) : RecyclerView.Adapter<TemplateAdapter.TemplateViewHolder>() {
+
     var list: ArrayList<Template> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TemplateViewHolder {
-        return TemplateViewHolder(RowTemplateBinding.inflate(LayoutInflater.from(parent.context), parent, false), viewModel)
+        return TemplateViewHolder(DataBindingUtil.inflate(LayoutInflater.from(parent.context), viewType, parent, false))
     }
 
     override fun getItemCount() = list.size
 
-    override fun onBindViewHolder(holder: TemplateViewHolder, position: Int) {
-        holder.bind(list[position])
+    override fun getItemViewType(position: Int): Int {
+        return R.layout.row_template //todo row_template
     }
 
-    inner class TemplateViewHolder(val binding: RowTemplateBinding, val itemViewModel: TemplateViewModel) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(data: Template) {
+    override fun onBindViewHolder(holder: TemplateViewHolder, position: Int) {
+        holder.bind(list[position], viewModel)
+    }
+
+    inner class TemplateViewHolder(private val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(data: Template, viewModel: TemplateViewModel) {
             binding.setVariable(BR.data, data)
+            binding.setVariable(BR.viewModel, viewModel)
             binding.executePendingBindings()
-            //            itemViewModel.snack.observe(binding.lifecycleOwner!!, Observer {
-            //                viewModel.snack.value = it
-            //            })
         }
     }
 

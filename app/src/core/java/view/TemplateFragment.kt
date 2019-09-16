@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.franmontiel.localechanger.utils.ActivityRecreationHelper
 import com.xodus.templatethree.R
 import com.xodus.templatethree.databinding.FragmentTemplateBinding
 import main.BaseFragment
@@ -93,8 +92,8 @@ class TemplateFragment : BaseFragment() {
         binding.viewModel?.startFragment?.observe(viewLifecycleOwner, Observer {
             start(it)
         })
-        binding.viewModel?.reset?.observe(viewLifecycleOwner, Observer {
-            ActivityRecreationHelper.recreate(baseActivity, true)
+        binding.viewModel?.changeLocale?.observe(viewLifecycleOwner, Observer {
+            baseActivity.updateLocale(it)
         })
     }
 }

@@ -9,13 +9,11 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.annotation.NonNull
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.animation.doOnEnd
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
-import com.franmontiel.localechanger.LocaleChanger
-import com.franmontiel.localechanger.utils.ActivityRecreationHelper
 import com.xodus.templatethree.R
+import com.zeugmasolutions.localehelper.LocaleAwareCompatActivity
 import event.OnActivityResultEvent
 import event.OnRequestPermissionResultEvent
 import http.*
@@ -25,12 +23,13 @@ import util.*
 import view.TemplateFragment
 import java.util.*
 
-class BaseActivity : AppCompatActivity(), OnResponseListener {
+class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener {
     companion object {
         const val TAB_ONE = 0
         const val TAB_TWO = 1
         const val TAB_THREE = 2
     }
+
     private lateinit var fragmentTable: ArrayList<ArrayList<BaseFragment>>
     private lateinit var currentFragment: BaseFragment
     private var currentTabIndex = TAB_ONE
@@ -54,8 +53,8 @@ class BaseActivity : AppCompatActivity(), OnResponseListener {
         handleIntent()
         setContentView(R.layout.activity_base)
         initFragmentTable(
-//            TemplateFragment.newInstance(),
-//            TemplateFragment.newInstance(),
+            //            TemplateFragment.newInstance(),
+            //            TemplateFragment.newInstance(),
             TemplateFragment.newInstance()
         )
         initBottomBar()
@@ -64,23 +63,11 @@ class BaseActivity : AppCompatActivity(), OnResponseListener {
 
     override fun onResume() {
         super.onResume()
-        Handler().postDelayed({appClass.setPref(Constant.PREF_CRASH_REPEATING,false)},2000)
-        ActivityRecreationHelper.onResume(this)
-    }
-
-    override fun attachBaseContext(context: Context) {
-        val newBase = LocaleChanger.configureBaseContext(context)
-        super.attachBaseContext(newBase)
-        appClass.initFont()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        ActivityRecreationHelper.onDestroy(this)
+        Handler().postDelayed({ appClass.setPref(Constant.PREF_CRASH_REPEATING, false) }, 2000)
     }
 
     override fun onResponse(response: Response) {
-        log("BASE ACTIVITY",response.toJSONObject().toString())
+        log("BASE ACTIVITY", response.toJSONObject().toString())
     }
 
     override fun onProgress(request: Request, bytesWritten: Long, totalSize: Long, percent: Int) {
@@ -94,17 +81,20 @@ class BaseActivity : AppCompatActivity(), OnResponseListener {
                 if (jsonObject.has("crash")) {
                     Toast.makeText(appClass, "-=REPORTING CRASH=-", Toast.LENGTH_SHORT).show()
                     client.request(
-                        API.ReportError(this,
+                        API.ReportError(
+                            this,
                             jsonObject.getString("time"),
                             jsonObject.getString("class"),
                             jsonObject.getString("method"),
-                            jsonObject.getString("message")))
+                            jsonObject.getString("message")
+                        )
+                    )
                 } else if (jsonObject.has("class")) {
                     if (jsonObject.getString("class") == "BaseActivity") {
                         if (jsonObject.has("action")) {
                             when (jsonObject.getString("action")) {
                                 "toast" -> toast(jsonObject.toString())
-                                "pref" -> appClass.setPref(Constant.valueOf(jsonObject.getString("pref_key")), jsonObject.get("pref_value"))
+                                "pref"  -> appClass.setPref(Constant.valueOf(jsonObject.getString("pref_key")), jsonObject.get("pref_value"))
                             }
                         }
                     } else {
@@ -211,8 +201,8 @@ class BaseActivity : AppCompatActivity(), OnResponseListener {
 
     fun selectTab(index: Int) {
         when (index) {
-            TAB_ONE -> bar.selectedItemId = R.id.navigation_one
-            TAB_TWO -> bar.selectedItemId = R.id.navigation_two
+            TAB_ONE   -> bar.selectedItemId = R.id.navigation_one
+            TAB_TWO   -> bar.selectedItemId = R.id.navigation_two
             TAB_THREE -> bar.selectedItemId = R.id.navigation_three
         }
     }
@@ -323,13 +313,13 @@ class BaseActivity : AppCompatActivity(), OnResponseListener {
     private fun initBottomBar() {
         bar.setOnNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.navigation_one -> if (currentTabIndex == TAB_ONE) {
+                R.id.navigation_one   -> if (currentTabIndex == TAB_ONE) {
                     tabReselected()
                 } else {
                     currentTabIndex = TAB_ONE
                     tabSelected()
                 }
-                R.id.navigation_two -> if (currentTabIndex == TAB_TWO) {
+                R.id.navigation_two   -> if (currentTabIndex == TAB_TWO) {
                     tabReselected()
                 } else {
                     currentTabIndex = TAB_TWO

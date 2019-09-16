@@ -1,21 +1,19 @@
 package main
 
 import android.app.AlarmManager
-import android.app.Application
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.graphics.Typeface
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import androidx.core.content.res.ResourcesCompat
 import billing.Market
-import com.franmontiel.localechanger.LocaleChanger
 import com.google.firebase.FirebaseApp
 import com.pddstudio.preferences.encrypted.EncryptedPreferences
 import com.xodus.templatethree.BuildConfig
 import com.xodus.templatethree.R
+import com.zeugmasolutions.localehelper.LocaleAwareApplication
 import http.Client
 import main.Constant.*
 import org.kodein.di.Kodein
@@ -27,10 +25,9 @@ import org.kodein.di.generic.provider
 import org.kodein.di.generic.singleton
 import util.ViewModelFactory
 import util.copyToClipboard
-import java.util.*
 import kotlin.system.exitProcess
 
-open class ApplicationClass : Application(), KodeinAware {
+open class ApplicationClass : LocaleAwareApplication(), KodeinAware {
     override val kodein by Kodein.lazy {
         import(androidXModule(this@ApplicationClass))
         bind() from singleton { this@ApplicationClass }
@@ -59,27 +56,22 @@ open class ApplicationClass : Application(), KodeinAware {
     override fun onCreate() {
         super.onCreate()
         instance = this
-//        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-//            handleUncaughtException(throwable)
-//        }
+        //        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+        //            handleUncaughtException(throwable)
+        //        }
         encryptedPreferences = EncryptedPreferences.Builder(applicationContext).withEncryptionPassword(BuildConfig.APPLICATION_ID).build()
         initSharedPreferences()
         initMarket()
         initFont()
         recyclerViewAnimation = AnimationUtils.loadLayoutAnimation(applicationContext, R.anim.anim_layout_animation)
         FirebaseApp.initializeApp(this)
-        LocaleChanger.initialize(applicationContext, listOf(Locale(CON_LANG_EN.value), Locale(Constant.CON_LANG_FA.value)))
     }
 
-        override fun onConfigurationChanged(newConfig: Configuration) {
-            super.onConfigurationChanged(newConfig)
-            LocaleChanger.onConfigurationChanged()
-        }
 
-   private fun initSharedPreferences(){
-        if(getBooleanPref(PREF_PREFERENCES_INITIALIZED).not()){
-            setPref(PREF_LANGUAGE,CON_LANG_EN)
-            setPref(PREF_PREFERENCES_INITIALIZED,true)
+    private fun initSharedPreferences() {
+        if (getBooleanPref(PREF_PREFERENCES_INITIALIZED).not()) {
+            setPref(PREF_LANGUAGE, CON_LANG_EN)
+            setPref(PREF_PREFERENCES_INITIALIZED, true)
         }
     }
 
@@ -94,7 +86,7 @@ open class ApplicationClass : Application(), KodeinAware {
     }
 
     fun initFont() {
-        if(getStringPref(PREF_LANGUAGE) == CON_LANG_FA.value) {
+        if (getStringPref(PREF_LANGUAGE) == CON_LANG_FA.value) {
             if (resources.getIdentifier("font_fa_light", "font", packageName) != 0) {
                 fontLight = ResourcesCompat.getFont(this, resources.getIdentifier("font_fa_light", "font", packageName))
             }
@@ -122,7 +114,7 @@ open class ApplicationClass : Application(), KodeinAware {
             } else {
                 fontLight
             }
-        }else if (getStringPref(PREF_LANGUAGE) == CON_LANG_EN.value){
+        } else if (getStringPref(PREF_LANGUAGE) == CON_LANG_EN.value) {
             if (resources.getIdentifier("font_en_light", "font", packageName) != 0) {
                 fontLight = ResourcesCompat.getFont(this, resources.getIdentifier("font_en_light", "font", packageName))
             }

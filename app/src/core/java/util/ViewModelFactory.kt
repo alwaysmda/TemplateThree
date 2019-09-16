@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import http.Client
 import main.ApplicationClass
-import viewmodel.TemplateItemViewModel
 import viewmodel.TemplateViewModel
 
 class ViewModelFactory(private val repository: Client, private val appClass: ApplicationClass) : ViewModelProvider.NewInstanceFactory() {
@@ -13,9 +12,6 @@ class ViewModelFactory(private val repository: Client, private val appClass: App
         return when (modelClass) {
             TemplateViewModel::class.java          -> {
                 TemplateViewModel(repository, appClass) as T
-            }
-            TemplateItemViewModel::class.java -> {
-                TemplateItemViewModel(repository, appClass) as T
             }
 
 
