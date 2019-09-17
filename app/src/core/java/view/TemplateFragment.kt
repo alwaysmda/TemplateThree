@@ -4,14 +4,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.xodus.templatethree.R
 import com.xodus.templatethree.databinding.FragmentTemplateBinding
+import customview.TextViewFonted
 import main.BaseFragment
 import org.greenrobot.eventbus.EventBus
+import util.changeChildFont
 import util.snack
 import viewmodel.TemplateViewModel
 
@@ -77,7 +83,10 @@ class TemplateFragment : BaseFragment() {
             it.setDisplayHomeAsUpEnabled(false)
             it.setDisplayShowHomeEnabled(true)
         }
+        val view = v.findViewById<ConstraintLayout>(R.id.toolbar_parent)
+        view.changeChildFont()
     }
+
 
     private fun observe() {
         binding.viewModel?.showDialog?.observe(viewLifecycleOwner, Observer {

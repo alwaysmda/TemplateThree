@@ -12,10 +12,10 @@ import java.util.*
 
 @Entity(tableName = "tbl_template_room")
 data class TemplateRoom(
-    @PrimaryKey(autoGenerate = true)
-    var _templateInt: Int = 0,
     var _templateString: String = "",
-    var _templateBoolean: Boolean = false
+    var _templateBoolean: Boolean = false,
+    @PrimaryKey(autoGenerate = true)
+    var _templateInt: Int = 0
 ) : BaseObservable() {
 
     var templateInt: Int
@@ -43,17 +43,17 @@ data class TemplateRoom(
         }
 
     constructor(item: TemplateRoom) : this(
-        item.templateInt,
         item.templateString,
-        item.templateBoolean
+        item.templateBoolean,
+        item.templateInt
     )
 
     fun toJson(): JSONObject {
         val jsonObject = JSONObject()
         try {
-            jsonObject.put("templateInt", this.templateInt)
             jsonObject.put("templateString", this.templateString)
             jsonObject.put("templateBoolean", this.templateBoolean)
+            jsonObject.put("templateInt", this.templateInt)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -107,9 +107,9 @@ data class TemplateRoom(
         fun toModel(jsonObject: JSONObject): TemplateRoom {
             val item = TemplateRoom()
             try {
-                item.templateInt = jsonObject.getInt("templateInt")
                 item.templateString = jsonObject.getString("templateString")
                 item.templateBoolean = jsonObject.getBoolean("templateBoolean")
+                item.templateInt = jsonObject.getInt("templateInt")
             } catch (e: Exception) {
                 e.printStackTrace()
             }

@@ -19,26 +19,30 @@ import event.OnRequestPermissionResultEvent
 import http.*
 import kotlinx.android.synthetic.main.activity_base.*
 import org.greenrobot.eventbus.EventBus
+import org.kodein.di.Kodein
+import org.kodein.di.KodeinAware
+import org.kodein.di.android.closestKodein
+import org.kodein.di.generic.instance
 import util.*
 import view.TemplateFragment
 import view.TemplateRoomFragment
 import java.util.*
 
-class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener {
+class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener, KodeinAware {
     companion object {
         const val TAB_ONE = 0
         const val TAB_TWO = 1
-        const val TAB_THREE = 2
     }
 
+    override val kodein: Kodein by closestKodein()
     private lateinit var fragmentTable: ArrayList<ArrayList<BaseFragment>>
     private lateinit var currentFragment: BaseFragment
     private var currentTabIndex = TAB_ONE
     private val startMode = StartMode.MultiInstance
     private val exitMode = ExitMode.BackToFirstTab
     private var barHeight: Int = 0
-    private val client = Client.getInstance()
-    private val appClass = ApplicationClass.getInstance()
+    private val client : Client by instance()
+    private val appClass : ApplicationClass by instance()
 
     private enum class StartMode {
         SingleInstance, MultiInstance
@@ -50,6 +54,7 @@ class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
+        appClass.initFont()
         super.onCreate(savedInstanceState)
         handleIntent()
         setContentView(R.layout.activity_base)
@@ -205,7 +210,6 @@ class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener {
         when (index) {
             TAB_ONE   -> bar.selectedItemId = R.id.navigation_one
             TAB_TWO   -> bar.selectedItemId = R.id.navigation_two
-            TAB_THREE -> bar.selectedItemId = R.id.navigation_three
         }
     }
 
@@ -325,12 +329,6 @@ class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener {
                     tabReselected()
                 } else {
                     currentTabIndex = TAB_TWO
-                    tabSelected()
-                }
-                R.id.navigation_three -> if (currentTabIndex == TAB_THREE) {
-                    tabReselected()
-                } else {
-                    currentTabIndex = TAB_THREE
                     tabSelected()
                 }
             }

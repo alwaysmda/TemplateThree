@@ -93,7 +93,8 @@ class TemplateViewModel(private val repository: Client, private val appClass: Ap
         }
     }
 
-    private fun onItemClick(holder: TemplateAdapter.TemplateViewHolder, view: View?, position: Int) {
+    fun onTvItemClick(data: Template, view: View) {
+        log("${view.javaClass.simpleName} index=${list.indexOf(data)} data=$data")
         if (appClass.getStringPref(Constant.PREF_LANGUAGE) == Constant.CON_LANG_FA.value) {
             appClass.setPref(Constant.PREF_LANGUAGE, Constant.CON_LANG_EN.value)
             changeLocale.value = Locale(Constant.CON_LANG_EN.value)
@@ -101,14 +102,6 @@ class TemplateViewModel(private val repository: Client, private val appClass: Ap
             appClass.setPref(Constant.PREF_LANGUAGE, Constant.CON_LANG_FA.value)
             changeLocale.value = Locale(Constant.CON_LANG_FA.value)
         }
-    }
-
-    fun onTvItemClick(data: Template, view: View) {
-        log("${view.javaClass.simpleName} index=${list.indexOf(data)} data=$data")
-    }
-
-    fun onIvBackClick() {
-        doBack.value = true
     }
 
     private fun gotDownload(response: Response) {

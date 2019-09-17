@@ -27,52 +27,103 @@
                 android:id="@+id/template_rvTemp"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/template_llPanel"
                 android:layout_marginTop="48dp"
                 android:adapter="@{viewModel.adapter}"
                 android:layoutAnimation="@{appClass.recyclerViewAnimation}"
                 android:orientation="vertical"
                 android:padding="4dp"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:layout_constraintBottom_toTopOf="@id/template_llPanel"
+                app:layout_constraintTop_toTopOf="parent"
                 app:spanCount="3" />
 
-
         <LinearLayout
+                android:id="@+id/template_llPanel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:id="@+id/template_llPanel"
+                android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent">
 
-            <com.google.android.material.button.MaterialButton
-                    android:layout_width="0dp"
+            <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginRight="2dp"
-                    android:layout_weight="1"
-                    android:onClick="@{() -> viewModel.onBtnAddClick()}"
-                    android:text="Add" />
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="parent">
 
-            <com.google.android.material.button.MaterialButton
-                    android:layout_width="0dp"
+                <com.google.android.material.button.MaterialButton
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_marginRight="2dp"
+                        android:layout_weight="1"
+                        android:onClick="@{() -> viewModel.onBtnAddClick()}"
+                        android:text="Add"
+                        android:typeface="@{appClass.fontMedium}"
+                        app:cornerRadius="20dp" />
+
+                <com.google.android.material.button.MaterialButton
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="2dp"
+                        android:layout_marginRight="2dp"
+                        android:layout_weight="1"
+                        android:onClick="@{() -> viewModel.onBtnRemoveClick()}"
+                        android:text="Remove"
+                        android:typeface="@{appClass.fontMedium}"
+                        app:cornerRadius="20dp" />
+
+                <com.google.android.material.button.MaterialButton
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="2dp"
+                        android:layout_marginRight="4dp"
+                        android:layout_weight="1"
+                        android:onClick="@{() -> viewModel.onBtnResetClick()}"
+                        android:text="Reset"
+                        android:typeface="@{appClass.fontMedium}"
+                        app:cornerRadius="20dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="2dp"
-                    android:layout_marginRight="2dp"
-                    android:layout_weight="1"
-                    android:onClick="@{() -> viewModel.onBtnRemoveClick()}"
-                    android:text="Remove" />
+                    android:orientation="horizontal">
 
-            <com.google.android.material.button.MaterialButton
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="2dp"
-                    android:layout_marginRight="4dp"
-                    android:layout_weight="1"
-                    android:onClick="@{() -> viewModel.onBtnResetClick()}"
-                    android:text="Reset" />
+                <com.google.android.material.button.MaterialButton
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_marginRight="2dp"
+                        android:layout_weight="1"
+                        android:onClick="@{() -> viewModel.onBtnAddAllClick()}"
+                        android:text="Add All"
+                        android:typeface="@{appClass.fontMedium}"
+                        app:cornerRadius="20dp" />
 
+                <com.google.android.material.button.MaterialButton
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="2dp"
+                        android:layout_marginRight="2dp"
+                        android:layout_weight="1"
+                        android:onClick="@{() -> viewModel.onBtnRemoveAllClick()}"
+                        android:text="Remove All"
+                        android:typeface="@{appClass.fontMedium}"
+                        app:cornerRadius="20dp" />
+
+                <com.google.android.material.button.MaterialButton
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="2dp"
+                        android:layout_marginRight="4dp"
+                        android:layout_weight="1"
+                        android:onClick="@{() -> viewModel.onBtnSortClick()}"
+                        android:text="Sort"
+                        android:typeface="@{appClass.fontMedium}"
+                        app:cornerRadius="20dp" />
+
+            </LinearLayout>
         </LinearLayout>
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

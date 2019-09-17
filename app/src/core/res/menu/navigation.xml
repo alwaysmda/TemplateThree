@@ -10,8 +10,4 @@
             android:id="@+id/navigation_two"
             android:icon="@drawable/ic_launcher"
             android:title="@string/two" />
-    <item
-            android:id="@+id/navigation_three"
-            android:icon="@drawable/ic_launcher"
-            android:title="@string/three" />
 </menu>

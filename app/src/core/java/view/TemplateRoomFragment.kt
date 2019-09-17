@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -13,6 +14,7 @@ import com.xodus.templatethree.databinding.FragmentTemplateBinding
 import com.xodus.templatethree.databinding.FragmentTemplateRoomBinding
 import main.BaseFragment
 import org.greenrobot.eventbus.EventBus
+import util.changeChildFont
 import util.snack
 import viewmodel.TemplateRoomViewModel
 import viewmodel.TemplateViewModel
@@ -79,6 +81,8 @@ class TemplateRoomFragment : BaseFragment() {
             it.setDisplayHomeAsUpEnabled(false)
             it.setDisplayShowHomeEnabled(true)
         }
+        val view = v.findViewById<ConstraintLayout>(R.id.toolbar_parent)
+        view.changeChildFont()
     }
 
     private fun observe() {

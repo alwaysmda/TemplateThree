@@ -20,7 +20,7 @@
             android:layout_gravity="bottom"
             android:background="@color/md_white_1000"
             android:hapticFeedbackEnabled="true"
-            android:theme="@style/Widget.BottomNavigationViewFonted"
+            android:theme="@style/BottomNavigationViewFontedFa"
             app:itemBackground="@color/md_white_1000"
             app:itemRippleColor="@color/md_white_1000"
             app:itemTextColor="@color/colorPrimary"

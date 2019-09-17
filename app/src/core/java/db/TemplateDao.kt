@@ -14,7 +14,7 @@ interface TemplateDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(list: ArrayList<TemplateRoom>)
 
-    @Query(value = "SELECT * FROM tbl_template_room ORDER BY _templateString ASC")
+    @Query(value = "SELECT * FROM tbl_template_room ORDER BY _templateInt ASC")
     suspend fun selectAll(): List<TemplateRoom>
 
     @Query("DELETE FROM tbl_template_room")

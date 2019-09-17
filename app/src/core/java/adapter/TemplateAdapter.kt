@@ -13,7 +13,7 @@ import viewmodel.TemplateViewModel
 
 class TemplateAdapter(private val viewModel: TemplateViewModel) : RecyclerView.Adapter<TemplateAdapter.TemplateViewHolder>() {
 
-    var list: ArrayList<Template> = ArrayList()
+    var list: ArrayList<Template> = ArrayList() //todo Template
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TemplateViewHolder {
         return TemplateViewHolder(DataBindingUtil.inflate(LayoutInflater.from(parent.context), viewType, parent, false))
@@ -30,14 +30,14 @@ class TemplateAdapter(private val viewModel: TemplateViewModel) : RecyclerView.A
     }
 
     inner class TemplateViewHolder(private val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(data: Template, viewModel: TemplateViewModel) {
+        fun bind(data: Any, viewModel: TemplateViewModel) {
             binding.setVariable(BR.data, data)
             binding.setVariable(BR.viewModel, viewModel)
             binding.executePendingBindings()
         }
     }
 
-    fun updateList(newList: ArrayList<Template>) {
+    fun updateList(newList: ArrayList<Template>) { //todo Template
         val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
             override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
                 return list[oldItemPosition] == newList[newItemPosition]

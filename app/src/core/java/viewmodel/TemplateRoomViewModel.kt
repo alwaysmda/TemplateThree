@@ -68,6 +68,7 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
 
     //Local
     private val list: ArrayList<TemplateRoom> = ArrayList()
+    private var sortDesc = false
 
     //Event
     val showDialog: MutableLiveData<CustomDialog> = MutableLiveData()
@@ -96,27 +97,21 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
 
     fun onBtnAddClick() {
         CoroutineScope(IO).launch {
-            addItem(TemplateRoom(0, "Item ${list.size + 1}", true))
+            val item = TemplateRoom("Item ${list.size + 1}", true)
+            list.add(item)
             updateRecyclerView()
+            addItem(item)
         }
-    }
-
-    private suspend fun addItem(item: TemplateRoom) {
-        templateDao.insert(item)
-        list.add(item)
     }
 
     fun onBtnRemoveClick() {
-        CoroutineScope(IO).launch {
-            removeItem(list[list.size - 1])
-            updateRecyclerView()
-        }
-    }
-
-    private suspend fun removeItem(item: TemplateRoom) {
         if (list.isNotEmpty()) {
-            templateDao.delete(list[list.size - 1]._templateInt.toLong())
-            list.remove(item)
+            CoroutineScope(IO).launch {
+                val item = list[list.size - 1]
+                list.remove(item)
+                updateRecyclerView()
+                removeItem(item)
+            }
         }
     }
 
@@ -132,16 +127,56 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
         }
     }
 
+    fun onBtnAddAllClick() {
+        CoroutineScope(IO).launch {
+            insertAll()
+            list.clear()
+            list.addAll(selectAll())
+            updateRecyclerView()
+        }
+    }
+
+    fun onBtnRemoveAllClick() {
+        CoroutineScope(IO).launch {
+            removeAll()
+            list.clear()
+            updateRecyclerView()
+        }
+    }
+
+    fun onBtnSortClick() {
+        CoroutineScope(IO).launch {
+            val result = selectAll()
+            list.clear()
+            sortDesc = sortDesc.not()
+            if (sortDesc) {
+                list.addAll(result.sortedByDescending { it.templateInt })
+            } else {
+                list.addAll(result.sortedBy { it.templateInt })
+            }
+            updateRecyclerView()
+        }
+    }
+
+
+    private suspend fun addItem(item: TemplateRoom) {
+        templateDao.insert(item)
+    }
+
+    private suspend fun removeItem(item: TemplateRoom) {
+        templateDao.delete(item._templateInt.toLong())
+    }
+
     private suspend fun removeAll() {
         templateDao.deleteAll()
     }
 
     private suspend fun insertAll() {
-        templateDao.insertAll(arrayListOf(
-            TemplateRoom(0, "Temp 1", true),
-            TemplateRoom(1, "Temp 2", true),
-            TemplateRoom(2, "Temp 3", true)
-        ))
+        val result: ArrayList<TemplateRoom> = ArrayList()
+        for (i in 1..20) {
+            result.add(TemplateRoom("Item $i", true))
+        }
+        templateDao.insertAll(result)
     }
 
     private suspend fun selectAll(): List<TemplateRoom> {
@@ -154,18 +189,13 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
         }
     }
 
-    private fun onItemClick(holder: TemplateAdapter.TemplateViewHolder, view: View?, position: Int) {
-        if (appClass.getStringPref(Constant.PREF_LANGUAGE) == Constant.CON_LANG_FA.value) {
-            appClass.setPref(Constant.PREF_LANGUAGE, Constant.CON_LANG_EN.value)
-            changeLocale.value = Locale(Constant.CON_LANG_EN.value)
-        } else {
-            appClass.setPref(Constant.PREF_LANGUAGE, Constant.CON_LANG_FA.value)
-            changeLocale.value = Locale(Constant.CON_LANG_FA.value)
-        }
-    }
-
     fun onTvItemClick(data: TemplateRoom, view: View) {
         log("${view.javaClass.simpleName} index=${list.indexOf(data)} data=$data")
+        val index = list.indexOf(data)
+        list.shuffle()
+        list.remove(data)
+        list.add(index, data)
+        adapter.get()?.updateList(list)
     }
 
     fun onIvBackClick() {
