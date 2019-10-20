@@ -353,31 +353,42 @@ class Client() {
     }
 
     private fun applyParams(request: Request) {
-        val body = MultipartBody.Builder()
-
         when (request._method) {
             GET, DOWNLOAD     -> {
             }
             POST, PUT, DELETE -> {
-                body.setType(MultipartBody.FORM)
-                if (request._params.isNotEmpty()) {
+                if (hasFiles(request)) {
+                    val body = MultipartBody.Builder()
+                    body.setType(MultipartBody.FORM)
+                    if (request._params.isNotEmpty()) {
+                        for (key in request._params.keys) {
+                            val item = request._params[key]
+                            if (item != null) {
+                                if (item is File) {
+                                    val file = item as File?
+                                    body.addFormDataPart(
+                                        key,
+                                        file!!.name,
+                                        RequestBody.create(MediaType.parse("multipart/form-data"), file)
+                                    )
+                                } else {
+                                    body.addFormDataPart(key, item.toString())
+                                }
+                            }
+                        }
+                        requestBody = body.build()
+                    } else {
+                        requestBody = RequestBody.create(null, ByteArray(0))
+                    }
+                } else {
+                    val body = FormBody.Builder()
                     for (key in request._params.keys) {
                         val item = request._params[key]
                         if (item != null) {
-                            if (item is File) {
-                                body.addFormDataPart(
-                                    key,
-                                    item.name,
-                                    RequestBody.create(MediaType.parse("multipart/form-data"), item)
-                                )
-                            } else {
-                                body.addFormDataPart(key, item.toString())
-                            }
+                            body.add(key, item.toString())
                         }
                     }
                     requestBody = body.build()
-                } else {
-                    requestBody = RequestBody.create(null, ByteArray(0))
                 }
             }
             RAW               -> requestBody = if (request._raw.isEmpty()) {
@@ -386,6 +397,19 @@ class Client() {
                 RequestBody.create(MediaType.parse("application/json; charset=utf-8"), request._raw)
             }
         }
+    }
+
+    private fun hasFiles(request: Request): Boolean {
+        var isFile = false
+        for (key in request._params.keys) {
+            val item = request._params[key]
+            if (item != null) {
+                if (item is File) {
+                    isFile = true
+                }
+            }
+        }
+        return isFile
     }
 
     fun cancelAllRequests() {
