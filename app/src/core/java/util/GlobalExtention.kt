@@ -1524,11 +1524,11 @@ fun ProgressBar.setTint(color: Int) {
     }
 }
 
-fun ViewGroup.changeChildFont(){
+fun ViewGroup.changeChildFont(typeface : Typeface){
     for (i in 0 until childCount) {
         val view = getChildAt(i)
         if (view is TextView) {
-            view.typeface = appClass.fontMedium
+            view.typeface = ApplicationClass.getInstance().fontMedium
         }
     }
 }

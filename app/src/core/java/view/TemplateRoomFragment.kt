@@ -82,7 +82,7 @@ class TemplateRoomFragment : BaseFragment() {
             it.setDisplayShowHomeEnabled(true)
         }
         val view = v.findViewById<ConstraintLayout>(R.id.toolbar_parent)
-        view.changeChildFont()
+        view.changeChildFont(appClass.fontMedium!!)
     }
 
     private fun observe() {

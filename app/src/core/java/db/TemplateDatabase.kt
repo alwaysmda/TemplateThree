@@ -6,7 +6,7 @@ import androidx.room.RoomDatabase
 import main.ApplicationClass
 import model.TemplateRoom
 
-@Database(entities = [TemplateRoom::class], version = 1)
+@Database(entities = [TemplateRoom::class], version = 1, exportSchema = false)
 abstract class TemplateDatabase : RoomDatabase() {
 
     abstract fun templateDao(): TemplateDao

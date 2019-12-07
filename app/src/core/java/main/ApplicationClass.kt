@@ -26,6 +26,7 @@ import org.kodein.di.generic.provider
 import org.kodein.di.generic.singleton
 import util.ViewModelFactory
 import util.copyToClipboard
+import util.log
 import kotlin.system.exitProcess
 
 open class ApplicationClass : LocaleAwareApplication(), KodeinAware {
@@ -73,7 +74,7 @@ open class ApplicationClass : LocaleAwareApplication(), KodeinAware {
 
     private fun initSharedPreferences() {
         if (getBooleanPref(PREF_PREFERENCES_INITIALIZED).not()) {
-            setPref(PREF_LANGUAGE, CON_LANG_EN)
+            setPref(PREF_LANGUAGE, CON_LANG_EN.value)
             setPref(PREF_PREFERENCES_INITIALIZED, true)
         }
     }
