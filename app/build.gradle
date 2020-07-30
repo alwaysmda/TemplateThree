@@ -92,29 +92,29 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     //Appcompat
-    implementation "androidx.appcompat:appcompat:1.1.0-rc01"
+    implementation "androidx.appcompat:appcompat:1.3.0-alpha01"
 
     //AndroidX
-    implementation "androidx.core:core-ktx:1.2.0-alpha04"
+    implementation "androidx.core:core-ktx:1.5.0-alpha01"
 
     //ConstraintLayout
     implementation "androidx.constraintlayout:constraintlayout:1.1.3"
 
     //Lifecycle
-    implementation "androidx.lifecycle:lifecycle-extensions:2.1.0"
+    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
 
     //Kodein Dependency Injection
-    implementation "org.kodein.di:kodein-di-generic-jvm:6.3.3"
-    implementation "org.kodein.di:kodein-di-framework-android-x:6.3.3"
+    implementation "org.kodein.di:kodein-di-generic-jvm:6.5.5"
+    implementation "org.kodein.di:kodein-di-framework-android-x:6.5.5"
 
     //Google Material
-    implementation "com.google.android.material:material:1.1.0-alpha10"
+    implementation "com.google.android.material:material:1.3.0-alpha01"
 
     //Android async http request
-    implementation "com.squareup.okhttp3:okhttp:3.12.0"
+    implementation "com.squareup.okhttp3:okhttp:3.12.0" // do not update!!! (SSL BUG)
 
     //FCM
-    implementation "com.google.firebase:firebase-messaging:20.0.0"
+    implementation "com.google.firebase:firebase-messaging:20.2.3"
 
     //encrypted preference
     implementation "com.pddstudio:encrypted-preferences:1.3.0"
@@ -123,7 +123,7 @@ dependencies {
     implementation "org.greenrobot:eventbus:3.1.1"
 
     //In-app Billing
-    implementation "com.anjlab.android.iab.v3:library:1.0.44"
+    implementation "com.anjlab.android.iab.v3:library:1.1.0"
 
     //MD5
     implementation "commons-codec:commons-codec:20041127.091804"
@@ -132,14 +132,14 @@ dependencies {
     implementation "com.squareup.picasso:picasso:2.71828"
 
     //Change Locale
-    implementation "com.zeugmasolutions.localehelper:locale-helper-android:1.0.2"
+    implementation "com.zeugmasolutions.localehelper:locale-helper-android:1.0.4"
 
     //Room
-    kapt "androidx.room:room-compiler:2.1.0"
-    implementation "androidx.room:room-runtime:2.1.0"
-    implementation "androidx.room:room-ktx:2.1.0"
+    kapt "androidx.room:room-compiler:2.2.5"
+    implementation "androidx.room:room-runtime:2.2.5"
+    implementation "androidx.room:room-ktx:2.2.5"
 
     //Coroutines
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.1.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.3"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.3"
 }

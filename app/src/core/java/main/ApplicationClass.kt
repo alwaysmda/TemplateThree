@@ -26,7 +26,6 @@ import org.kodein.di.generic.provider
 import org.kodein.di.generic.singleton
 import util.ViewModelFactory
 import util.copyToClipboard
-import util.log
 import kotlin.system.exitProcess
 
 open class ApplicationClass : LocaleAwareApplication(), KodeinAware {
@@ -90,44 +89,32 @@ open class ApplicationClass : LocaleAwareApplication(), KodeinAware {
     }
 
     fun initFont() {
-        if (getStringPref(PREF_LANGUAGE) == CON_LANG_FA.value) {
-            if (resources.getIdentifier("font_fa_light", "font", packageName) != 0) {
-                fontLight = ResourcesCompat.getFont(this, resources.getIdentifier("font_fa_light", "font", packageName))
-            }
+        if (resources.getIdentifier("font_light", "font", packageName) != 0) {
+            fontLight = ResourcesCompat.getFont(this, resources.getIdentifier("font_light", "font", packageName))
+        }
 
-            fontBold = if (resources.getIdentifier("font_fa_bold", "font", packageName) != 0) {
-                ResourcesCompat.getFont(this, resources.getIdentifier("font_fa_bold", "font", packageName))
-            } else {
-                fontLight
-            }
+        fontBold = if (resources.getIdentifier("font_bold", "font", packageName) != 0) {
+            ResourcesCompat.getFont(this, resources.getIdentifier("font_bold", "font", packageName))
+        } else {
+            fontLight
+        }
 
-            fontMedium = if (resources.getIdentifier("font_fa_medium", "font", packageName) != 0) {
-                ResourcesCompat.getFont(this, resources.getIdentifier("font_fa_medium", "font", packageName))
-            } else {
-                fontLight
-            }
+        fontMedium = if (resources.getIdentifier("font_medium", "font", packageName) != 0) {
+            ResourcesCompat.getFont(this, resources.getIdentifier("font_medium", "font", packageName))
+        } else {
+            fontLight
+        }
 
-            fontUltraBold = if (resources.getIdentifier("font_fa_ultra_bold", "font", packageName) != 0) {
-                ResourcesCompat.getFont(this, resources.getIdentifier("font_fa_ultra_bold", "font", packageName))
-            } else {
-                fontLight
-            }
+        fontUltraBold = if (resources.getIdentifier("font_ultra_bold", "font", packageName) != 0) {
+            ResourcesCompat.getFont(this, resources.getIdentifier("font_ultra_bold", "font", packageName))
+        } else {
+            fontLight
+        }
 
-            fontUltraLight = if (resources.getIdentifier("font_fa_ultra_light", "font", packageName) != 0) {
-                ResourcesCompat.getFont(this, resources.getIdentifier("font_fa_ultra_light", "font", packageName))
-            } else {
-                fontLight
-            }
-        } else if (getStringPref(PREF_LANGUAGE) == CON_LANG_EN.value) {
-            if (resources.getIdentifier("font_en_light", "font", packageName) != 0) {
-                fontLight = ResourcesCompat.getFont(this, resources.getIdentifier("font_en_light", "font", packageName))
-            }
-
-            fontMedium = if (resources.getIdentifier("font_en_medium", "font", packageName) != 0) {
-                ResourcesCompat.getFont(this, resources.getIdentifier("font_en_medium", "font", packageName))
-            } else {
-                fontLight
-            }
+        fontUltraLight = if (resources.getIdentifier("font_ultra_light", "font", packageName) != 0) {
+            ResourcesCompat.getFont(this, resources.getIdentifier("font_ultra_light", "font", packageName))
+        } else {
+            fontLight
         }
     }
 

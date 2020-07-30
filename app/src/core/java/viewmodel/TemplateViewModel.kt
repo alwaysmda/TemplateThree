@@ -8,13 +8,8 @@ import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.xodus.templatethree.R
-import db.TemplateDao
 import dialog.CustomDialog
-import http.API
-import http.Client
-import http.OnResponseListener
-import http.Request
-import http.Response
+import http.*
 import main.ApplicationClass
 import main.BaseFragment
 import main.Constant
@@ -38,8 +33,10 @@ class TemplateViewModel(private val repository: Client, private val appClass: Ap
                     .setTitle(R.string.error_title_no_internet)
                     .setContent(R.string.error_text_no_internet)
                     .setPositiveText(R.string.try_again)
+                    .setNegativeText(R.string.cancel)
                     .setCancelabel(false)
-                    .onPositive { repository.request(response.request) }
+                    .onPositive { retry(response.request) }
+                    .onNegative { onCancel(response.request._ID) }
             }
             else                                     -> {
                 showDialog.value = CustomDialog(appClass)
@@ -47,7 +44,8 @@ class TemplateViewModel(private val repository: Client, private val appClass: Ap
                     .setContent(R.string.error_text_connection_error)
                     .setPositiveText(R.string.try_again)
                     .setCancelabel(false)
-                    .onPositive { repository.request(response.request) }
+                    .onPositive { retry(response.request) }
+                    .onNegative { onCancel(response.request._ID) }
             }
         }
     }
@@ -74,6 +72,7 @@ class TemplateViewModel(private val repository: Client, private val appClass: Ap
     //Event
     val showDialog: MutableLiveData<CustomDialog> = MutableLiveData()
     val snack: MutableLiveData<Int> = MutableLiveData()
+    val snackString: MutableLiveData<String> = MutableLiveData()
     val doBack: MutableLiveData<Boolean> = MutableLiveData()
     val startFragment: MutableLiveData<BaseFragment> = MutableLiveData()
     val changeLocale: MutableLiveData<Locale> = MutableLiveData()
@@ -90,6 +89,18 @@ class TemplateViewModel(private val repository: Client, private val appClass: Ap
     fun handleIntent(bundle: Bundle?) {
         bundle?.let {
 
+        }
+    }
+
+    private fun retry(request: Request) {
+        repository.request(request)
+    }
+
+    private fun onCancel(id: Int) {
+        when (id) {
+            API.Download.ID -> {
+
+            }
         }
     }
 

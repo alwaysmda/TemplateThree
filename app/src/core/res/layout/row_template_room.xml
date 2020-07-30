@@ -22,8 +22,9 @@
             android:layout_margin="4dp"
             app:cardCornerRadius="20dp">
 
-        <customview.TextViewFonted
+        <com.google.android.material.textview.MaterialTextView
                 android:layout_width="wrap_content"
+                android:fontFamily="@font/font_medium"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"

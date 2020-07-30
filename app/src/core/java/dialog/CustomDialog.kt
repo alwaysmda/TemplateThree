@@ -17,15 +17,15 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.textview.MaterialTextView
 import com.xodus.templatethree.R
-import util.getScreenWidth
-import customview.TextViewFonted
 import main.ApplicationClass
+import util.getScreenWidth
 
 
-class CustomDialog(appClass: ApplicationClass, private val customView: Int = R.layout.dialog_custom) : DialogFragment() {
+class CustomDialog(private val appClass: ApplicationClass, private val customView: Int = R.layout.dialog_custom) : DialogFragment() {
 
-    private var c: ApplicationClass = appClass
+    //Element
     private var isInitComplete: Boolean = false
     private var title: String = ""
     private var content: String = ""
@@ -45,14 +45,22 @@ class CustomDialog(appClass: ApplicationClass, private val customView: Int = R.l
     private var negativeColor: Int = 0
     private var neutralColor: Int = 0
     private var onViewCreated: (CustomDialog, View) -> (Unit) = { _, _ -> }
+    private var onViewCreatedSet = false
 
-    private lateinit var tvTitle: TextViewFonted
-    private lateinit var tvContent: TextViewFonted
+    //View
+    private lateinit var tvTitle: MaterialTextView
+    private lateinit var tvContent: MaterialTextView
     private lateinit var pbProgress: ProgressBar
     private lateinit var llButton: LinearLayout
     private lateinit var btnNeutral: MaterialButton
     private lateinit var btnNegative: MaterialButton
     private lateinit var btnPositive: MaterialButton
+
+    fun onViewCreated(onViewCreated: (CustomDialog, View) -> Unit): CustomDialog {
+        this.onViewCreated = onViewCreated
+        onViewCreatedSet = true
+        return this
+    }
 
     fun showLoading(show: Boolean): CustomDialog {
         showProgress = show
@@ -61,7 +69,7 @@ class CustomDialog(appClass: ApplicationClass, private val customView: Int = R.l
     }
 
     fun setTitle(text: Int): CustomDialog {
-        title = c.resources.getString(text)
+        title = appClass.resources.getString(text)
         bind()
         return this
     }
@@ -85,7 +93,7 @@ class CustomDialog(appClass: ApplicationClass, private val customView: Int = R.l
     }
 
     fun setContent(text: Int): CustomDialog {
-        content = c.resources.getString(text)
+        content = appClass.resources.getString(text)
         bind()
         return this
     }
@@ -111,7 +119,7 @@ class CustomDialog(appClass: ApplicationClass, private val customView: Int = R.l
 
     fun setPositiveText(text: Int): CustomDialog {
         showButtons = true
-        positiveText = c.resources.getString(text)
+        positiveText = appClass.resources.getString(text)
         bind()
         return this
     }
@@ -145,7 +153,7 @@ class CustomDialog(appClass: ApplicationClass, private val customView: Int = R.l
 
     fun setNegativeText(text: Int): CustomDialog {
         showButtons = true
-        negativeText = c.resources.getString(text)
+        negativeText = appClass.resources.getString(text)
         bind()
         return this
     }
@@ -172,7 +180,7 @@ class CustomDialog(appClass: ApplicationClass, private val customView: Int = R.l
 
     fun setNeutralText(text: Int): CustomDialog {
         showButtons = true
-        neutralText = c.resources.getString(text)
+        neutralText = appClass.resources.getString(text)
         bind()
         return this
     }
@@ -202,7 +210,8 @@ class CustomDialog(appClass: ApplicationClass, private val customView: Int = R.l
     }
 
     fun show(fragmentManager: FragmentManager?, onViewCreated: (CustomDialog, View) -> (Unit) = { _, _ -> }): CustomDialog {
-        this.onViewCreated = onViewCreated
+        if (onViewCreatedSet.not())
+            this.onViewCreated = onViewCreated
         fragmentManager?.let {
             show(it, this.javaClass.simpleName)
         }
@@ -227,10 +236,10 @@ class CustomDialog(appClass: ApplicationClass, private val customView: Int = R.l
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         // the content
-        val root = RelativeLayout(activity)
+        val root = RelativeLayout(requireActivity())
         root.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         // creating the fullscreen dialog
-        val dialog = Dialog(activity!!)
+        val dialog = Dialog(requireActivity())
         dialog.requestWindowFeature(FEATURE_NO_TITLE)
         dialog.setContentView(root)
         dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -245,11 +254,8 @@ class CustomDialog(appClass: ApplicationClass, private val customView: Int = R.l
         pbProgress = v.findViewById(R.id.dialogCustom_pbProgress)
         llButton = v.findViewById(R.id.dialogCustom_llButton)
         btnPositive = v.findViewById(R.id.dialogCustom_btnPositive)
-        btnPositive.typeface = c.fontLight
         btnNegative = v.findViewById(R.id.dialogCustom_btnNegative)
-        btnNegative.typeface = c.fontLight
         btnNeutral = v.findViewById(R.id.dialogCustom_btnNeutral)
-        btnNeutral.typeface = c.fontLight
         isInitComplete = true
     }
 
@@ -258,7 +264,7 @@ class CustomDialog(appClass: ApplicationClass, private val customView: Int = R.l
             //Title
             tvTitle.text = title
             if (titleColor == 0) {
-                tvTitle.setTextColor(ContextCompat.getColor(c, R.color.md_black_1000))
+                tvTitle.setTextColor(ContextCompat.getColor(appClass, R.color.md_black_1000))
             } else {
                 tvTitle.setTextColor(titleColor)
             }
@@ -268,7 +274,7 @@ class CustomDialog(appClass: ApplicationClass, private val customView: Int = R.l
             //Content
             tvContent.text = content
             if (contentColor == 0) {
-                tvContent.setTextColor(ContextCompat.getColor(c, R.color.md_black_1000))
+                tvContent.setTextColor(ContextCompat.getColor(appClass, R.color.md_black_1000))
             } else {
                 tvContent.setTextColor(contentColor)
             }
@@ -294,7 +300,7 @@ class CustomDialog(appClass: ApplicationClass, private val customView: Int = R.l
                 btnPositive.text = positiveText
             }
             if (positiveColor == 0) {
-                btnPositive.setBackgroundColor(ContextCompat.getColor(c, R.color.md_green_700))
+                btnPositive.setBackgroundColor(ContextCompat.getColor(appClass, R.color.md_green_700))
             } else {
                 btnPositive.setBackgroundColor(positiveColor)
             }
@@ -309,7 +315,7 @@ class CustomDialog(appClass: ApplicationClass, private val customView: Int = R.l
                 btnNegative.text = negativeText
             }
             if (negativeColor == 0) {
-                btnNegative.setBackgroundColor(ContextCompat.getColor(c, R.color.md_red_700))
+                btnNegative.setBackgroundColor(ContextCompat.getColor(appClass, R.color.md_red_700))
             } else {
                 btnNegative.setBackgroundColor(negativeColor)
             }
@@ -324,7 +330,7 @@ class CustomDialog(appClass: ApplicationClass, private val customView: Int = R.l
                 btnNeutral.text = neutralText
             }
             if (neutralColor == 0) {
-                btnNeutral.setBackgroundColor(ContextCompat.getColor(c, R.color.md_amber_500))
+                btnNeutral.setBackgroundColor(ContextCompat.getColor(appClass, R.color.md_amber_500))
             } else {
                 btnNeutral.setBackgroundColor(neutralColor)
             }

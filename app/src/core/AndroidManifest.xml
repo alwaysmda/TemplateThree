@@ -3,6 +3,8 @@
           package="com.xodus.templatethree">
 
     <application
+            android:requestLegacyExternalStorage="true"
+            android:usesCleartextTraffic="true"
             android:name="main.ApplicationClass"
             android:allowBackup="true"
             android:icon="@drawable/ic_launcher"

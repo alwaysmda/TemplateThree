@@ -284,7 +284,6 @@ class Client() {
     fun request(request: Request) {
         val url = getUrl(request) ?: return
         addMainHeaders(request)
-        log(request.toJSONObject().toString())
         requestBuilder = okhttp3.Request.Builder()
         applyHeaders(request)
         applyParams(request)
@@ -422,6 +421,15 @@ class Client() {
             request(response.request)
             return
         }
+        val tabCount = when {
+            response.request._name.length < 8  -> "\t\t\t"
+            response.request._name.length < 16 -> "\t\t"
+            response.request._name.length < 24 -> "\t"
+            else                               -> "\t"
+        }
+        log("CLR BDY ${response.request._name}$tabCount${response.body}")
+        log("CLR REQ ${response.request._name}$tabCount${response.request.toJSONObject()}")
+        log("CLR RES ${response.request._name}$tabCount${response.toJSONObject()}")
         response.request._onResponse.onResponse(response)
         when (response.statusName) {
             NoInternetConnection //0

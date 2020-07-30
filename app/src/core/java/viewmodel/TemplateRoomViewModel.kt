@@ -1,23 +1,16 @@
 package viewmodel
 
-import adapter.TemplateAdapter
 import adapter.TemplateRoomAdapter
 import android.os.Bundle
-import android.text.Selection.selectAll
 import android.view.View
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.android.gms.common.util.ArrayUtils.removeAll
 import com.xodus.templatethree.R
 import db.TemplateDao
 import dialog.CustomDialog
-import http.API
-import http.Client
-import http.OnResponseListener
-import http.Request
-import http.Response
+import http.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -26,8 +19,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import main.ApplicationClass
 import main.BaseFragment
-import main.Constant
-import model.Template
 import model.TemplateRoom
 import util.log
 import java.util.*
@@ -48,8 +39,10 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
                     .setTitle(R.string.error_title_no_internet)
                     .setContent(R.string.error_text_no_internet)
                     .setPositiveText(R.string.try_again)
+                    .setNegativeText(R.string.cancel)
                     .setCancelabel(false)
-                    .onPositive { repository.request(response.request) }
+                    .onPositive { retry(response.request) }
+                    .onNegative { onCancel(response.request._ID) }
             }
             else                                     -> {
                 showDialog.value = CustomDialog(appClass)
@@ -57,7 +50,8 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
                     .setContent(R.string.error_text_connection_error)
                     .setPositiveText(R.string.try_again)
                     .setCancelabel(false)
-                    .onPositive { repository.request(response.request) }
+                    .onPositive { retry(response.request) }
+                    .onNegative { onCancel(response.request._ID) }
             }
         }
     }
@@ -73,6 +67,7 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
     //Event
     val showDialog: MutableLiveData<CustomDialog> = MutableLiveData()
     val snack: MutableLiveData<Int> = MutableLiveData()
+    val snackString: MutableLiveData<String> = MutableLiveData()
     val doBack: MutableLiveData<Boolean> = MutableLiveData()
     val startFragment: MutableLiveData<BaseFragment> = MutableLiveData()
     val changeLocale: MutableLiveData<Locale> = MutableLiveData()
@@ -92,6 +87,18 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
     fun handleIntent(bundle: Bundle?) {
         bundle?.let {
 
+        }
+    }
+
+    private fun retry(request: Request) {
+        repository.request(request)
+    }
+
+    private fun onCancel(id: Int) {
+        when (id) {
+            API.Download.ID -> {
+
+            }
         }
     }
 

@@ -1,17 +1,16 @@
 package main
 
 import android.animation.ValueAnimator
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.NonNull
 import androidx.core.animation.doOnEnd
 import androidx.core.view.ViewCompat
-import androidx.fragment.app.Fragment
 import com.xodus.templatethree.R
 import com.zeugmasolutions.localehelper.LocaleAwareCompatActivity
 import event.OnActivityResultEvent
@@ -27,6 +26,7 @@ import util.*
 import view.TemplateFragment
 import view.TemplateRoomFragment
 import java.util.*
+import kotlin.collections.ArrayList
 
 class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener, KodeinAware {
     companion object {
@@ -35,14 +35,14 @@ class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener, KodeinAwar
     }
 
     override val kodein: Kodein by closestKodein()
-    private lateinit var fragmentTable: ArrayList<ArrayList<BaseFragment>>
-    private lateinit var currentFragment: BaseFragment
-    private var currentTabIndex = TAB_ONE
+    lateinit var fragmentTable: ArrayList<ArrayList<BaseFragment>>
+    lateinit var currentFragment: BaseFragment
+    var currentTabIndex = TAB_ONE
     private val startMode = StartMode.MultiInstance
     private val exitMode = ExitMode.BackToFirstTab
     private var barHeight: Int = 0
-    private val client : Client by instance()
-    private val appClass : ApplicationClass by instance()
+    private val client: Client by instance()
+    private val appClass: ApplicationClass by instance()
 
     private enum class StartMode {
         SingleInstance, MultiInstance
@@ -53,19 +53,30 @@ class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener, KodeinAwar
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(R.style.AppTheme)
-        appClass.initFont()
         super.onCreate(savedInstanceState)
-        handleIntent()
-        setContentView(R.layout.activity_base)
-        initFragmentTable(
-            TemplateFragment.newInstance(),
-            TemplateRoomFragment.newInstance()
-            //            TemplateFragment.newInstance(),
-            //            TemplateFragment.newInstance(),
-        )
-        initBottomBar()
-        bar.post { barHeight = bar.height }
+        setTheme(R.style.AppTheme)
+
+        if (appClass.getStringPref(Constant.PREF_LANGUAGE) == null) {
+            appClass.setPref(Constant.PREF_LANGUAGE, Constant.CON_LANG_FA.value)
+            updateLocale(Locale(Constant.CON_LANG_FA.value))
+        } else {
+            val text = TextView(baseContext).apply {
+                setText(R.string.locale)
+            }.text.toString()
+            if (appClass.getStringPref(Constant.PREF_LANGUAGE) != text) {
+                updateLocale(Locale(appClass.getStringPref(Constant.PREF_LANGUAGE) ?: Constant.CON_LANG_FA.value))
+            } else {
+                appClass.initFont()
+                handleIntent()
+                setContentView(R.layout.activity_base)
+                initFragmentTable(
+                    TemplateFragment.newInstance(),
+                    TemplateRoomFragment.newInstance()
+                )
+                initBottomBar()
+                bar.post { barHeight = bar.height }
+            }
+        }
     }
 
     override fun onResume() {
@@ -120,7 +131,7 @@ class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener, KodeinAwar
             .beginTransaction()
             .setReorderingAllowed(true)
 
-        val sharedElementList = currentFragment.getSharedElementListOut()
+        val sharedElementList = currentFragment.sharedElementListOut
         if (sharedElementList.isNotEmpty()) {
             for (i in sharedElementList.indices) {
                 if (sharedElementList[i].id != 0)
@@ -178,7 +189,7 @@ class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener, KodeinAwar
             .beginTransaction()
             .setReorderingAllowed(true)
 
-        val sharedElementList = currentFragment.getSharedElementListOut()
+        val sharedElementList = currentFragment.sharedElementListOut
         if (sharedElementList.isNotEmpty()) {
             for (i in sharedElementList.indices) {
                 fragmentTransaction.addSharedElement(
@@ -239,15 +250,6 @@ class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener, KodeinAwar
 
     fun getTabFragmentTable(): List<BaseFragment> {
         return fragmentTable[currentTabIndex]
-    }
-
-    fun getFragmentTable(): List<List<BaseFragment>>? {
-        return fragmentTable
-    }
-
-
-    fun getCurrentFragment(): Fragment? {
-        return currentFragment
     }
 
     private fun tabSelected() {

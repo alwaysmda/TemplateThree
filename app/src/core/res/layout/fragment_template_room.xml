@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -27,6 +28,7 @@
                 android:id="@+id/template_rvTemp"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                tools:listitem="@layout/row_template_room"
                 android:layout_marginTop="48dp"
                 android:adapter="@{viewModel.adapter}"
                 android:layoutAnimation="@{appClass.recyclerViewAnimation}"
@@ -55,10 +57,10 @@
                         android:layout_height="50dp"
                         android:layout_marginLeft="4dp"
                         android:layout_marginRight="2dp"
+                        android:fontFamily="@font/font_medium"
                         android:layout_weight="1"
                         android:onClick="@{() -> viewModel.onBtnAddClick()}"
                         android:text="Add"
-                        android:typeface="@{appClass.fontMedium}"
                         app:cornerRadius="20dp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -66,10 +68,10 @@
                         android:layout_height="50dp"
                         android:layout_marginLeft="2dp"
                         android:layout_marginRight="2dp"
+                        android:fontFamily="@font/font_medium"
                         android:layout_weight="1"
                         android:onClick="@{() -> viewModel.onBtnRemoveClick()}"
                         android:text="Remove"
-                        android:typeface="@{appClass.fontMedium}"
                         app:cornerRadius="20dp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -77,10 +79,10 @@
                         android:layout_height="50dp"
                         android:layout_marginLeft="2dp"
                         android:layout_marginRight="4dp"
+                        android:fontFamily="@font/font_medium"
                         android:layout_weight="1"
                         android:onClick="@{() -> viewModel.onBtnResetClick()}"
                         android:text="Reset"
-                        android:typeface="@{appClass.fontMedium}"
                         app:cornerRadius="20dp" />
 
             </LinearLayout>
@@ -95,32 +97,32 @@
                         android:layout_height="50dp"
                         android:layout_marginLeft="4dp"
                         android:layout_marginRight="2dp"
+                        android:fontFamily="@font/font_medium"
                         android:layout_weight="1"
                         android:onClick="@{() -> viewModel.onBtnAddAllClick()}"
                         android:text="Add All"
-                        android:typeface="@{appClass.fontMedium}"
                         app:cornerRadius="20dp" />
 
                 <com.google.android.material.button.MaterialButton
                         android:layout_width="0dp"
                         android:layout_height="50dp"
                         android:layout_marginLeft="2dp"
+                        android:fontFamily="@font/font_medium"
                         android:layout_marginRight="2dp"
                         android:layout_weight="1"
                         android:onClick="@{() -> viewModel.onBtnRemoveAllClick()}"
                         android:text="Remove All"
-                        android:typeface="@{appClass.fontMedium}"
                         app:cornerRadius="20dp" />
 
                 <com.google.android.material.button.MaterialButton
                         android:layout_width="0dp"
                         android:layout_height="50dp"
+                        android:fontFamily="@font/font_medium"
                         android:layout_marginLeft="2dp"
                         android:layout_marginRight="4dp"
                         android:layout_weight="1"
                         android:onClick="@{() -> viewModel.onBtnSortClick()}"
                         android:text="Sort"
-                        android:typeface="@{appClass.fontMedium}"
                         app:cornerRadius="20dp" />
 
             </LinearLayout>

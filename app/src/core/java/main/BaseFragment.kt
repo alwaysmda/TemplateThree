@@ -9,7 +9,6 @@ import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
-import http.Client
 import org.greenrobot.eventbus.EventBus
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
@@ -18,20 +17,19 @@ import org.kodein.di.generic.instance
 import util.ViewModelFactory
 import util.getRandomInt
 import util.getRandomString
-import java.util.*
 
 open class BaseFragment : Fragment(), KodeinAware {
 
     override val kodein: Kodein by closestKodein()
-    val appClass : ApplicationClass by instance()
+    val appClass: ApplicationClass by instance()
     val viewModelFactory: ViewModelFactory by instance()
-    private var ID: String? = null
+    var ID: String? = null
     lateinit var baseActivity: BaseActivity
-    private var tabIndex: Int = 0
+    var tabIndex: Int = 0
     var base: Boolean = false
-    private var REQUEST_CODE: Int = 0
-    var sharedElementListIn: List<SharedElement> = ArrayList()
-    private var sharedElementListOut: MutableList<SharedElement> = ArrayList()
+    var REQUEST_CODE: Int = 0
+    var sharedElementListIn: ArrayList<SharedElement> = arrayListOf()
+    var sharedElementListOut: ArrayList<SharedElement> = arrayListOf()
     var background: Drawable? = null
     var sharedElementRecyclerView: RecyclerView? = null
     var sharedElementRecyclerViewViewID: Int = 0
@@ -87,29 +85,6 @@ open class BaseFragment : Fragment(), KodeinAware {
         }
     }
 
-
-    /**
-     *
-     * @return unique ID of the current fragment
-     */
-    fun getID(): String? {
-        if (ID == null) {
-            setBase()
-        }
-        return ID
-    }
-
-    /**
-     *
-     * @return a random 4 digit request code to use anywhere needed
-     */
-    fun getREQUEST_CODE(): Int {
-        if (ID == null) {
-            setBase()
-        }
-        return REQUEST_CODE
-    }
-
     /**
      *
      * @return if it is the first fragment in the current tab or not
@@ -127,12 +102,6 @@ open class BaseFragment : Fragment(), KodeinAware {
      */
     fun getTabFragmentTable(): List<BaseFragment> = baseActivity.getTabFragmentTable()
 
-    /**
-     *
-     * @return all the fragments
-     */
-    fun getFragmentTable(): List<List<BaseFragment>> = baseActivity.getFragmentTable()!!
-
 
     /**
      * Request runtime permissions. The result will be posted by {OnRequestPermissionResultEvent} event
@@ -140,17 +109,6 @@ open class BaseFragment : Fragment(), KodeinAware {
      */
     fun grantPremission(vararg permission: String) {
         ActivityCompat.requestPermissions(activity!!, permission, REQUEST_CODE)
-    }
-
-    /**
-     *
-     * @return index of the current tab in nvaigation bar
-     */
-    fun getTabIndex(): Int {
-        if (ID == null) {
-            setBase()
-        }
-        return tabIndex
     }
 
     /**
@@ -369,14 +327,7 @@ open class BaseFragment : Fragment(), KodeinAware {
     //
     fun removeSharedElements() {
         sharedElementListOut.clear()
-        //        sharedElementListIn.clear();
+        sharedElementListIn.clear()
     }
 
-    fun getSharedElementListOut(): List<SharedElement> {
-        return sharedElementListOut
-    }
-
-    fun setSharedElementListOut(sharedElementListOut: MutableList<SharedElement>) {
-        this.sharedElementListOut = sharedElementListOut
-    }
 }

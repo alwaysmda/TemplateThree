@@ -4,20 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.xodus.templatethree.R
-import com.xodus.templatethree.databinding.FragmentTemplateBinding
 import com.xodus.templatethree.databinding.FragmentTemplateRoomBinding
 import main.BaseFragment
 import org.greenrobot.eventbus.EventBus
-import util.changeChildFont
 import util.snack
 import viewmodel.TemplateRoomViewModel
-import viewmodel.TemplateViewModel
 
 class TemplateRoomFragment : BaseFragment() {
 
@@ -69,20 +64,7 @@ class TemplateRoomFragment : BaseFragment() {
 
 
     private fun init(v: View) {
-        setupToolbar(v)
-    }
 
-    private fun setupToolbar(v: View) {
-        setHasOptionsMenu(true)
-        val activity: AppCompatActivity = baseActivity
-        activity.setSupportActionBar(v.findViewById(R.id.toolbar))
-        activity.supportActionBar?.let {
-            it.setDisplayShowTitleEnabled(false)
-            it.setDisplayHomeAsUpEnabled(false)
-            it.setDisplayShowHomeEnabled(true)
-        }
-        val view = v.findViewById<ConstraintLayout>(R.id.toolbar_parent)
-        view.changeChildFont(appClass.fontMedium!!)
     }
 
     private fun observe() {
@@ -93,6 +75,9 @@ class TemplateRoomFragment : BaseFragment() {
             doBack()
         })
         binding.viewModel?.snack?.observe(viewLifecycleOwner, Observer {
+            snack(view, it)
+        })
+        binding.viewModel?.snackString?.observe(viewLifecycleOwner, Observer {
             snack(view, it)
         })
         binding.viewModel?.startFragment?.observe(viewLifecycleOwner, Observer {

@@ -2,10 +2,7 @@ package util
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.app.AlarmManager
-import android.app.Application
-import android.app.PendingIntent
+import android.app.*
 import android.content.*
 import android.content.ClipboardManager
 import android.content.pm.PackageInfo
@@ -866,6 +863,10 @@ fun getDataDirectory(): File {
     return File(Environment.getExternalStorageDirectory().path + "/Android/data/" + BuildConfig.APPLICATION_ID)
 }
 
+fun getInternalDataDirectory(): String {
+    return ApplicationClass.getInstance().applicationInfo.dataDir
+}
+
 fun Activity.hideSoftKeyboard() {
     try {
         val inputMethodManager = this.getSystemService(
@@ -892,29 +893,39 @@ fun copyToClipboard(text: String) {
 
 }
 
-fun shortenNumber(number: Double, decimalCount: Int = 1): String {
-    val format = "%." + decimalCount + "f"
-    return when {
-        number < 1000       -> String.format(Locale.ENGLISH,format, number)
-        number < 1000000    -> String.format(Locale.ENGLISH,format, number / 1000) + "K"
-        number < 1000000000 -> String.format(Locale.ENGLISH,format, number / 1000000) + "M"
-        else                -> String.format(Locale.ENGLISH,format, number / 1000000000) + "B"
+fun shortenNumber(number: Int?, decimalCount: Int = 1): String {
+    return shortenNumber(number?.toDouble(), decimalCount)
+}
+
+fun shortenNumber(number: Long?, decimalCount: Int = 1): String {
+    return shortenNumber(number?.toDouble(), decimalCount)
+}
+
+fun shortenNumber(number: Double?, decimalCount: Int = 1): String {
+    number?.let {
+        val format = "%." + decimalCount + "f"
+        return when {
+            it < 1000       -> it.toString()
+            it < 1000000    -> String.format(Locale.ENGLISH, format, it.toDouble() / 1000) + "K"
+            it < 1000000000 -> String.format(Locale.ENGLISH, format, it.toDouble() / 1000000) + "M"
+            else            -> String.format(Locale.ENGLISH, format, it.toDouble() / 1000000000) + "B"
+        }
+    } ?: run {
+        return "0"
     }
 }
 
-fun shortenNumber(number: Long, decimalCount: Int = 1): String {
-    val format = "%." + decimalCount + "f"
-    return when {
-        number < 1000       -> number.toString()
-        number < 1000000    -> String.format(Locale.ENGLISH,format, number.toDouble() / 1000) + "K"
-        number < 1000000000 -> String.format(Locale.ENGLISH,format, number.toDouble() / 1000000) + "M"
-        else                -> String.format(Locale.ENGLISH,format, number.toDouble() / 1000000000) + "B"
+fun separateNumberBy3(number: Long?): String {
+    number?.let {
+        val formatter = DecimalFormat("#,###,###")
+        return formatter.format(number)
+    } ?: run {
+        return "0"
     }
 }
 
-fun separateNumberBy3(number: Long): String {
-    val formatter = DecimalFormat("#,###,###")
-    return formatter.format(number)
+fun separateNumberBy3(number: Int?): String {
+    return separateNumberBy3(number?.toLong())
 }
 
 fun scanMedia(path: String) {
@@ -958,7 +969,20 @@ fun getStringLog(vararg s: Any?): String {
 }
 
 fun log(vararg s: Any?) {
-    Log.e(BuildConfig.APPLICATION_ID.toUpperCase() + getLocation(3), getStringLog(*s))
+    if (BuildConfig.DEBUG) {
+        val length = 3500
+        val location = getLocation(3)
+        var result = getStringLog(*s)
+        while (result.isNotEmpty()) {
+            result = if (result.length >= length) {
+                Log.e(location, result.substring(0, length))
+                result.substring(length, result.length)
+            } else {
+                Log.e(location, result)
+                ""
+            }
+        }
+    }
 }
 
 fun logToFile(force: Boolean, fileName: String, vararg s: Any?) {
@@ -1408,11 +1432,11 @@ fun getIntentImages(data: Intent): ArrayList<Uri> {
     return uriList
 }
 
-fun animateViews(views: Array<View>, show: Boolean, duration: Long = 500, startDelay: Long = 0, delay: Long = 100, onFinish: () -> (Unit?) = {}) {
+fun animateViews(views: Array<View?>, show: Boolean, duration: Long = 500, startDelay: Long = 0, delay: Long = 100, onFinish: () -> (Unit?) = {}) {
     var time = 0L
     var alpha = if (show) 1F else 0F
     for (view in views) {
-        view.animate().alpha(alpha).setStartDelay(startDelay + time).setDuration(duration).start()
+        view?.animate()?.alpha(alpha)?.setStartDelay(startDelay + time)?.setDuration(duration)?.start()
         time += delay
     }
     Handler().postDelayed({ onFinish() }, time + startDelay)
@@ -1524,7 +1548,7 @@ fun ProgressBar.setTint(color: Int) {
     }
 }
 
-fun ViewGroup.changeChildFont(typeface : Typeface){
+fun ViewGroup.changeChildFont(typeface: Typeface) {
     for (i in 0 until childCount) {
         val view = getChildAt(i)
         if (view is TextView) {
@@ -1532,6 +1556,162 @@ fun ViewGroup.changeChildFont(typeface : Typeface){
         }
     }
 }
+
+
+fun pasteClipboard(): String {
+    val clipboard = ApplicationClass.getInstance().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    var pasteData = ""
+
+    // If it does contain data, decide if you can handle the data.
+    if (!clipboard.hasPrimaryClip()) {
+    } else if (!clipboard.primaryClipDescription!!.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
+
+        // since the clipboard has data but it is not plain text
+    } else {
+
+        //since the clipboard contains plain text.
+        val item = clipboard.primaryClip!!.getItemAt(0)
+
+        // Gets the clipboard as text.
+        pasteData = item.text.toString()
+    }
+    return pasteData
+}
+
+fun Context.isServiceRunning(serviceClass: Class<Any>): Boolean {
+    val manager: ActivityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
+        if (serviceClass.name == service.service.className) {
+            return true
+        }
+    }
+    return false
+}
+
+fun isPhonePluggedIn(): Boolean {
+    var charging = false
+
+    val batteryIntent: Intent? = ApplicationClass.getInstance().registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+    val status = batteryIntent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
+    val batteryCharge = status == BatteryManager.BATTERY_STATUS_CHARGING
+
+    val chargePlug = batteryIntent?.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1)
+    val usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB
+    val acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC
+
+    if (batteryCharge) charging = true
+    if (usbCharge) charging = true
+    if (acCharge) charging = true
+
+    return charging
+}
+
+fun getBatteryPercentage(): Int {
+    val iFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+    val batteryStatus = ApplicationClass.getInstance().registerReceiver(null, iFilter)
+
+    val level = batteryStatus?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
+    val scale = batteryStatus?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
+
+    val batteryPct: Float = level / scale.toFloat()
+
+    return (batteryPct * 100).toInt()
+}
+
+
+fun String.substring(from: String, to: String): String? {
+    return if (contains(from)) {
+        val cut = substring(indexOf(from) + from.length)
+        return cut.substring(0, if (cut.indexOf(to) == -1) cut.length else cut.indexOf(to))
+    } else {
+        null
+    }
+}
+
+
+fun ViewGroup.animateChild() {
+    val views: Array<View?> = arrayOfNulls(childCount)
+    for (i in 0 until childCount) {
+        val view = getChildAt(i)
+        views[i] = view
+    }
+    animateViews(views, false, startDelay = 2000)
+}
+
+fun getRandomColor(contrast: Int = 500): Int {
+
+
+    val appClass = ApplicationClass.getInstance()
+    val colors: ArrayList<Int> = arrayListOf(
+        ContextCompat.getColor(appClass, appClass.resources.getIdentifier("md_red_$contrast", "color", appClass.packageName)),
+        ContextCompat.getColor(appClass, appClass.resources.getIdentifier("md_pink_$contrast", "color", appClass.packageName)),
+        ContextCompat.getColor(appClass, appClass.resources.getIdentifier("md_purple_$contrast", "color", appClass.packageName)),
+        ContextCompat.getColor(appClass, appClass.resources.getIdentifier("md_deep_purple_$contrast", "color", appClass.packageName)),
+        ContextCompat.getColor(appClass, appClass.resources.getIdentifier("md_indigo_$contrast", "color", appClass.packageName)),
+        ContextCompat.getColor(appClass, appClass.resources.getIdentifier("md_blue_$contrast", "color", appClass.packageName)),
+        ContextCompat.getColor(appClass, appClass.resources.getIdentifier("md_light_blue_$contrast", "color", appClass.packageName)),
+        ContextCompat.getColor(appClass, appClass.resources.getIdentifier("md_cyan_$contrast", "color", appClass.packageName)),
+        ContextCompat.getColor(appClass, appClass.resources.getIdentifier("md_teal_$contrast", "color", appClass.packageName)),
+        ContextCompat.getColor(appClass, appClass.resources.getIdentifier("md_green_$contrast", "color", appClass.packageName)),
+        ContextCompat.getColor(appClass, appClass.resources.getIdentifier("md_light_green_$contrast", "color", appClass.packageName)),
+        ContextCompat.getColor(appClass, appClass.resources.getIdentifier("md_lime_$contrast", "color", appClass.packageName)),
+        ContextCompat.getColor(appClass, appClass.resources.getIdentifier("md_yellow_$contrast", "color", appClass.packageName)),
+        ContextCompat.getColor(appClass, appClass.resources.getIdentifier("md_amber_$contrast", "color", appClass.packageName)),
+        ContextCompat.getColor(appClass, appClass.resources.getIdentifier("md_orange_$contrast", "color", appClass.packageName)),
+        ContextCompat.getColor(appClass, appClass.resources.getIdentifier("md_deep_orange_$contrast", "color", appClass.packageName)),
+        ContextCompat.getColor(appClass, appClass.resources.getIdentifier("md_brown_$contrast", "color", appClass.packageName)),
+        ContextCompat.getColor(appClass, appClass.resources.getIdentifier("md_grey_$contrast", "color", appClass.packageName)),
+        ContextCompat.getColor(appClass, appClass.resources.getIdentifier("md_blue_grey_$contrast", "color", appClass.packageName))
+    )
+    return colors[Random().nextInt(colors.size - 1)]
+}
+
+
+fun isColorDark(color: Int): Boolean {
+    val darkness = 1 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255;
+    return darkness >= 0.5
+}
+
+fun TextView.underline() {
+    paintFlags = paintFlags or Paint.UNDERLINE_TEXT_FLAG
+}
+
+fun TextView.underlineRemove() {
+    paintFlags = paintFlags and Paint.UNDERLINE_TEXT_FLAG.inv()
+}
+
+fun TextView.strikeThrough() {
+    paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+}
+
+fun TextView.strikeThroughRemove() {
+    paintFlags = paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+}
+
+fun TextView.bold() {
+    paintFlags = paintFlags or Paint.FAKE_BOLD_TEXT_FLAG
+}
+
+fun TextView.boldRemove() {
+    paintFlags = paintFlags and Paint.FAKE_BOLD_TEXT_FLAG.inv()
+}
+
+
+//fun <T : Any> Fragment.getBackStackData(key: String, result: (T) -> (Unit)) {
+//    findNavController().currentBackStackEntry?.savedStateHandle?.apply {
+//        getLiveData<T>(key).observe(viewLifecycleOwner) {
+//            remove<T>(key)
+//            result(it)
+//        }
+//    }
+//}
+//
+//fun <T : Any> Fragment.setBackStackData(key: String, data: T, doBack: Boolean = true) {
+//    findNavController().previousBackStackEntry?.savedStateHandle?.set(key, data)
+//    if (doBack)
+//        findNavController().popBackStack()
+//}
+
 
 /**=====================================================================================================================================**/
 /**=====================================================================================================================================**/
