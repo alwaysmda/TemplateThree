@@ -84,6 +84,8 @@ class TemplateViewModel(private val repository: Client, private val appClass: Ap
     init {
         tvTitleText.set(R.string.app_name)
         adapter.get()?.updateList(list)
+
+        repository.request(API.Get(this, "https://www.httpbin.org/get"))
     }
 
     fun handleIntent(bundle: Bundle?) {

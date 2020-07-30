@@ -282,11 +282,11 @@ class Client() {
 
 
     fun request(request: Request) {
-        val url = getUrl(request) ?: return
         addMainHeaders(request)
         requestBuilder = okhttp3.Request.Builder()
         applyHeaders(request)
         applyParams(request)
+        val url = getUrl(request) ?: return
         val tag = getRandomString(8)
         requestBuilder.tag(tag)
         requestList[tag] = request
@@ -354,6 +354,23 @@ class Client() {
     private fun applyParams(request: Request) {
         when (request._method) {
             GET, DOWNLOAD     -> {
+                if (request._params.isNotEmpty()) {
+                    var url = request._url
+                    if (url.contains("?").not()) {
+                        url += "?"
+                    }
+                    for (key in request._params.keys) {
+                        val item = request._params[key]
+                        if (item != null) {
+                            url += if (url.last() == '?') {
+                                "$key=${item}"
+                            } else {
+                                "&$key=${item}"
+                            }
+                        }
+                    }
+                    request._url = url
+                }
             }
             POST, PUT, DELETE -> {
                 if (hasFiles(request)) {
