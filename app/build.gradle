@@ -14,7 +14,6 @@ android {
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
-        flavorDimensions "xodus"
     }
     buildTypes {
         release {
@@ -24,10 +23,18 @@ android {
     }
 
     productFlavors {
-        bazaar {}
-        myket {}
-        iranapps {}
-        googleplay {}
+        bazaar {
+            dimension "xodus"
+        }
+        myket {
+            dimension "xodus"
+        }
+        iranapps {
+            dimension "xodus"
+        }
+        googleplay {
+            dimension "xodus"
+        }
     }
     sourceSets {
         main {
