@@ -18,7 +18,10 @@
 
     <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
+            android:onClick="@{(view) -> viewModel.onTvItemClick(data,view)}"
             android:layout_height="40dp"
+            app:cardElevation="2dp"
+            app:rippleColor="@color/colorPrimary"
             android:layout_margin="4dp"
             app:cardCornerRadius="20dp">
 
@@ -28,7 +31,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:onClick="@{(view) -> viewModel.onTvItemClick(data,view)}"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:text="@{data.templateString}" />

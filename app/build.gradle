@@ -15,6 +15,7 @@ android {
         versionCode 1
         versionName "1.0"
         flavorDimensions "xodus"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -85,14 +86,17 @@ android {
         jvmTarget = "1.8"
     }
 
-    dataBinding {
-        enabled = true
+    buildFeatures{
+        dataBinding = true
+        // viewBinding = true
     }
 }
 
 dependencies {
-
     implementation fileTree(dir: "libs", include: ["*.jar"])
+
+    //MultiDex
+    implementation 'com.android.support:multidex:1.0.3'
 
     //Data Binding
     kapt "com.android.databinding:compiler:$android_plugin_version"
@@ -117,13 +121,15 @@ dependencies {
     implementation "org.kodein.di:kodein-di-framework-android-x:6.5.5"
 
     //Google Material
-    implementation "com.google.android.material:material:1.3.0-alpha01"
+    implementation "com.google.android.material:material:1.3.0-alpha02"
 
     //Android async http request
-    implementation "com.squareup.okhttp3:okhttp:3.12.0" // do not update!!! (SSL BUG)
+    implementation ("com.squareup.okhttp3:okhttp"){
+        version { strictly '3.12.12'  } //API 19 support
+    } // do not update!!! (SSL BUG)
 
     //FCM
-    implementation "com.google.firebase:firebase-messaging:20.2.3"
+    implementation "com.google.firebase:firebase-messaging:20.2.4"
 
     //encrypted preference
     implementation "com.pddstudio:encrypted-preferences:1.3.0"
@@ -152,3 +158,5 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.3"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.3"
 }
+
+apply plugin: "com.google.gms.google-services"

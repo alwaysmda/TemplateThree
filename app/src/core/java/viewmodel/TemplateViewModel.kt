@@ -10,9 +10,7 @@ import androidx.lifecycle.ViewModel
 import com.xodus.templatethree.R
 import dialog.CustomDialog
 import http.*
-import main.ApplicationClass
-import main.BaseFragment
-import main.Constant
+import main.*
 import model.Template
 import util.log
 import java.util.*
@@ -108,12 +106,12 @@ class TemplateViewModel(private val repository: Client, private val appClass: Ap
 
     fun onTvItemClick(data: Template, view: View) {
         log("${view.javaClass.simpleName} index=${list.indexOf(data)} data=$data")
-        if (appClass.getStringPref(Constant.PREF_LANGUAGE) == Constant.CON_LANG_FA.value) {
-            appClass.setPref(Constant.PREF_LANGUAGE, Constant.CON_LANG_EN.value)
-            changeLocale.value = Locale(Constant.CON_LANG_EN.value)
+        if (appClass.getStringPref(PREF_LANGUAGE) == CON_LANG_FA) {
+            appClass.setPref(PREF_LANGUAGE, CON_LANG_EN)
+            changeLocale.value = Locale(CON_LANG_EN)
         } else {
-            appClass.setPref(Constant.PREF_LANGUAGE, Constant.CON_LANG_FA.value)
-            changeLocale.value = Locale(Constant.CON_LANG_FA.value)
+            appClass.setPref(PREF_LANGUAGE, CON_LANG_FA)
+            changeLocale.value = Locale(CON_LANG_FA)
         }
     }
 

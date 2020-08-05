@@ -13,11 +13,10 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.xodus.templatethree.R
 import http.*
-import main.BaseActivity
-import main.Constant
-import util.log
-import http.*
 import main.ApplicationClass
+import main.BaseActivity
+import main.PREF_FCM_TOKEN
+import util.log
 
 class MessagingService : FirebaseMessagingService(), OnResponseListener {
 
@@ -28,7 +27,7 @@ class MessagingService : FirebaseMessagingService(), OnResponseListener {
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         log("FCM", "onNewToken", token)
-        appClass.setPref(Constant.PREF_FCM_TOKEN, token)
+        appClass.setPref(PREF_FCM_TOKEN, token)
         client.request(API.UpdateFCMToken(this, token))
     }
 

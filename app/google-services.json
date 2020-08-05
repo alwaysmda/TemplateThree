@@ -1,0 +1,106 @@
+{
+  "project_info": {
+    "project_number": "31909787399",
+    "firebase_url": "https://template-one-35ec1.firebaseio.com",
+    "project_id": "template-one-35ec1",
+    "storage_bucket": "template-one-35ec1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:31909787399:android:00a9c5a35e0ffe514837a2",
+        "android_client_info": {
+          "package_name": "com.xodus.mhstickersforwhatsapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "31909787399-2jc4f1d26nurdsjakbc1ds5o4b9thheb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.xodus.mhstickersforwhatsapp",
+            "certificate_hash": "e4b9d96d1f1fe36ec96f6006e08639fa2d198556"
+          }
+        },
+        {
+          "client_id": "31909787399-qr01ar886l6vgl7957h44b545a54vjn2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyS-a4Bd7z1jpJra94XsUf53lXWy-lXyI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "31909787399-qr01ar886l6vgl7957h44b545a54vjn2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:31909787399:android:ee0730d07618ca60",
+        "android_client_info": {
+          "package_name": "com.xodus.templateone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "31909787399-qr01ar886l6vgl7957h44b545a54vjn2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyS-a4Bd7z1jpJra94XsUf53lXWy-lXyI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "31909787399-qr01ar886l6vgl7957h44b545a54vjn2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:31909787399:android:ccdd84ce3eec66b7",
+        "android_client_info": {
+          "package_name": "com.xodus.templatethree"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "31909787399-qr01ar886l6vgl7957h44b545a54vjn2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyS-a4Bd7z1jpJra94XsUf53lXWy-lXyI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "31909787399-qr01ar886l6vgl7957h44b545a54vjn2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

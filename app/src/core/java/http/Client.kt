@@ -8,7 +8,8 @@ import http.Response.Status.FAILURE
 import http.Response.Status.SUCCESS
 import http.Response.StatusName.*
 import main.ApplicationClass
-import main.Constant
+import main.PREF_ACCESS_TOKEN
+import main.PREF_LANGUAGE
 import okhttp3.*
 import okio.BufferedSink
 import okio.Okio
@@ -261,8 +262,8 @@ class Client() {
     }
 
     private fun addMainHeaders(request: Request) {
-        if (appClass.getStringPref(Constant.PREF_ACCESS_TOKEN) != null) {
-            request.putHeader("Authorization", "Bearer " + appClass.getStringPref(Constant.PREF_ACCESS_TOKEN))
+        if (appClass.getStringPref(PREF_ACCESS_TOKEN) != null) {
+            request.putHeader("Authorization", "Bearer " + appClass.getStringPref(PREF_ACCESS_TOKEN))
         }
         request.putHeader("Device-Id", getAndroidID())
         request.putHeader(
@@ -276,7 +277,7 @@ class Client() {
                     + "IR; "
                     + getAndroidID()
                     + "; "
-                    + appClass.getStringPref(Constant.PREF_LANGUAGE) + ")")
+                    + appClass.getStringPref(PREF_LANGUAGE) + ")")
         )
     }
 

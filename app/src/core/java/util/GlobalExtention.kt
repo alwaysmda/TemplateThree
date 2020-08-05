@@ -47,7 +47,9 @@ import com.xodus.templatethree.BuildConfig
 import com.xodus.templatethree.R
 import http.*
 import main.ApplicationClass
-import main.Constant
+import main.PREF_LANGUAGE
+import main.PREF_LOG
+import main.TAG
 import org.apache.commons.codec.binary.Hex
 import org.json.JSONArray
 import org.json.JSONException
@@ -146,7 +148,7 @@ fun translateToPersian(_c: Any): String {
     val faN = arrayOf("۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹")
 
 
-    if (ApplicationClass.getInstance().getStringPref(Constant.PREF_LANGUAGE).equals("fa")) {
+    if (ApplicationClass.getInstance().getStringPref(PREF_LANGUAGE).equals("fa")) {
         for (i in 0..9) {
             c = c.replace(enN[i], faN[i])
         }
@@ -392,7 +394,7 @@ fun convertBitmapToFile(bitmap: Bitmap, path: String, fileName: String): File? {
     // Make sure the path directory exists.
     if (!filePath.exists()) {
         // Make it, if it doesn't exit
-        Log.e(Constant.TAG.toString(), "Create Directory=" + filePath.mkdirs())
+        Log.e(TAG, "Create Directory=" + filePath.mkdirs())
     }
     val file = File(path, fileName)
     //Convert bitmap to byte array
@@ -597,10 +599,10 @@ fun createFileFromString(data: String?, inputPath: String, fileName: String): Bo
             return false
         }
 
-        Log.e(Constant.TAG.toString(), "History File Created")
+        Log.e(TAG, "History File Created")
         return true
     } ?: run {
-        Log.e(Constant.TAG.toString(), "No Data")
+        Log.e(TAG, "No Data")
         return false
     }
 }
@@ -929,12 +931,12 @@ fun separateNumberBy3(number: Int?): String {
 }
 
 fun scanMedia(path: String) {
-    Log.e(Constant.TAG.toString(), "SCANNING=" + Uri.fromFile(File(path)))
+    Log.e(TAG, "SCANNING=" + Uri.fromFile(File(path)))
     MediaScannerConnection.scanFile(
         ApplicationClass.getInstance(),
         arrayOf(path),
         null
-    ) { p, uri -> Log.e(Constant.TAG.toString(), "SCAN COMPLETE|PATH=$p|URI=$uri") }
+    ) { p, uri -> Log.e(TAG, "SCAN COMPLETE|PATH=$p|URI=$uri") }
 }
 
 fun <T : Any> extractModel(obj: T, output: String): String {
@@ -986,7 +988,7 @@ fun log(vararg s: Any?) {
 }
 
 fun logToFile(force: Boolean, fileName: String, vararg s: Any?) {
-    if (force || ApplicationClass.getInstance().getBooleanPref(Constant.PREF_LOG)) {
+    if (force || ApplicationClass.getInstance().getBooleanPref(PREF_LOG)) {
         try {
             Thread(Runnable {
                 val file = File(

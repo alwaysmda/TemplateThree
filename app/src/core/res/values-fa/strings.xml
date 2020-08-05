@@ -10,5 +10,6 @@
     <string name="one">یک</string>
     <string name="two">دو</string>
     <string name="three">سه</string>
-    <string name="cancel">Cancel</string>
+    <string name="cancel">لغو</string>
+    <string name="tab_again_to_exit">برای خروج دوباره لمس کنید</string>
 </resources>

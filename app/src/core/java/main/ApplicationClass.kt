@@ -8,6 +8,7 @@ import android.graphics.Typeface
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
 import androidx.core.content.res.ResourcesCompat
+import androidx.multidex.MultiDex
 import billing.Market
 import com.google.firebase.FirebaseApp
 import com.pddstudio.preferences.encrypted.EncryptedPreferences
@@ -16,7 +17,6 @@ import com.xodus.templatethree.R
 import com.zeugmasolutions.localehelper.LocaleAwareApplication
 import db.TemplateDatabase
 import http.Client
-import main.Constant.*
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.x.androidXModule
@@ -70,10 +70,14 @@ open class ApplicationClass : LocaleAwareApplication(), KodeinAware {
         FirebaseApp.initializeApp(this)
     }
 
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(base)
+        MultiDex.install(this)
+    }
 
     private fun initSharedPreferences() {
         if (getBooleanPref(PREF_PREFERENCES_INITIALIZED).not()) {
-            setPref(PREF_LANGUAGE, CON_LANG_EN.value)
+            setPref(PREF_LANGUAGE, CON_LANG_EN)
             setPref(PREF_PREFERENCES_INITIALIZED, true)
         }
     }
@@ -118,35 +122,35 @@ open class ApplicationClass : LocaleAwareApplication(), KodeinAware {
         }
     }
 
-    fun getStringPref(key: Constant): String? {
-        val f = encryptedPreferences.getString(key.toString(), "")
+    fun getStringPref(key: String): String? {
+        val f = encryptedPreferences.getString(key, "")
         return if (f == "") null else f
     }
 
-    fun getBooleanPref(key: Constant): Boolean {
-        return encryptedPreferences.getBoolean(key.toString(), false)
+    fun getBooleanPref(key: String): Boolean {
+        return encryptedPreferences.getBoolean(key, false)
     }
 
-    fun getIntPref(key: Constant): Int {
-        return encryptedPreferences.getInt(key.toString(), 0)
+    fun getIntPref(key: String): Int {
+        return encryptedPreferences.getInt(key, 0)
     }
 
-    fun setPref(key: Constant, value: Any) {
+    fun setPref(key: String, value: Any) {
         when (value) {
             is String  -> {
-                encryptedPreferences.edit().putString(key.value, value).apply()
+                encryptedPreferences.edit().putString(key, value).apply()
             }
             is Int     -> {
-                encryptedPreferences.edit().putInt(key.value, value).apply()
+                encryptedPreferences.edit().putInt(key, value).apply()
             }
             is Boolean -> {
-                encryptedPreferences.edit().putBoolean(key.value, value).apply()
+                encryptedPreferences.edit().putBoolean(key, value).apply()
             }
             is Float   -> {
-                encryptedPreferences.edit().putFloat(key.value, value).apply()
+                encryptedPreferences.edit().putFloat(key, value).apply()
             }
             is Long    -> {
-                encryptedPreferences.edit().putLong(key.value, value).apply()
+                encryptedPreferences.edit().putLong(key, value).apply()
             }
         }
     }

@@ -1,6 +1,7 @@
 package view
 
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,6 +30,7 @@ class TemplateFragment : BaseFragment() {
 
     //Element
     private lateinit var binding: FragmentTemplateBinding //todo : FragmentTemplateBinding
+    private var exit: Boolean = false
 
     //View
 
@@ -60,6 +62,17 @@ class TemplateFragment : BaseFragment() {
         binding.viewModel?.handleIntent(arguments)
         init(binding.root)
         observe()
+        onBackPressed(object : OnBackPressedListener {
+            override fun onBackPressed() {
+                if (exit) {
+                    requireActivity().finishAffinity()
+                } else {
+                    exit = true
+                    snack(view, R.string.tab_again_to_exit, true)
+                    Handler().postDelayed({ exit = false }, 3500)
+                }
+            }
+        })
     }
 
 

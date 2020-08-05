@@ -56,15 +56,15 @@ class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener, KodeinAwar
         super.onCreate(savedInstanceState)
         setTheme(R.style.AppTheme)
 
-        if (appClass.getStringPref(Constant.PREF_LANGUAGE) == null) {
-            appClass.setPref(Constant.PREF_LANGUAGE, Constant.CON_LANG_FA.value)
-            updateLocale(Locale(Constant.CON_LANG_FA.value))
+        if (appClass.getStringPref(PREF_LANGUAGE) == null) {
+            appClass.setPref(PREF_LANGUAGE, CON_LANG_FA)
+            updateLocale(Locale(CON_LANG_FA))
         } else {
             val text = TextView(baseContext).apply {
                 setText(R.string.locale)
             }.text.toString()
-            if (appClass.getStringPref(Constant.PREF_LANGUAGE) != text) {
-                updateLocale(Locale(appClass.getStringPref(Constant.PREF_LANGUAGE) ?: Constant.CON_LANG_FA.value))
+            if (appClass.getStringPref(PREF_LANGUAGE) != text) {
+                updateLocale(Locale(appClass.getStringPref(PREF_LANGUAGE) ?: CON_LANG_FA))
             } else {
                 appClass.initFont()
                 handleIntent()
@@ -81,7 +81,7 @@ class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener, KodeinAwar
 
     override fun onResume() {
         super.onResume()
-        Handler().postDelayed({ appClass.setPref(Constant.PREF_CRASH_REPEATING, false) }, 2000)
+        Handler().postDelayed({ appClass.setPref(PREF_CRASH_REPEATING, false) }, 2000)
     }
 
     override fun onResponse(response: Response) {
@@ -112,7 +112,7 @@ class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener, KodeinAwar
                         if (jsonObject.has("action")) {
                             when (jsonObject.getString("action")) {
                                 "toast" -> toast(jsonObject.toString())
-                                "pref"  -> appClass.setPref(Constant.valueOf(jsonObject.getString("pref_key")), jsonObject.get("pref_value"))
+                                "pref"  -> appClass.setPref(jsonObject.getString("pref_key"), jsonObject.get("pref_value"))
                             }
                         }
                     } else {
@@ -226,6 +226,7 @@ class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener, KodeinAwar
 
 
     fun initFragmentTable(vararg fragments: BaseFragment) {
+        currentTabIndex = 0
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         for (item in supportFragmentManager.fragments) {
             fragmentTransaction.remove(item)
