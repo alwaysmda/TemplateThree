@@ -29,7 +29,9 @@ class TemplateFragment : BaseFragment() {
 
 
     //Element
-    private lateinit var binding: FragmentTemplateBinding //todo : FragmentTemplateBinding
+    private var _binding: FragmentTemplateBinding? = null //todo : FragmentTemplateBinding
+    private val binding get() = _binding!!
+    private lateinit var viewModel: TemplateViewModel
     private var exit: Boolean = false
 
     //View
@@ -46,11 +48,11 @@ class TemplateFragment : BaseFragment() {
         //        if (!EventBus.getDefault().isRegistered(this)) {
         //            EventBus.getDefault().register(this)
         //        }
-        binding = DataBindingUtil.inflate<FragmentTemplateBinding>(inflater, R.layout.fragment_template, container, false).apply {
+        _binding = DataBindingUtil.inflate<FragmentTemplateBinding>(inflater, R.layout.fragment_template, container, false).apply {
             //todo : fragment_template
-            viewModel = ViewModelProvider(this@TemplateFragment, viewModelFactory).get(TemplateViewModel::class.java) //todo : TemplateViewModel
+            this@TemplateFragment.viewModel = ViewModelProvider(this@TemplateFragment, viewModelFactory).get(TemplateViewModel::class.java) //todo : TemplateViewModel
             lifecycleOwner = viewLifecycleOwner
-            viewModel = viewModel
+            viewModel = this@TemplateFragment.viewModel
             appClass = this@TemplateFragment.appClass
         }
         return binding.root
@@ -76,29 +78,45 @@ class TemplateFragment : BaseFragment() {
     }
 
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun init(v: View) {
 
     }
 
 
     private fun observe() {
-        binding.viewModel?.showDialog?.observe(viewLifecycleOwner, Observer {
-            it.show(parentFragmentManager)
-        })
-        binding.viewModel?.doBack?.observe(viewLifecycleOwner, Observer {
-            doBack()
-        })
-        binding.viewModel?.snack?.observe(viewLifecycleOwner, Observer {
-            snack(view, it)
-        })
-        binding.viewModel?.snackString?.observe(viewLifecycleOwner, Observer {
-            snack(view, it)
-        })
-        binding.viewModel?.startFragment?.observe(viewLifecycleOwner, Observer {
-            start(it)
-        })
-        binding.viewModel?.changeLocale?.observe(viewLifecycleOwner, Observer {
-            baseActivity.updateLocale(it)
-        })
+        viewModel.apply {
+            showDialog.observe(viewLifecycleOwner, Observer {
+                it?.show(parentFragmentManager)
+            })
+            doBack.observe(viewLifecycleOwner, Observer {
+                doBack()
+            })
+            snack.observe(viewLifecycleOwner, Observer {
+                snack(view, it)
+            })
+            snackString.observe(viewLifecycleOwner, Observer {
+                snack(view, it)
+            })
+            startFragment.observe(viewLifecycleOwner, Observer {
+                it?.let {
+                    start(it)
+                }
+            })
+            changeLocale.observe(viewLifecycleOwner, Observer {
+                it?.let {
+                    baseActivity.updateLocale(it)
+                }
+            })
+            hideNavBar.observe(viewLifecycleOwner, Observer {
+                it?.let {
+                    baseActivity.showHideNavigationBar(it)
+                }
+            })
+        }
     }
 }

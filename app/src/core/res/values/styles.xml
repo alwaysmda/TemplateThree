@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -9,9 +9,25 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowFullscreen">false</item>
+        <item name="android:windowBackground">?android:colorBackground</item>
+        <item name="snackbarStyle">@style/snackbar_style</item>
+        <item name="snackbarTextViewStyle">@style/snackbar_text</item>
     </style>
 
-    <style name="AppTheme.Splash" parent="Theme.MaterialComponents.Light.DarkActionBar">
+    <style name="AppThemeDark" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorDarkPrimary</item>
+        <item name="colorPrimaryDark">@color/colorDarkPrimaryDark</item>
+        <item name="colorAccent">@color/colorDarkAccent</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowBackground">?android:colorBackground</item>
+        <item name="snackbarStyle">@style/snackbar_style</item>
+        <item name="snackbarTextViewStyle">@style/snackbar_text</item>
+    </style>
+
+    <style name="AppTheme.Splash" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -19,12 +35,20 @@
         <item name="android:windowBackground">@drawable/splash</item>
     </style>
 
-    <style name="BottomNavigationViewFontedFa"
-            parent="Widget.Design.BottomNavigationView">
+    <style name="snackbar_style" parent="@style/Widget.MaterialComponents.Snackbar">
+        <!-- using backgroundTint the alpha layer is ignored -->
+        <item name="backgroundTint">?android:colorForeground</item>
+    </style>
+
+    <style name="snackbar_text" parent="@style/Widget.MaterialComponents.Snackbar.TextView">
+        <item name="android:textColor">?android:colorBackground</item>
+    </style>
+
+    <style name="BottomNavigationViewFontedFa" parent="Widget.Design.BottomNavigationView">
         <item name="fontFamily">@font/font_fa_medium</item>
     </style>
-    <style name="BottomNavigationViewFontedEn"
-            parent="Widget.Design.BottomNavigationView">
+
+    <style name="BottomNavigationViewFontedEn" parent="Widget.Design.BottomNavigationView">
         <item name="fontFamily">@font/font_medium</item>
     </style>
 </resources>

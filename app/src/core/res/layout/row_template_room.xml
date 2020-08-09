@@ -21,7 +21,7 @@
             android:onClick="@{(view) -> viewModel.onTvItemClick(data,view)}"
             android:layout_height="40dp"
             app:cardElevation="2dp"
-            app:rippleColor="@color/colorPrimary"
+            app:rippleColor="?colorPrimary"
             android:layout_margin="4dp"
             app:cardCornerRadius="20dp">
 

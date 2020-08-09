@@ -263,9 +263,7 @@ class CustomDialog(private val appClass: ApplicationClass, private val customVie
         if (isInitComplete) {
             //Title
             tvTitle.text = title
-            if (titleColor == 0) {
-                tvTitle.setTextColor(ContextCompat.getColor(appClass, R.color.md_black_1000))
-            } else {
+            if (titleColor != 0) {
                 tvTitle.setTextColor(titleColor)
             }
             if (isTitleCenter) {
@@ -273,9 +271,7 @@ class CustomDialog(private val appClass: ApplicationClass, private val customVie
             }
             //Content
             tvContent.text = content
-            if (contentColor == 0) {
-                tvContent.setTextColor(ContextCompat.getColor(appClass, R.color.md_black_1000))
-            } else {
+            if (contentColor != 0) {
                 tvContent.setTextColor(contentColor)
             }
             if (isContentCenter) {
@@ -294,9 +290,9 @@ class CustomDialog(private val appClass: ApplicationClass, private val customVie
                 llButton.visibility = View.GONE
             }
             //Right
-            if(positiveText.isEmpty()) {
+            if (positiveText.isEmpty()) {
                 btnPositive.visibility = View.INVISIBLE
-            }else{
+            } else {
                 btnPositive.text = positiveText
             }
             if (positiveColor == 0) {
@@ -309,9 +305,9 @@ class CustomDialog(private val appClass: ApplicationClass, private val customVie
                 onPositive(this)
             }
             //Negative
-            if(negativeText.isEmpty()){
+            if (negativeText.isEmpty()) {
                 btnNegative.visibility = View.INVISIBLE
-            }else {
+            } else {
                 btnNegative.text = negativeText
             }
             if (negativeColor == 0) {
@@ -324,9 +320,9 @@ class CustomDialog(private val appClass: ApplicationClass, private val customVie
                 onNegative(this)
             }
             //Neutral
-            if(neutralText.isEmpty()){
+            if (neutralText.isEmpty()) {
                 btnNeutral.visibility = View.INVISIBLE
-            }else {
+            } else {
                 btnNeutral.text = neutralText
             }
             if (neutralColor == 0) {

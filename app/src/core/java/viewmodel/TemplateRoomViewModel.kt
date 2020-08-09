@@ -5,14 +5,12 @@ import android.os.Bundle
 import android.view.View
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.xodus.templatethree.R
 import db.TemplateDao
 import dialog.CustomDialog
 import http.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -20,6 +18,7 @@ import kotlinx.coroutines.withContext
 import main.ApplicationClass
 import main.BaseFragment
 import model.TemplateRoom
+import util.SingleLiveEvent
 import util.log
 import java.util.*
 import kotlin.collections.ArrayList
@@ -65,12 +64,12 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
     private var sortDesc = false
 
     //Event
-    val showDialog: MutableLiveData<CustomDialog> = MutableLiveData()
-    val snack: MutableLiveData<Int> = MutableLiveData()
-    val snackString: MutableLiveData<String> = MutableLiveData()
-    val doBack: MutableLiveData<Boolean> = MutableLiveData()
-    val startFragment: MutableLiveData<BaseFragment> = MutableLiveData()
-    val changeLocale: MutableLiveData<Locale> = MutableLiveData()
+    val showDialog: SingleLiveEvent<CustomDialog> = SingleLiveEvent()
+    val snack: SingleLiveEvent<Int> = SingleLiveEvent()
+    val snackString: SingleLiveEvent<String> = SingleLiveEvent()
+    val doBack: SingleLiveEvent<Boolean> = SingleLiveEvent()
+    val startFragment: SingleLiveEvent<BaseFragment> = SingleLiveEvent()
+    val changeLocale: SingleLiveEvent<Locale> = SingleLiveEvent()
 
     //Binding
     val tvTitleText: ObservableInt = ObservableInt(R.string.app_name)
@@ -78,7 +77,7 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
 
     init {
         tvTitleText.set(R.string.app_name)
-        CoroutineScope(IO).launch {
+        viewModelScope.launch {
             list.addAll(selectAll())
             updateRecyclerView()
         }
@@ -103,7 +102,7 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
     }
 
     fun onBtnAddClick() {
-        CoroutineScope(IO).launch {
+        viewModelScope.launch {
             val item = TemplateRoom("Item ${list.size + 1}", true)
             list.add(item)
             updateRecyclerView()
@@ -113,7 +112,7 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
 
     fun onBtnRemoveClick() {
         if (list.isNotEmpty()) {
-            CoroutineScope(IO).launch {
+            viewModelScope.launch {
                 val item = list[list.size - 1]
                 list.remove(item)
                 updateRecyclerView()
@@ -123,7 +122,7 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
     }
 
     fun onBtnResetClick() {
-        CoroutineScope(IO).launch {
+        viewModelScope.launch {
             removeAll()
             list.clear()
             updateRecyclerView()
@@ -135,7 +134,7 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
     }
 
     fun onBtnAddAllClick() {
-        CoroutineScope(IO).launch {
+        viewModelScope.launch {
             insertAll()
             list.clear()
             list.addAll(selectAll())
@@ -144,7 +143,7 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
     }
 
     fun onBtnRemoveAllClick() {
-        CoroutineScope(IO).launch {
+        viewModelScope.launch {
             removeAll()
             list.clear()
             updateRecyclerView()
@@ -152,7 +151,7 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
     }
 
     fun onBtnSortClick() {
-        CoroutineScope(IO).launch {
+        viewModelScope.launch {
             val result = selectAll()
             list.clear()
             sortDesc = sortDesc.not()

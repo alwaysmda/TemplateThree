@@ -17,7 +17,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/md_blue_grey_50">
+            android:background="?android:colorBackground">
 
         <include
                 android:id="@+id/template_toolbar"
@@ -36,7 +36,6 @@
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 app:spanCount="3"
                 tools:listitem="@layout/row_template" />
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

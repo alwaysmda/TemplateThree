@@ -1452,21 +1452,25 @@ fun toast(message: Int) {
     Toast.makeText(ApplicationClass.getInstance(), ApplicationClass.getInstance().resources.getString(message), Toast.LENGTH_SHORT).show()
 }
 
-fun snack(view: View?, message: String, long: Boolean = false) {
+fun snack(view: View?, message: String?, long: Boolean = false) {
     view?.let {
-        val snack = Snackbar.make(it, message, if (long) Snackbar.LENGTH_LONG else Snackbar.LENGTH_SHORT).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE)
-        val tv = snack.view.findViewById<TextView>(R.id.snackbar_text)
-        tv.typeface = ApplicationClass.getInstance().fontLight
-        snack.show()
+        message?.let { msg ->
+            val snack = Snackbar.make(it, message, if (long) Snackbar.LENGTH_LONG else Snackbar.LENGTH_SHORT).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE)
+            val tv = snack.view.findViewById<TextView>(R.id.snackbar_text)
+            tv.typeface = ApplicationClass.getInstance().fontLight
+            snack.show()
+        }
     }
 }
 
-fun snack(view: View?, message: Int, long: Boolean = false) {
+fun snack(view: View?, message: Int?, long: Boolean = false) {
     view?.let {
-        val snack = Snackbar.make(it, message, if (long) Snackbar.LENGTH_LONG else Snackbar.LENGTH_SHORT).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE)
-        val tv = snack.view.findViewById<TextView>(R.id.snackbar_text)
-        tv.typeface = ApplicationClass.getInstance().fontLight
-        snack.show()
+        message?.let { msg ->
+            val snack = Snackbar.make(it, msg, if (long) Snackbar.LENGTH_LONG else Snackbar.LENGTH_SHORT).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE)
+            val tv = snack.view.findViewById<TextView>(R.id.snackbar_text)
+            tv.typeface = ApplicationClass.getInstance().fontLight
+            snack.show()
+        }
     }
 }
 

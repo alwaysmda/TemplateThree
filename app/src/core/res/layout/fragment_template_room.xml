@@ -17,7 +17,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/md_blue_grey_50">
+            android:background="?android:colorBackground">
 
         <include
                 android:id="@+id/template_toolbar"

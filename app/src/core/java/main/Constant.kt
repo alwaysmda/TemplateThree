@@ -14,6 +14,7 @@ const val PREF_CRASH_REPEATING = "PREF_CRASH_REPEATING"
 const val PREF_LICENCE_KEY = "PREF_LICENCE_KEY"
 const val PREF_LICENCE_MARKET = "PREF_LICENCE_MARKET"
 const val PREF_SSL_KEYS = "PREF_SSL_KEYS"
+const val PREF_DARK_THEME = "PREF_DARK_THEME"
 
 //========================== C O N S T A N T S ==========================//
 const val TAG = "TMP3"
@@ -21,3 +22,4 @@ const val CON_AES_SSL_KEY = "dde717bc4fd78bbbd98ccc7d8516ba79"
 const val CON_AES_SSL_IV = "a3da2dab4e2b44d1"
 const val CON_LANG_FA = "fa"
 const val CON_LANG_EN = "en"
+const val CON_LANG_DEFAULT = "en"

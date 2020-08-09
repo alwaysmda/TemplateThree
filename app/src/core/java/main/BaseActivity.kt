@@ -6,13 +6,11 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.NonNull
 import androidx.core.animation.doOnEnd
 import androidx.core.view.ViewCompat
 import com.xodus.templatethree.R
-import com.zeugmasolutions.localehelper.LocaleAwareCompatActivity
 import event.OnActivityResultEvent
 import event.OnRequestPermissionResultEvent
 import http.*
@@ -25,10 +23,9 @@ import org.kodein.di.generic.instance
 import util.*
 import view.TemplateFragment
 import view.TemplateRoomFragment
-import java.util.*
-import kotlin.collections.ArrayList
 
-class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener, KodeinAware {
+
+class BaseActivity : ThemeAndLocaleAwareActivity(), OnResponseListener, KodeinAware {
     companion object {
         const val TAB_ONE = 0
         const val TAB_TWO = 1
@@ -54,30 +51,17 @@ class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener, KodeinAwar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme(R.style.AppTheme)
-
-        if (appClass.getStringPref(PREF_LANGUAGE) == null) {
-            appClass.setPref(PREF_LANGUAGE, CON_LANG_FA)
-            updateLocale(Locale(CON_LANG_FA))
-        } else {
-            val text = TextView(baseContext).apply {
-                setText(R.string.locale)
-            }.text.toString()
-            if (appClass.getStringPref(PREF_LANGUAGE) != text) {
-                updateLocale(Locale(appClass.getStringPref(PREF_LANGUAGE) ?: CON_LANG_FA))
-            } else {
-                appClass.initFont()
-                handleIntent()
-                setContentView(R.layout.activity_base)
-                initFragmentTable(
-                    TemplateFragment.newInstance(),
-                    TemplateRoomFragment.newInstance()
-                )
-                initBottomBar()
-                bar.post { barHeight = bar.height }
-            }
-        }
+        appClass.initFont()
+        handleIntent()
+        setContentView(R.layout.activity_base)
+        initFragmentTable(
+            TemplateFragment.newInstance(),
+            TemplateRoomFragment.newInstance()
+        )
+        initBottomBar()
+        bar.post { barHeight = bar.height }
     }
+
 
     override fun onResume() {
         super.onResume()
@@ -219,8 +203,8 @@ class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener, KodeinAwar
 
     fun selectTab(index: Int) {
         when (index) {
-            TAB_ONE   -> bar.selectedItemId = R.id.navigation_one
-            TAB_TWO   -> bar.selectedItemId = R.id.navigation_two
+            TAB_ONE -> bar.selectedItemId = R.id.navigation_one
+            TAB_TWO -> bar.selectedItemId = R.id.navigation_two
         }
     }
 
@@ -294,26 +278,28 @@ class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener, KodeinAwar
     }
 
     fun showHideNavigationBar(hide: Boolean, duration: Long = 500, onFinish: () -> (Unit) = {}) {
-        if (barHeight == 0) {
-            bar.post {
-                barHeight = bar.height
-                showHideNavigationBar(hide, 0, onFinish)
-            }
-        } else {
-            val animator: ValueAnimator = if (hide) {
-                ValueAnimator.ofInt(bar.height, 0)
+        if (bar != null) {
+            if (barHeight == 0) {
+                bar.post {
+                    barHeight = bar.height
+                    showHideNavigationBar(hide, 0, onFinish)
+                }
             } else {
-                ValueAnimator.ofInt(bar.height, barHeight)
-            }
-            animator.duration = duration
-            animator.addUpdateListener {
-                val params = bar.layoutParams as LinearLayout.LayoutParams
-                params.height = it.animatedValue as Int
-                bar.layoutParams = params
-            }
-            animator.start()
-            animator.doOnEnd {
-                onFinish()
+                val animator: ValueAnimator = if (hide) {
+                    ValueAnimator.ofInt(bar.height, 0)
+                } else {
+                    ValueAnimator.ofInt(bar.height, barHeight)
+                }
+                animator.duration = duration
+                animator.addUpdateListener {
+                    val params = bar.layoutParams as LinearLayout.LayoutParams
+                    params.height = it.animatedValue as Int
+                    bar.layoutParams = params
+                }
+                animator.start()
+                animator.doOnEnd {
+                    onFinish()
+                }
             }
         }
     }
@@ -322,13 +308,13 @@ class BaseActivity : LocaleAwareCompatActivity(), OnResponseListener, KodeinAwar
     private fun initBottomBar() {
         bar.setOnNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.navigation_one   -> if (currentTabIndex == TAB_ONE) {
+                R.id.navigation_one -> if (currentTabIndex == TAB_ONE) {
                     tabReselected()
                 } else {
                     currentTabIndex = TAB_ONE
                     tabSelected()
                 }
-                R.id.navigation_two   -> if (currentTabIndex == TAB_TWO) {
+                R.id.navigation_two -> if (currentTabIndex == TAB_TWO) {
                     tabReselected()
                 } else {
                     currentTabIndex = TAB_TWO

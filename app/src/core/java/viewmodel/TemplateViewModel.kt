@@ -2,16 +2,18 @@ package viewmodel
 
 import adapter.TemplateAdapter
 import android.os.Bundle
+import android.os.Handler
 import android.view.View
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.xodus.templatethree.R
 import dialog.CustomDialog
 import http.*
 import main.*
 import model.Template
+import util.SingleLiveEvent
 import util.log
 import java.util.*
 import kotlin.collections.ArrayList
@@ -68,12 +70,13 @@ class TemplateViewModel(private val repository: Client, private val appClass: Ap
     )
 
     //Event
-    val showDialog: MutableLiveData<CustomDialog> = MutableLiveData()
-    val snack: MutableLiveData<Int> = MutableLiveData()
-    val snackString: MutableLiveData<String> = MutableLiveData()
-    val doBack: MutableLiveData<Boolean> = MutableLiveData()
-    val startFragment: MutableLiveData<BaseFragment> = MutableLiveData()
-    val changeLocale: MutableLiveData<Locale> = MutableLiveData()
+    val showDialog: SingleLiveEvent<CustomDialog> = SingleLiveEvent()
+    val snack: SingleLiveEvent<Int> = SingleLiveEvent()
+    val snackString: SingleLiveEvent<String> = SingleLiveEvent()
+    val doBack: SingleLiveEvent<Boolean> = SingleLiveEvent()
+    val startFragment: SingleLiveEvent<BaseFragment> = SingleLiveEvent()
+    val changeLocale: SingleLiveEvent<Locale> = SingleLiveEvent()
+    val hideNavBar: SingleLiveEvent<Boolean> = SingleLiveEvent()
 
     //Binding
     val tvTitleText: ObservableInt = ObservableInt(R.string.app_name)
@@ -89,6 +92,18 @@ class TemplateViewModel(private val repository: Client, private val appClass: Ap
     fun handleIntent(bundle: Bundle?) {
         bundle?.let {
 
+        }
+    }
+
+    fun onTvTitleClick() {
+        if (appClass.getBooleanPref(PREF_DARK_THEME)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            appClass.setPref(PREF_DARK_THEME, false)
+            Handler().postDelayed({ hideNavBar.value = false }, 300)
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            appClass.setPref(PREF_DARK_THEME, true)
+            Handler().postDelayed({ hideNavBar.value = false }, 300)
         }
     }
 

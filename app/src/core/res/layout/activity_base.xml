@@ -18,12 +18,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:background="@color/md_white_1000"
             android:hapticFeedbackEnabled="true"
             android:theme="@style/BottomNavigationViewFontedFa"
-            app:itemBackground="@color/md_white_1000"
-            app:itemRippleColor="@color/md_white_1000"
-            app:itemTextColor="@color/colorPrimary"
+            app:itemTextColor="?colorPrimary"
             app:menu="@menu/navigation"
             app:labelVisibilityMode="selected"
             />

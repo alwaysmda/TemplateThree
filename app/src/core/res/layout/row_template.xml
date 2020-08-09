@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             app:cardElevation="2dp"
             android:layout_margin="4dp"
-            app:rippleColor="@color/colorPrimary"
+            app:rippleColor="?colorPrimary"
             app:cardCornerRadius="4dp">
 
         <com.google.android.material.textview.MaterialTextView

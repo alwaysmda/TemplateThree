@@ -1,6 +1,7 @@
 package main
 
 import android.app.AlarmManager
+import android.app.Application
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -14,7 +15,6 @@ import com.google.firebase.FirebaseApp
 import com.pddstudio.preferences.encrypted.EncryptedPreferences
 import com.xodus.templatethree.BuildConfig
 import com.xodus.templatethree.R
-import com.zeugmasolutions.localehelper.LocaleAwareApplication
 import db.TemplateDatabase
 import http.Client
 import org.kodein.di.Kodein
@@ -28,7 +28,7 @@ import util.ViewModelFactory
 import util.copyToClipboard
 import kotlin.system.exitProcess
 
-open class ApplicationClass : LocaleAwareApplication(), KodeinAware {
+open class ApplicationClass : Application(), KodeinAware {
     override val kodein by Kodein.lazy {
         import(androidXModule(this@ApplicationClass))
         bind() from singleton { this@ApplicationClass }
@@ -77,7 +77,7 @@ open class ApplicationClass : LocaleAwareApplication(), KodeinAware {
 
     private fun initSharedPreferences() {
         if (getBooleanPref(PREF_PREFERENCES_INITIALIZED).not()) {
-            setPref(PREF_LANGUAGE, CON_LANG_EN)
+            setPref(PREF_LANGUAGE, CON_LANG_DEFAULT)
             setPref(PREF_PREFERENCES_INITIALIZED, true)
         }
     }
