@@ -15,6 +15,7 @@ import kotlinx.coroutines.withContext
 import main.*
 import model.TemplateRoom
 import util.BaseFragmentFactory
+import util.SingleLiveEvent
 import util.log
 
 
@@ -25,11 +26,13 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
     private var sortDesc = false
 
     //Event
-    //    val showDialog: SingleLiveEvent<CustomDialog> = SingleLiveEvent()
+    val prepareSharedElement: SingleLiveEvent<Boolean> = SingleLiveEvent()
+
 
     //Binding
-    val tvTitleText: ObservableField<String> = ObservableField(appClass.appName)
+    val tvTitleText: ObservableField<String> = ObservableField(appClass.example)
     val adapter: ObservableField<TemplateRoomAdapter> = ObservableField(TemplateRoomAdapter(this))
+
 
     init {
         viewModelScope.launch {
@@ -45,7 +48,8 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
     }
 
     fun onTitleClick() {
-        startFragment.value = BaseFragmentFactory.templateRoomFragment("YES")
+        prepareSharedElement.value = true
+        startFragment.value = BaseFragmentFactory.templateFragment()
     }
 
     fun onBtnAddClick() {
@@ -126,6 +130,7 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
             appClass.changeLang(Languages.FA)
         }
         BaseActivity.getInstance().resetBottomBarTitles()
+        BaseActivity.getInstance().selectTab(BaseActivity.TAB_ONE)
         rebind.value = appClass
     }
 

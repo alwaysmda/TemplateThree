@@ -29,7 +29,7 @@ abstract class BaseFragment<DB : ViewDataBinding, VM : BaseViewModel> : Fragment
 
     override val kodein: Kodein by closestKodein()
     val appClass: ApplicationClass by instance()
-    val viewModelFactory: ViewModelFactory by instance()
+    private val viewModelFactory: ViewModelFactory by instance()
     var ID: String? = null
     protected lateinit var baseActivity: BaseActivity
 
@@ -43,6 +43,7 @@ abstract class BaseFragment<DB : ViewDataBinding, VM : BaseViewModel> : Fragment
     var sharedElementRecyclerViewViewID: Int = 0
     var sharedElementRecyclerViewPosition: Int = 0
     var sharedElementRecyclerViewReturnView: View? = null
+    var customStart = false
 
     private var initialized = false
     private var _binding: DB? = null
@@ -81,7 +82,9 @@ abstract class BaseFragment<DB : ViewDataBinding, VM : BaseViewModel> : Fragment
 
     override fun onDetach() {
         super.onDetach()
-        EventBus.getDefault().unregister(this)
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this)
+        }
     }
 
     override fun onDestroy() {
@@ -103,11 +106,11 @@ abstract class BaseFragment<DB : ViewDataBinding, VM : BaseViewModel> : Fragment
             throw Exception("Layout and ViewModel are not initialized. Call [initialize] in OnAttach()")
         }
         _binding = DataBindingUtil.inflate(inflater, layoutId, container, false)
-        //        viewModel = ViewModelProvider(this, viewModelFactory).get(VM::class.java)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.setVariable(BR.viewModel, viewModel)
         binding.setVariable(BR.view, this)
         binding.setVariable(BR.appClass, appClass)
+        receiveTransition(binding.root)
         setStatusbarColor(baseActivity, getColorFromAttributes(baseActivity, R.attr.colorPrimaryDark))
         return binding.root
     }
@@ -195,13 +198,13 @@ abstract class BaseFragment<DB : ViewDataBinding, VM : BaseViewModel> : Fragment
      * Request runtime permissions. The result will be posted by {OnRequestPermissionResultEvent} event
      * @param permission example: Manifest.permission.READ_EXTERNAL_STORAGE
      */
-    fun grantPremission(vararg permission: String) {
+    fun grantPermission(vararg permission: String) {
         ActivityCompat.requestPermissions(baseActivity, permission, REQUEST_CODE)
     }
 
     /**
-     * Instatiates and shows the fragment in the current tab and hides the current frgmant
-     * @param fragment the new frgment to show
+     * Instantiates and shows the fragment in the current tab and hides the current fragment
+     * @param fragment the new fragment to show
      */
     fun start(fragment: BaseFragment<ViewDataBinding, BaseViewModel>) {
         baseActivity.start(fragment)

@@ -51,6 +51,7 @@
                         android:layout_height="match_parent"
                         android:fontFamily="@font/font_medium"
                         android:onClick="@{() -> viewModel.onTitleClick()}"
+                        android:gravity="center"
                         android:text="@{viewModel.tvTitleText}"
                         android:textColor="?attr/colorButtonText"
                         android:textSize="@dimen/textLarge"

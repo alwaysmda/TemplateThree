@@ -33,7 +33,7 @@ class TemplateViewModel(private val repository: Client, private val appClass: Ap
     val hideNavBar: SingleLiveEvent<Boolean> = SingleLiveEvent()
 
     //Binding
-    val tvTitleText: ObservableField<String> = ObservableField(appClass.appName)
+    val tvTitleText: ObservableField<String> = ObservableField(appClass.template)
     val adapter: ObservableField<TemplateAdapter> = ObservableField(TemplateAdapter(this))
 
     init {

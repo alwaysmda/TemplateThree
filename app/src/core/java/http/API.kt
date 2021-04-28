@@ -1,7 +1,7 @@
 package http
 
 open class API : Request() {
-    protected val BASE_API = "https://www.xodus.ir/api/v1"
+    protected val BASE_API = "https://www.httpbin.org"
 
 
     companion object {
