@@ -1,12 +1,12 @@
 package http
 
 import android.os.Handler
+import android.os.Looper
 import androidx.core.content.pm.PackageInfoCompat
 import com.xodus.templatethree.BuildConfig
 import http.Request.Method.*
 import http.Response.Status.FAILURE
 import http.Response.Status.SUCCESS
-import http.Response.StatusName.*
 import main.ApplicationClass
 import main.PREF_ACCESS_TOKEN
 import main.PREF_LANGUAGE
@@ -145,7 +145,7 @@ class Client() {
 
         callbackString = object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Handler(appClass.mainLooper)
+                Handler(Looper.getMainLooper())
                     .post {
                         val response =
                             Response(requestList[call.request().tag()]!!, 0, null, e.message ?: "", FAILURE)
@@ -158,7 +158,7 @@ class Client() {
             override fun onResponse(call: Call, res: okhttp3.Response) {
                 try {
                     val result = res.body()!!.string()
-                    Handler(appClass.mainLooper)
+                    Handler(Looper.getMainLooper())
                         .post {
                             val response = Response(
                                 requestList[res.request().tag()]!!,
@@ -180,7 +180,7 @@ class Client() {
 
         callbackFile = object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Handler(appClass.mainLooper)
+                Handler(Looper.getMainLooper())
                     .post {
                         val response = Response(requestList[call.request().tag()]!!, 0, null, e.message ?: "", FAILURE)
                         requestList.remove(call.request().tag())
@@ -192,37 +192,39 @@ class Client() {
             @Throws(IOException::class)
             override fun onResponse(call: Call, res: okhttp3.Response) {
                 val request = requestList[res.request().tag()]
-                requestList.remove(res.request().tag())
-                val directory = File(request?._params?.get(API.PARAM_NAME_DOWNLOAD_PATH)?.toString())
-                if (!directory.exists()) {
-                    directory.mkdirs()
-                }
-                val file = File(
-                    request?._params?.get(API.PARAM_NAME_DOWNLOAD_PATH)?.toString(),
-                    request?._params?.get(API.PARAM_NAME_DOWNLOAD_NAME)?.toString()
-                )
-                if (file.exists()) {
-                    file.delete()
-                }
-                val response = Response(
-                    request!!,
-                    res.code(),
-                    res.headers(),
-                    file.path,
-                    if (res.isSuccessful) SUCCESS else FAILURE
-                )
-                log(response.toJSONObject(file).toString())
-                val sink = Okio.buffer(Okio.sink(file))
-                handleWrites(request, sink, res.body()!!.source(), res.body()!!.contentLength())
-                sink.close()
-                Handler(appClass.mainLooper)
-                    .post {
-                        try {
-                            responseHandler(response)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
+                request?.let {
+                    requestList.remove(res.request().tag())
+                    val directory = File(request._params[API.PARAM_NAME_DOWNLOAD_PATH].toString())
+                    if (!directory.exists()) {
+                        directory.mkdirs()
                     }
+                    val file = File(
+                        request._params[API.PARAM_NAME_DOWNLOAD_PATH].toString(),
+                        request._params[API.PARAM_NAME_DOWNLOAD_NAME].toString()
+                    )
+                    if (file.exists()) {
+                        file.delete()
+                    }
+                    val response = Response(
+                        request,
+                        res.code(),
+                        res.headers(),
+                        file.path,
+                        if (res.isSuccessful) SUCCESS else FAILURE
+                    )
+                    log(response.toJSONObject(file).toString())
+                    val sink = Okio.buffer(Okio.sink(file))
+                    handleWrites(request, sink, res.body()!!.source(), res.body()!!.contentLength())
+                    sink.close()
+                    Handler(Looper.getMainLooper())
+                        .post {
+                            try {
+                                responseHandler(response)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                }
             }
         }
     }
@@ -247,10 +249,10 @@ class Client() {
                 }
                 val finalBytesWritten = bytesWritten
                 val finalPercent = percent
-                Handler(appClass.mainLooper)
+                Handler(Looper.getMainLooper())
                     .post {
                         try {
-                            request._onResponse.onProgress(request, finalBytesWritten, totalSize, finalPercent)
+                            request._progress(request._ID, finalBytesWritten, totalSize, finalPercent)
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
@@ -282,7 +284,17 @@ class Client() {
     }
 
 
-    fun request(request: Request) {
+    fun request(
+        request: Request,
+        body: (String) -> Unit = {},
+        error: (Response) -> Unit = {},
+        progress: (id: Int, bytesWritten: Long, totalSize: Long, percent: Int) -> Unit = { _, _, _, _ -> },
+        fullResponse: (Response) -> Unit = {},
+    ) {
+        request._body = body
+        request._fullResponse = fullResponse
+        request._error = error
+        request._progress = progress
         addMainHeaders(request)
         requestBuilder = okhttp3.Request.Builder()
         applyHeaders(request)
@@ -294,26 +306,26 @@ class Client() {
         val call: Call
         when (request._method) {
             DOWNLOAD -> {
-                call = client.newCall(requestBuilder.url(url).get().build())
+                call = client.newCall(requestBuilder.url(request._url).get().build())
                 call.enqueue(callbackFile)
             }
-            GET      -> {
+            GET -> {
                 call = client.newCall(requestBuilder.url(url).get().build())
                 call.enqueue(callbackString)
             }
-            POST     -> {
+            POST -> {
                 call = client.newCall(requestBuilder.url(url).post(requestBody).build())
                 call.enqueue(callbackString)
             }
-            PUT      -> {
+            PUT -> {
                 call = client.newCall(requestBuilder.url(url).put(requestBody).build())
                 call.enqueue(callbackString)
             }
-            DELETE   -> {
+            DELETE -> {
                 call = client.newCall(requestBuilder.url(url).delete(requestBody).build())
                 call.enqueue(callbackString)
             }
-            RAW      -> {
+            RAW -> {
                 call = client.newCall(requestBuilder.url(url).post(requestBody).build())
                 call.enqueue(callbackString)
             }
@@ -354,7 +366,7 @@ class Client() {
 
     private fun applyParams(request: Request) {
         when (request._method) {
-            GET, DOWNLOAD     -> {
+            GET, DOWNLOAD -> {
                 if (request._params.isNotEmpty()) {
                     var url = request._url
                     if (url.contains("?").not()) {
@@ -408,7 +420,7 @@ class Client() {
                     requestBody = body.build()
                 }
             }
-            RAW               -> requestBody = if (request._raw.isEmpty()) {
+            RAW -> requestBody = if (request._raw.isEmpty()) {
                 RequestBody.create(MediaType.parse("application/json; charset=utf-8"), ByteArray(0))
             } else {
                 RequestBody.create(MediaType.parse("application/json; charset=utf-8"), request._raw)
@@ -448,44 +460,12 @@ class Client() {
         log("CLR BDY ${response.request._name}$tabCount${response.body}")
         log("CLR REQ ${response.request._name}$tabCount${response.request.toJSONObject()}")
         log("CLR RES ${response.request._name}$tabCount${response.toJSONObject()}")
-        response.request._onResponse.onResponse(response)
-        when (response.statusName) {
-            NoInternetConnection //0
-            -> {
-            }
-            OK //200
-            -> {
-            }
-            Created //201
-            -> {
-            }
-            NoContent //204
-            -> {
-            }
-            NotModified //304
-            -> {
-            }
-            BadRequest //400
-            -> {
-            }
-            Unauthorized //401
-            -> {
-            }
-            Forbidden //403
-            -> {
-            }
-            NotFound //404
-            -> {
-            }
-            Conflict //409
-            -> {
-            }
-            InternalServerError //500
-            -> {
-            }
-            Other //Other
-            -> {
-            }
+        response.request._fullResponse(response)
+        if (response.status == SUCCESS) {
+            response.request._body(response.body)
+        } else {
+            response.request._error(response)
         }
+
     }
 }

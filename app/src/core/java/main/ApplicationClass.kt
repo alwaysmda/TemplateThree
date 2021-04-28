@@ -8,6 +8,7 @@ import android.content.Intent
 import android.graphics.Typeface
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.res.ResourcesCompat
 import androidx.multidex.MultiDex
 import billing.Market
@@ -68,6 +69,8 @@ open class ApplicationClass : Application(), KodeinAware {
         initFont()
         recyclerViewAnimation = AnimationUtils.loadLayoutAnimation(applicationContext, R.anim.anim_layout_animation)
         FirebaseApp.initializeApp(this)
+        changeLang(Languages.valueOf(getStringPref(PREF_LANGUAGE) ?: Languages.DEFAULT_LANGUAGE.value))
+        changeTheme(Themes.valueOf(getStringPref(PREF_THEME) ?: Themes.DEFAULT_THEME.value))
     }
 
     override fun attachBaseContext(base: Context) {
@@ -77,16 +80,15 @@ open class ApplicationClass : Application(), KodeinAware {
 
     private fun initSharedPreferences() {
         if (getBooleanPref(PREF_PREFERENCES_INITIALIZED).not()) {
-            setPref(PREF_LANGUAGE, CON_LANG_DEFAULT)
             setPref(PREF_PREFERENCES_INITIALIZED, true)
         }
     }
 
     private fun initMarket() {
         market = when (BuildConfig.FLAVOR) {
-            "bazaar"     -> Market.init(Market.MarketType.BAZAAR)
-            "myket"      -> Market.init(Market.MarketType.MYKET)
-            "iranapps"   -> Market.init(Market.MarketType.IRANAPPS)
+            "bazaar" -> Market.init(Market.MarketType.BAZAAR)
+            "myket" -> Market.init(Market.MarketType.MYKET)
+            "iranapps" -> Market.init(Market.MarketType.IRANAPPS)
             "googleplay" -> Market.init(Market.MarketType.GOOGLEPLAY)
             else         -> Market.init(Market.MarketType.BAZAAR)
         }
@@ -137,19 +139,19 @@ open class ApplicationClass : Application(), KodeinAware {
 
     fun setPref(key: String, value: Any) {
         when (value) {
-            is String  -> {
+            is String -> {
                 encryptedPreferences.edit().putString(key, value).apply()
             }
-            is Int     -> {
+            is Int -> {
                 encryptedPreferences.edit().putInt(key, value).apply()
             }
             is Boolean -> {
                 encryptedPreferences.edit().putBoolean(key, value).apply()
             }
-            is Float   -> {
+            is Float -> {
                 encryptedPreferences.edit().putFloat(key, value).apply()
             }
-            is Long    -> {
+            is Long -> {
                 encryptedPreferences.edit().putLong(key, value).apply()
             }
         }
@@ -184,5 +186,209 @@ open class ApplicationClass : Application(), KodeinAware {
         }
         copyToClipboard("message:$paramThrowable\n\nfile:${paramThrowable.stackTrace[0].fileName}\n\nclass:${paramThrowable.stackTrace[0].className}method:${paramThrowable.stackTrace[0].methodName}\n\nline:${paramThrowable.stackTrace[0].lineNumber}")
         exitProcess(2)
+    }
+
+
+    /**======================================================================**/
+    /**============================== Language ==============================**/
+    /**======================================================================**/
+
+    /**============================== Default ==============================**/
+    var appName = "Template Three"
+    var cancel = "Cancel"
+    private var placeholderPrefix = "Prefix "
+    private var placeholderSuffix = " Suffix"
+    var example = "Example"
+    var template = "Template"
+    var tapToExit = "Tap again to exit"
+    var errorConnection = "Connection Error"
+    var errorConnectionDesc = "You are not connected to internet. Please check your connection and try again."
+    var errorServer = "Server Error"
+    var errorServerDesc = "Could not connect to Server. Please try again."
+    var retry = "Retry"
+    var okay = "Okay"
+    var error = "Error"
+    var value = "Value"
+    var get = "Get"
+    var post = "Post"
+    var upload = "Upload"
+    var download = "Download"
+    var notify = "Notify"
+    var changeTheme = "Change Theme"
+    var changeLanguage = "Change Language"
+    var request = "Request"
+    var clickToFetchData = "Change Theme"
+    var add = "Add"
+    var remove = "Remove"
+    var reset = "Reset"
+    var addAll = "Add All"
+    var removeAll = "Remove All"
+    var sort = "Sort"
+    var one = "One"
+    var two = "Two"
+
+
+    fun placeholderString(count: Int) = run { "$placeholderPrefix$count$placeholderSuffix" }
+
+    /**============================== English ==============================**/
+    private var appNameEN = "Template Three"
+    private var cancelEN = "Cancel"
+    private var placeholderPrefixEN = "Prefix "
+    private var placeholderSuffixEN = " Suffix"
+    private var exampleEN = "Example"
+    private var templateEN = "Template"
+    private var tapToExitEN = "Tap again to exit"
+    private var errorConnectionEN = "Connection Error"
+    private var errorConnectionDescEN = "You are not connected to internet. Please check your connection and try again."
+    private var errorServerEN = "Server Error"
+    private var errorServerDescEN = "Could not connect to Server. Please try again."
+    private var retryEN = "Retry"
+    private var okayEN = "Okay"
+    private var errorEN = "Error"
+    private var valueEN = "Value"
+    private var getEN = "Get"
+    private var postEN = "Post"
+    private var uploadEN = "Upload"
+    private var downloadEN = "Download"
+    private var notifyEN = "Notify"
+    private var changeThemeEN = "Change Theme"
+    private var changeLanguageEN = "Change Language"
+    private var requestEN = "Request"
+    private var clickToFetchDataEN = "Change Theme"
+    private var addEN = "Add"
+    private var removeEN = "Remove"
+    private var resetEN = "Reset"
+    private var addAllEN = "Add All"
+    private var removeAllEN = "Remove All"
+    private var sortEN = "Sort"
+    private var oneEN = "One"
+    private var twoEN = "Two"
+
+    /**============================== Persian ==============================**/
+    private var appNameFA = "Template Three FA"
+    private var cancelFA = "Cancel FA"
+    private var placeholderPrefixFA = "Prefix  FA"
+    private var placeholderSuffixFA = " Suffix FA"
+    private var exampleFA = "Example FA"
+    private var templateFA = "Template FA"
+    private var tapToExitFA = "Tap again to exit FA"
+    private var errorConnectionFA = "Connection Error FA"
+    private var errorConnectionDescFA = "You are not connected to internet. Please check your connection and try again. FA"
+    private var errorServerFA = "Server Error FA"
+    private var errorServerDescFA = "Could not connect to Server. Please try again. FA"
+    private var retryFA = "Retry FA"
+    private var okayFA = "Okay FA"
+    private var errorFA = "Error FA"
+    private var valueFA = "Value FA"
+    private var getFA = "Get"
+    private var postFA = "Post"
+    private var uploadFA = "Upload"
+    private var downloadFA = "Download"
+    private var notifyFA = "Notify"
+    private var changeThemeFA = "Change Theme"
+    private var changeLanguageFA = "Change Language FA"
+    private var requestFA = "Request FA"
+    private var clickToFetchDataFA = "Change Theme"
+    private var addFA = "Add FA"
+    private var removeFA = "Remove FA"
+    private var resetFA = "Reset FA"
+    private var addAllFA = "Add All FA"
+    private var removeAllFA = "Remove All FA"
+    private var sortFA = "Sort FA"
+    private var oneFA = "One FA"
+    private var twoFA = "Two FA"
+
+
+    var currentLanguage = Languages.DEFAULT_LANGUAGE
+    fun changeLang(lang: Languages) {
+        currentLanguage = lang
+        setPref(PREF_LANGUAGE, lang.value)
+        when (lang) {
+            Languages.EN -> {
+                appName = appNameEN
+                cancel = cancelEN
+                placeholderPrefix = placeholderPrefixEN
+                placeholderSuffix = placeholderSuffixEN
+                example = exampleEN
+                template = templateEN
+                tapToExit = tapToExitEN
+                errorConnection = errorConnectionEN
+                errorConnectionDesc = errorConnectionDescEN
+                errorServer = errorServerEN
+                errorServerDesc = errorServerDescEN
+                retry = retryEN
+                okay = okayEN
+                error = errorEN
+                value = valueEN
+                get = getEN
+                post = postEN
+                upload = uploadEN
+                download = downloadEN
+                notify = notifyEN
+                changeTheme = changeThemeEN
+                changeLanguage = changeLanguageEN
+                request = requestEN
+                clickToFetchData = clickToFetchDataEN
+                add = addEN
+                remove = removeEN
+                reset = resetEN
+                addAll = addAllEN
+                removeAll = removeAllEN
+                sort = sortEN
+                one = oneEN
+                two = twoEN
+            }
+            Languages.FA -> {
+                appName = appNameFA
+                cancel = cancelFA
+                placeholderPrefix = placeholderPrefixFA
+                placeholderSuffix = placeholderSuffixFA
+                example = exampleFA
+                template = templateFA
+                tapToExit = tapToExitFA
+                errorConnection = errorConnectionFA
+                errorConnectionDesc = errorConnectionDescFA
+                errorServer = errorServerFA
+                errorServerDesc = errorServerDescFA
+                retry = retryFA
+                okay = okayFA
+                error = errorFA
+                value = valueFA
+                get = getFA
+                post = postFA
+                upload = uploadFA
+                download = downloadFA
+                notify = notifyFA
+                changeTheme = changeThemeFA
+                changeLanguage = changeLanguageFA
+                request = requestFA
+                clickToFetchData = clickToFetchDataFA
+                add = addFA
+                remove = removeFA
+                reset = resetFA
+                addAll = addAllFA
+                removeAll = removeAllFA
+                sort = sortFA
+                one = oneFA
+                two = twoFA
+            }
+            else         -> Unit
+        }
+    }
+
+    /**============================== Language ==============================**/
+
+
+    val themeIsDark
+        get() = currentTheme.value.contains("DARK")
+    var currentTheme = Themes.LIGHT_PINK
+    fun changeTheme(theme: Themes) {
+        setPref(PREF_THEME, theme.value)
+        currentTheme = theme
+        if (themeIsDark) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
     }
 }

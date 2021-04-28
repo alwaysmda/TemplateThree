@@ -10,7 +10,6 @@ open class Request {
     }
 
 
-
     var _ID: Int = 0
     var _tag: String = ""
     var _method: Method = Method.GET
@@ -21,7 +20,11 @@ open class Request {
     var _raw: String = ""
     var _retryMax: Int = 0
     var _retryAttempt: Int = 0
-    lateinit var _onResponse : OnResponseListener
+    var _body: (String) -> Unit = {}
+    var _fullResponse: (Response) -> Unit = {}
+    var _error: (Response) -> Unit = {}
+    var _progress: (id: Int, bytesWritten: Long, totalSize: Long, percent: Int) -> Unit = { _, _, _, _ -> }
+
 
     fun putHeader(key: String, value: String) {
         _headers[key] = value

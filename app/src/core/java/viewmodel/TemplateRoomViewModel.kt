@@ -4,79 +4,34 @@ import adapter.TemplateRoomAdapter
 import android.os.Bundle
 import android.view.View
 import androidx.databinding.ObservableField
-import androidx.databinding.ObservableInt
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.xodus.templatethree.R
 import db.TemplateDao
-import dialog.CustomDialog
-import http.*
+import http.API
+import http.Client
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import main.ApplicationClass
-import main.BaseFragment
+import main.*
 import model.TemplateRoom
-import util.SingleLiveEvent
+import util.BaseFragmentFactory
 import util.log
-import java.util.*
-import kotlin.collections.ArrayList
 
 
-class TemplateRoomViewModel(private val repository: Client, private val appClass: ApplicationClass, private val templateDao: TemplateDao) : ViewModel(),
-    OnResponseListener {
-    override fun onResponse(response: Response) {
-        when (response.statusName) {
-            Response.StatusName.OK                   -> {
-                when (response.request._ID) {
-                    API.Download.ID -> gotDownload(response)
-                }
-            }
-            Response.StatusName.NoInternetConnection -> {
-                showDialog.value = CustomDialog(appClass)
-                    .setTitle(R.string.error_title_no_internet)
-                    .setContent(R.string.error_text_no_internet)
-                    .setPositiveText(R.string.try_again)
-                    .setNegativeText(R.string.cancel)
-                    .setCancelabel(false)
-                    .onPositive { retry(response.request) }
-                    .onNegative { onCancel(response.request._ID) }
-            }
-            else                                     -> {
-                showDialog.value = CustomDialog(appClass)
-                    .setTitle(R.string.error_title_connection_error)
-                    .setContent(R.string.error_text_connection_error)
-                    .setPositiveText(R.string.try_again)
-                    .setCancelabel(false)
-                    .onPositive { retry(response.request) }
-                    .onNegative { onCancel(response.request._ID) }
-            }
-        }
-    }
-
-
-    override fun onProgress(request: Request, bytesWritten: Long, totalSize: Long, percent: Int) {
-    }
+class TemplateRoomViewModel(private val repository: Client, private val appClass: ApplicationClass, private val templateDao: TemplateDao) : BaseViewModel(repository, appClass) {
 
     //Local
     private val list: ArrayList<TemplateRoom> = ArrayList()
     private var sortDesc = false
 
     //Event
-    val showDialog: SingleLiveEvent<CustomDialog> = SingleLiveEvent()
-    val snack: SingleLiveEvent<Int> = SingleLiveEvent()
-    val snackString: SingleLiveEvent<String> = SingleLiveEvent()
-    val doBack: SingleLiveEvent<Boolean> = SingleLiveEvent()
-    val startFragment: SingleLiveEvent<BaseFragment> = SingleLiveEvent()
-    val changeLocale: SingleLiveEvent<Locale> = SingleLiveEvent()
+    //    val showDialog: SingleLiveEvent<CustomDialog> = SingleLiveEvent()
 
     //Binding
-    val tvTitleText: ObservableInt = ObservableInt(R.string.app_name)
+    val tvTitleText: ObservableField<String> = ObservableField(appClass.appName)
     val adapter: ObservableField<TemplateRoomAdapter> = ObservableField(TemplateRoomAdapter(this))
 
     init {
-        tvTitleText.set(R.string.app_name)
         viewModelScope.launch {
             list.addAll(selectAll())
             updateRecyclerView()
@@ -85,20 +40,12 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
 
     fun handleIntent(bundle: Bundle?) {
         bundle?.let {
-
+            log("GOT INTENT DATA : ${it.getString(BaseFragmentFactory.ARG_NAME, "NO")}")
         }
     }
 
-    private fun retry(request: Request) {
-        repository.request(request)
-    }
-
-    private fun onCancel(id: Int) {
-        when (id) {
-            API.Download.ID -> {
-
-            }
-        }
+    fun onTitleClick() {
+        startFragment.value = BaseFragmentFactory.templateRoomFragment("YES")
     }
 
     fun onBtnAddClick() {
@@ -164,6 +111,51 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
         }
     }
 
+    fun onBtnChangeThemeClick() {
+        if (appClass.currentTheme == Themes.LIGHT_PINK) {
+            appClass.changeTheme(Themes.DARK_BLUE)
+        } else {
+            appClass.changeTheme(Themes.LIGHT_PINK)
+        }
+    }
+
+    fun onBtnChangeLanguageClick() {
+        if (appClass.currentLanguage == Languages.FA) {
+            appClass.changeLang(Languages.EN)
+        } else {
+            appClass.changeLang(Languages.FA)
+        }
+        BaseActivity.getInstance().resetBottomBarTitles()
+        rebind.value = appClass
+    }
+
+    fun onBtnRequestClick() {
+        get(true)
+    }
+
+    private fun get(retry: Boolean = false) {
+        showLoading.value = LoadingValue(true)
+        repository.request(API.Get("https://www.httpbin.org/get"), { //OnSuccess //String Body
+            log("THIS IS REQUEST BODY : $it")
+        }, { //OnError
+            if (retry) {
+                onError(it, { //OnRetry
+                    get()
+                }, { //OnCancel
+                    log("REQUEST CANCELED")
+                })
+            } else {
+                onError(it) { //OnCancel
+                    log("REQUEST CANCELED")
+                }
+            }
+        }, { id, bytesWritten, totalSize, percent -> //OnProgress
+            log("THIS IS REQUEST PROGRESS ID=$id WRITTEN=$bytesWritten TOTAL=$totalSize PERCENT=$percent")
+        }) { //Full Response
+            showLoading.value = LoadingValue(false)
+            log("THIS IS FULL REQUEST DATA : ${it.toJSONObject()}")
+        }
+    }
 
     private suspend fun addItem(item: TemplateRoom) {
         templateDao.insert(item)
@@ -202,13 +194,5 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
         list.remove(data)
         list.add(index, data)
         adapter.get()?.updateList(list)
-    }
-
-    fun onIvBackClick() {
-        doBack.value = true
-    }
-
-    private fun gotDownload(response: Response) {
-
     }
 }

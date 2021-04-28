@@ -5,7 +5,6 @@ import androidx.databinding.Bindable
 import androidx.databinding.library.baseAdapters.BR
 import org.json.JSONArray
 import org.json.JSONObject
-import java.util.*
 
 data class Template(
     var _templateString: String = "",

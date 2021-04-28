@@ -3,6 +3,12 @@
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
+        <variable
+                name="position"
+                type="Integer" />
+
+
         <variable
                 name="appClass"
                 type="main.ApplicationClass" />
@@ -18,21 +24,22 @@
 
     <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:onClick="@{(view) -> viewModel.onTvItemClick(data,view)}"
             android:layout_height="wrap_content"
+            android:layout_margin="@dimen/paddingSmall"
             app:cardElevation="2dp"
-            android:layout_margin="4dp"
-            app:rippleColor="?colorPrimary"
-            app:cardCornerRadius="4dp">
+            android:onClick="@{(view) -> viewModel.onTvItemClick(data,view)}"
+            app:cardCornerRadius="@dimen/radiusSmall"
+            app:rippleColor="?attr/colorRipple">
 
         <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/rowTemplate_tvNumber"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:gravity="center"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
                 android:fontFamily="@font/font_medium"
+                android:gravity="center"
+                android:paddingTop="@dimen/paddingMedium"
+                android:paddingBottom="@dimen/paddingMedium"
                 android:text="@{data.templateString}" />
     </com.google.android.material.card.MaterialCardView>
 </layout>

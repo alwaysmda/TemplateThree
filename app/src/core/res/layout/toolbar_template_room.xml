@@ -19,7 +19,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:background="?colorPrimary"
+                android:background="?attr/colorPrimary"
                 android:clipToPadding="false"
                 android:theme="@style/Widget.MaterialComponents.Toolbar"
                 app:contentInsetEnd="0dp"
@@ -32,15 +32,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                <ImageView
+                <com.google.android.material.button.MaterialButton
                         android:id="@+id/template_ivBack"
-                        android:layout_width="40dp"
+                        style="@style/ButtonGeneral.ToolbarButton"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:alpha="1"
-                        android:onClick="@{() -> viewModel.onIvBackClick()}"
-                        android:src="@drawable/ic_arrow_left"
-                        android:textColor="?android:colorBackground"
+                        android:onClick="@{() -> viewModel.doBack()}"
+                        app:icon="@drawable/ic_arrow_left"
+                        app:iconSize="30dp"
                         app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintDimensionRatio="1:1"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
@@ -49,10 +50,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:fontFamily="@font/font_medium"
-                        android:gravity="center"
+                        android:onClick="@{() -> viewModel.onTitleClick()}"
                         android:text="@{viewModel.tvTitleText}"
-                        android:textColor="?android:colorBackground"
-                        android:textSize="16sp"
+                        android:textColor="?attr/colorButtonText"
+                        android:textSize="@dimen/textLarge"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintRight_toRightOf="parent" />
 

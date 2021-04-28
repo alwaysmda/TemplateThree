@@ -12,23 +12,23 @@ import androidx.core.content.ContextCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.xodus.templatethree.R
-import http.*
+import http.API
+import http.Client
 import main.ApplicationClass
 import main.BaseActivity
 import main.PREF_FCM_TOKEN
 import util.log
 
-class MessagingService : FirebaseMessagingService(), OnResponseListener {
+class MessagingService : FirebaseMessagingService() {
 
     private val appClass = ApplicationClass.getInstance()
-    private val client = Client.getInstance()
 
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         log("FCM", "onNewToken", token)
         appClass.setPref(PREF_FCM_TOKEN, token)
-        client.request(API.UpdateFCMToken(this, token))
+        Client.getInstance().request(API.UpdateFCMToken(token))
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
@@ -53,14 +53,6 @@ class MessagingService : FirebaseMessagingService(), OnResponseListener {
 
     }
 
-    override fun onResponse(response: Response) {
-
-    }
-
-    override fun onProgress(request: Request, bytesWritten: Long, totalSize: Long, percent: Int) {
-
-    }
-
     private fun sendNotification(message: RemoteMessage) {
         val intent = Intent(this, BaseActivity::class.java)
         if (message.data.isNotEmpty()) {
@@ -78,7 +70,7 @@ class MessagingService : FirebaseMessagingService(), OnResponseListener {
             .setContentTitle(message.notification!!.title)
             .setContentText(message.notification!!.body)
             .setAutoCancel(true)
-            .setColor(ContextCompat.getColor(appClass, R.color.colorAccent))
+            .setColor(ContextCompat.getColor(appClass, R.color.lightPinkColorAccent))
             .setSound(defaultSoundUri)
             .setContentIntent(pendingIntent)
 

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+
+        <variable
+                name="position"
+                type="Integer" />
+
+        <variable
+                name="viewModel"
+                type="main.BaseViewModel" />
+
+        <variable
+                name="appClass"
+                type="main.ApplicationClass" />
+    </data>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/rowAdd_clParent"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/paddingSmall">
+
+        <com.google.android.material.button.MaterialButton
+                style="@style/ButtonGeneral"
+                android:layout_width="50dp"
+                android:layout_height="60dp"
+                android:onClick="@{() -> viewModel.onAddClick()}"
+                android:paddingLeft="24dp"
+                app:cornerRadius="25dp"
+                app:icon="@drawable/ic_arrow_left"
+                app:iconSize="26dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</layout>

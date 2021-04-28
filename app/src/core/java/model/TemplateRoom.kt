@@ -8,7 +8,6 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import org.json.JSONArray
 import org.json.JSONObject
-import java.util.*
 
 @Entity(tableName = "tbl_template_room")
 data class TemplateRoom(

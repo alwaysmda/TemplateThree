@@ -1,10 +1,11 @@
 package util
 
+//import com.google.android.gms.common.GoogleApiAvailability
+import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.*
 import android.content.*
-import android.content.ClipboardManager
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.Resources
@@ -21,14 +22,12 @@ import android.provider.MediaStore
 import android.provider.Settings
 import android.text.*
 import android.text.style.ClickableSpan
+import android.text.style.ForegroundColorSpan
 import android.util.Base64
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.TypedValue
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.view.*
 import android.view.animation.AccelerateInterpolator
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
@@ -38,10 +37,11 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.graphics.drawable.DrawableCompat.setTint
 import androidx.core.graphics.drawable.DrawableCompat.wrap
 import androidx.core.graphics.drawable.TintAwareDrawable
-import androidx.core.view.ViewCompat
+import androidx.core.view.children
+import androidx.core.view.forEach
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.gms.common.GoogleApiAvailabilityLight
 import com.google.android.material.snackbar.Snackbar
 import com.xodus.templatethree.BuildConfig
 import com.xodus.templatethree.R
@@ -55,6 +55,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.*
+import java.lang.ref.WeakReference
 import java.security.KeyFactory
 import java.security.MessageDigest
 import java.security.PrivateKey
@@ -102,7 +103,7 @@ fun getLocation(index: Int): String {
         )
     }
     //        for (int i = 0; i < stackTrace.length; i++) {
-    //            Log.e(LOG, "TRACETRACE INDEX=" + i + "|" + stackTrace[i].toString());
+    //            log(LOG, "TRACETRACE INDEX=" + i + "|" + stackTrace[i].toString());
     //        }
 
 
@@ -394,7 +395,7 @@ fun convertBitmapToFile(bitmap: Bitmap, path: String, fileName: String): File? {
     // Make sure the path directory exists.
     if (!filePath.exists()) {
         // Make it, if it doesn't exit
-        Log.e(TAG, "Create Directory=" + filePath.mkdirs())
+        log(TAG, "Create Directory=" + filePath.mkdirs())
     }
     val file = File(path, fileName)
     //Convert bitmap to byte array
@@ -475,7 +476,7 @@ fun moveFile(inputPath: String, inputFile: String, outputPath: String): Boolean 
         // delete the original file
         File(inputPath + inputFile).delete()
     } catch (e: Exception) {
-        Log.e("tag", e.message)
+        log("tag", e.message)
         return false
     }
 
@@ -487,7 +488,7 @@ fun deleteFile(inputPath: String, inputFile: String): Boolean {
         // delete the original file
         File(inputPath + inputFile).delete()
     } catch (e: Exception) {
-        Log.e("tag", e.message)
+        log("tag", e.message)
         false
     }
 
@@ -524,10 +525,10 @@ fun copyFile(inputPath: String, inputFile: String, outputPath: String): Boolean 
         outputStream.flush()
         outputStream.close()
     } catch (e: FileNotFoundException) {
-        Log.e("tag", e.message)
+        log("tag", e.message)
         return false
     } catch (e: Exception) {
-        Log.e("tag", e.message)
+        log("tag", e.message)
         return false
     }
 
@@ -557,10 +558,10 @@ fun copyFile(inputPath: String, outputPath: String): Boolean {
         outputStream.flush()
         outputStream.close()
     } catch (fnfe1: FileNotFoundException) {
-        Log.e("tag", fnfe1.message)
+        log("tag", fnfe1.message)
         return false
     } catch (e: Exception) {
-        Log.e("tag", e.message)
+        log("tag", e.message)
         return false
     }
 
@@ -595,14 +596,14 @@ fun createFileFromString(data: String?, inputPath: String, fileName: String): Bo
             fOut.flush()
             fOut.close()
         } catch (e: IOException) {
-            Log.e("Exception", "File write failed: $e")
+            log("Exception", "File write failed: $e")
             return false
         }
 
-        Log.e(TAG, "History File Created")
+        log(TAG, "History File Created")
         return true
     } ?: run {
-        Log.e(TAG, "No Data")
+        log(TAG, "No Data")
         return false
     }
 }
@@ -623,6 +624,7 @@ private fun getSoftButtonsBarHeight(activity: Activity): Int {
         val usableHeight = metrics.heightPixels
         activity.windowManager.defaultDisplay.getRealMetrics(metrics)
         val realHeight = metrics.heightPixels
+        activity.windowManager.currentWindowMetrics.bounds.height()
         return if (realHeight > usableHeight)
             realHeight - usableHeight
         else
@@ -869,13 +871,13 @@ fun getInternalDataDirectory(): String {
     return ApplicationClass.getInstance().applicationInfo.dataDir
 }
 
-fun Activity.hideSoftKeyboard() {
+fun hideSoftKeyboard(activity: Activity) {
     try {
-        val inputMethodManager = this.getSystemService(
+        val inputMethodManager = activity.getSystemService(
             Activity.INPUT_METHOD_SERVICE
         ) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(
-            this.currentFocus!!.windowToken, 0
+            activity.currentFocus?.windowToken, 0
         )
     } catch (e: Exception) {
 
@@ -889,7 +891,7 @@ fun showSoftKeyboard() {
 }
 
 fun copyToClipboard(text: String) {
-    val clipboard = ApplicationClass.getInstance().getSystemService(Application.CLIPBOARD_SERVICE) as ClipboardManager
+    val clipboard = ApplicationClass.getInstance().getSystemService(Application.CLIPBOARD_SERVICE) as android.content.ClipboardManager
     val clip = ClipData.newPlainText(BuildConfig.APPLICATION_ID, text)
     clipboard.setPrimaryClip(clip)
 
@@ -931,12 +933,12 @@ fun separateNumberBy3(number: Int?): String {
 }
 
 fun scanMedia(path: String) {
-    Log.e(TAG, "SCANNING=" + Uri.fromFile(File(path)))
+    log(TAG, "SCANNING=" + Uri.fromFile(File(path)))
     MediaScannerConnection.scanFile(
         ApplicationClass.getInstance(),
         arrayOf(path),
         null
-    ) { p, uri -> Log.e(TAG, "SCAN COMPLETE|PATH=$p|URI=$uri") }
+    ) { p, uri -> log(TAG, "SCAN COMPLETE|PATH=$p|URI=$uri") }
 }
 
 fun <T : Any> extractModel(obj: T, output: String): String {
@@ -1099,12 +1101,12 @@ fun convertBundleToJson(bundle: Bundle?): JSONObject {
 }
 
 fun isGooglePlayServicesAvailable(activity: Activity, showDialog: Boolean): Boolean {
-    val googleApiAvailability = GoogleApiAvailability.getInstance()
+    val googleApiAvailability = GoogleApiAvailabilityLight.getInstance()
     val status = googleApiAvailability.isGooglePlayServicesAvailable(activity)
     if (status != ConnectionResult.SUCCESS) {
-        if (googleApiAvailability.isUserResolvableError(status) && showDialog) {
-            googleApiAvailability.getErrorDialog(activity, status, 2404).show()
-        }
+        //        if (googleApiAvailability.isUserResolvableError(status) && showDialog) {
+        //            googleApiAvailability.getErrorDialog(activity, status, 2404).show()
+        //        }
         return false
     }
     return true
@@ -1235,6 +1237,7 @@ fun setStatusbarColor(activity: Activity, color: Int) {
     }
 }
 
+
 /**
  * @param factor must be less than 1. less is darker.
  */
@@ -1317,11 +1320,11 @@ fun animateTextViewText(
     startDelay: Long = 0,
     onFinish: () -> Unit = {}
 ) {
-    Handler().postDelayed({
-        for (i in 0 until text.length) {
-            Handler().postDelayed({ textView.text = text.substring(0, i + 1) }, (i * delay).toLong())
+    Handler(Looper.getMainLooper()).postDelayed({
+        for (i in text.indices) {
+            Handler(Looper.getMainLooper()).postDelayed({ textView.text = text.substring(0, i + 1) }, (i * delay).toLong())
         }
-        Handler().postDelayed({ onFinish() }, (text.length * delay).toLong())
+        Handler(Looper.getMainLooper()).postDelayed({ onFinish() }, (text.length * delay).toLong())
     }, startDelay)
 }
 
@@ -1331,8 +1334,8 @@ fun animateEditTextHint(editText: EditText, text: String) {
 }
 
 fun animateEditTextHint(editText: EditText, text: String, delay: Int) {
-    for (i in 0 until text.length) {
-        Handler().postDelayed({ editText.hint = text.substring(0, i + 1) }, (i * delay).toLong())
+    for (i in text.indices) {
+        Handler(Looper.getMainLooper()).postDelayed({ editText.hint = text.substring(0, i + 1) }, (i * delay).toLong())
     }
 }
 
@@ -1352,20 +1355,13 @@ fun Activity.shareImage(url: String?) {
         log("GlobalClass: shareImage: Error: url is null")
         return
     }
-    val client = Client.getInstance()
-    client.request(API.Download(object : OnResponseListener {
-        override fun onResponse(response: Response) {
-            if (response.statusName === Response.StatusName.OK) {
-                shareImage(File(response.body))
-            } else {
-                log("GlobalClass: shareImage: Error: download image failed: code: " + response.statusCode + " url: " + response.request._url)
-            }
+    Client.getInstance().request(API.Download(url, getDataDirectory().path, "temp.jpg")) {
+        if (it.statusName === Response.StatusName.OK) {
+            shareImage(File(it.body))
+        } else {
+            log("GlobalClass: shareImage: Error: download image failed: code: " + it.statusCode + " url: " + it.request._url)
         }
-
-        override fun onProgress(request: Request, bytesWritten: Long, totalSize: Long, percent: Int) {
-
-        }
-    }, url, getDataDirectory().path, "temp.jpg"))
+    }
 }
 
 fun validateJSON(jsonString: String): Boolean {
@@ -1436,16 +1432,20 @@ fun getIntentImages(data: Intent): ArrayList<Uri> {
 
 fun animateViews(views: Array<View?>, show: Boolean, duration: Long = 500, startDelay: Long = 0, delay: Long = 100, onFinish: () -> (Unit?) = {}) {
     var time = 0L
-    var alpha = if (show) 1F else 0F
+    val alpha = if (show) 1F else 0F
     for (view in views) {
         view?.animate()?.alpha(alpha)?.setStartDelay(startDelay + time)?.setDuration(duration)?.start()
         time += delay
     }
-    Handler().postDelayed({ onFinish() }, time + startDelay)
+    Handler(Looper.getMainLooper()).postDelayed({ onFinish() }, time + startDelay)
 }
 
-fun toast(message: String) {
-    Toast.makeText(ApplicationClass.getInstance(), message, Toast.LENGTH_SHORT).show()
+fun toast(message: String?, long: Boolean = false) {
+    message?.let {
+        val toast = Toast.makeText(ApplicationClass.getInstance(), message, if (long) Toast.LENGTH_LONG else Toast.LENGTH_SHORT)
+        (toast.view as ViewGroup).setChildFont(ApplicationClass.getInstance().fontMedium)
+        toast.show()
+    }
 }
 
 fun toast(message: Int) {
@@ -1565,7 +1565,7 @@ fun ViewGroup.changeChildFont(typeface: Typeface) {
 
 
 fun pasteClipboard(): String {
-    val clipboard = ApplicationClass.getInstance().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clipboard = ApplicationClass.getInstance().getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
     var pasteData = ""
 
     // If it does contain data, decide if you can handle the data.
@@ -1645,8 +1645,6 @@ fun ViewGroup.animateChild() {
 }
 
 fun getRandomColor(contrast: Int = 500): Int {
-
-
     val appClass = ApplicationClass.getInstance()
     val colors: ArrayList<Int> = arrayListOf(
         ContextCompat.getColor(appClass, appClass.resources.getIdentifier("md_red_$contrast", "color", appClass.packageName)),
@@ -1702,6 +1700,157 @@ fun TextView.boldRemove() {
     paintFlags = paintFlags and Paint.FAKE_BOLD_TEXT_FLAG.inv()
 }
 
+fun getColorFromAttributes(activity: Activity, color: Int): Int {
+    val typedValue = TypedValue()
+    val theme = activity.theme
+    theme.resolveAttribute(color, typedValue, true)
+    return typedValue.data
+}
+
+
+fun View.fadeOut(duration: Long = 300, gone: Boolean = true) {
+    animate().scaleX(0.8F).scaleY(0.8F).alpha(0F).setDuration(duration).withEndAction {
+        isClickable = false
+        visibility = if (gone) View.GONE else View.INVISIBLE
+    }.start()
+}
+
+fun View.fadeIn(duration: Long = 300) {
+    visibility = View.VISIBLE
+    animate().scaleX(1F).scaleY(1F).alpha(1F).setDuration(duration).withEndAction {
+        isClickable = true
+    }.start()
+}
+
+fun View.fade(fadeIn: Boolean, duration: Long = 300, gone: Boolean = true) {
+    if (fadeIn) fadeIn(duration) else fadeOut(duration, gone)
+}
+
+
+fun getRainbow(): ArrayList<Int> {
+    val context = ApplicationClass.getInstance()
+    return arrayListOf(
+        ContextCompat.getColor(context, R.color.md_deep_orange_700),
+        ContextCompat.getColor(context, R.color.md_red_700),
+        ContextCompat.getColor(context, R.color.md_pink_700),
+        ContextCompat.getColor(context, R.color.md_purple_700),
+        ContextCompat.getColor(context, R.color.md_deep_purple_700),
+        ContextCompat.getColor(context, R.color.md_indigo_700),
+        ContextCompat.getColor(context, R.color.md_blue_700),
+        ContextCompat.getColor(context, R.color.md_light_blue_700),
+        ContextCompat.getColor(context, R.color.md_cyan_700),
+        ContextCompat.getColor(context, R.color.md_teal_700),
+        ContextCompat.getColor(context, R.color.md_green_700),
+        ContextCompat.getColor(context, R.color.md_light_green_700),
+        ContextCompat.getColor(context, R.color.md_lime_700),
+        ContextCompat.getColor(context, R.color.md_yellow_700),
+        ContextCompat.getColor(context, R.color.md_amber_700),
+        ContextCompat.getColor(context, R.color.md_orange_700),
+    )
+}
+
+fun TextView.setTextColor(color: Int, startIndex: Int, endIndex: Int) {
+    if (startIndex >= 0 && endIndex < text.length) {
+        val spannable: Spannable = SpannableString(text)
+        spannable.setSpan(
+            ForegroundColorSpan(color),
+            startIndex,
+            endIndex,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        setText(spannable, TextView.BufferType.SPANNABLE)
+    } else {
+        log("ERROR(TextView.setTextColor) : Invalid Index.\nStart:$startIndex\nEnd:$endIndex\nLength:${text.length}\nText:$text")
+    }
+}
+
+fun ImageView.setGrayscale(grayscale: Boolean = true) {
+    colorFilter = if (grayscale) ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(0F) }) else null
+}
+
+inline fun <T : View> T.afterMeasured(crossinline f: T.() -> Unit) {
+    viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        override fun onGlobalLayout() {
+            if (measuredWidth > 0 && measuredHeight > 0) {
+                viewTreeObserver.removeOnGlobalLayoutListener(this)
+                f()
+            }
+        }
+    })
+}
+
+
+fun animateColor(from: Int, to: Int, duration: Long = 400, onUpdate: (Int) -> (Unit)) {
+    val colorAnimation = ValueAnimator.ofObject(ArgbEvaluator(), from, to)
+    colorAnimation.duration = duration
+    colorAnimation.addUpdateListener { animator ->
+        onUpdate(animator.animatedValue as Int)
+    }
+    colorAnimation.start()
+}
+
+fun ViewGroup.animatePlaceholders(delayIndex: Int = 0) {
+    val parentView = WeakReference(this)
+    var dein = delayIndex
+    parentView.get()?.children?.forEachIndexed { index, childView ->
+        if (childView is ViewGroup) {
+            dein += 1
+            childView.animatePlaceholders(dein)
+        } else if (childView::class.java == View::class.java) {
+            var minAlpha = childView.alpha - 0.5F
+            if (minAlpha < 0) {
+                minAlpha = 0F
+            }
+            val maxAlpha = childView.alpha
+            ValueAnimator.ofFloat(minAlpha, maxAlpha).apply {
+                duration = 500
+                startDelay = (((index / 2) + delayIndex) * 100L) % 500
+                repeatCount = -1
+                repeatMode = ValueAnimator.REVERSE
+                val updateListener = WeakReference(WeakListener.Companion.WeakerListener(childView))
+                addUpdateListener(updateListener.get())
+                //                addUpdateListener { animator ->
+                //                    childView.alpha = animator.animatedValue as Float
+                //                }
+                start()
+            }
+        }
+    }
+}
+
+class WeakListener {
+    companion object {
+        class WeakerListener(view: View?) : ValueAnimator.AnimatorUpdateListener {
+            val weakView = WeakReference(view)
+            override fun onAnimationUpdate(p0: ValueAnimator?) {
+                weakView.get()?.alpha = p0?.animatedValue as Float
+            }
+        }
+    }
+}
+
+fun ViewGroup.removeAnimations() {
+    val parentView = WeakReference(this)
+    parentView.get()?.children?.forEach {
+        if (it is ViewGroup) {
+            it.removeAnimations()
+        } else {
+            it.clearAnimation()
+        }
+    }
+}
+
+fun ViewGroup.setChildFont(font: Typeface?) {
+    font?.let { f ->
+        forEach {
+            if (it is TextView) {
+                it.typeface = f
+            } else if (it is ViewGroup) {
+                it.setChildFont(font)
+            }
+        }
+    }
+}
 
 //fun <T : Any> Fragment.getBackStackData(key: String, result: (T) -> (Unit)) {
 //    findNavController().currentBackStackEntry?.savedStateHandle?.apply {
@@ -1842,80 +1991,6 @@ fun SpannableString.withClickableSpan(clickablePart: String, onClickListener: ()
         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
     )
     return this
-}
-
-/**
- * Helps to get Map, List, Set or other generic type from Json using Gson.
- */
-//inline fun <reified T: Any> Gson.fromJsonToGeneric(json: String): T {
-//    val type = object : TypeToken<T>() {}.type
-//    return fromJson(json, type)
-//}
-
-// The way to pass server errors from custom error response to the Rx onError.
-// BaseReply has field error: ApiError and ApiError extends Exception.
-//fun <T : BaseReply> Single<T>.apiErrorsToOnError(): Single<T> {
-//    // .map the source and
-//    return map { reply ->
-//        // throw if reply with error or
-//        reply.error?.let { throw it }
-//        // return if not
-//        reply
-//    }
-//}
-
-// Adds polling to the request. BaseReply is general response type that has error field
-//fun <T : BaseReply> Single<T>.poll(delay: Long, errorConsumer: Consumer<Throwable>): Observable<T> = this
-//    .repeatWhen { completed -> completed.delay(delay, TimeUnit.SECONDS) }
-//    .doOnError { errorConsumer.accept(it) }
-//    .retryWhen { errors -> errors.delay(delay, TimeUnit.SECONDS) }
-//    .toObservable()
-
-fun View.visible(visible: Boolean, useGone: Boolean = true) {
-    visibility = if (visible) View.VISIBLE else if (useGone) View.GONE else View.INVISIBLE
-}
-
-// Helps to set status bar color with api version check
-fun Activity.setStatusBarColor(@ColorRes colorRes: Int): Unit {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        window.statusBarColor = ContextCompat.getColor(this, colorRes)
-    }
-}
-
-// Adds flags to make window fullscreen
-fun Activity.setFullscreenLayoutFlags() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-    }
-}
-
-// Adds window insets to the view while entire activity is fullscreen.
-fun View.applyWindowInsets(applyTopInset: Boolean = true, applyOtherInsets: Boolean = true): Unit {
-    if (applyTopInset || applyOtherInsets) {
-        ViewCompat.setOnApplyWindowInsetsListener(
-            this
-        ) { view, insets ->
-            // Set padding for needed insets
-            view.setPadding(
-                if (applyOtherInsets) insets.systemWindowInsetLeft else view.paddingLeft,
-                if (applyTopInset) insets.systemWindowInsetTop else view.paddingTop,
-                if (applyOtherInsets) insets.systemWindowInsetRight else view.paddingRight,
-                if (applyOtherInsets) insets.systemWindowInsetBottom else view.paddingBottom
-            )
-
-            // Return without consumed insets
-            insets.replaceSystemWindowInsets(
-                if (applyOtherInsets) 0 else insets.systemWindowInsetLeft,
-                if (applyTopInset) 0 else insets.systemWindowInsetTop,
-                if (applyOtherInsets) 0 else insets.systemWindowInsetRight,
-                if (applyOtherInsets) 0 else insets.systemWindowInsetBottom
-            )
-        }
-    } else {
-        // Listener is not needed
-        ViewCompat.setOnApplyWindowInsetsListener(this, null)
-    }
 }
 
 fun String.onlyDigits(): String = replace(Regex("\\D*"), "")

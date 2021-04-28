@@ -1,28 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:id="@+id/main_parent"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:layoutDirection="ltr"
-              android:orientation="vertical">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <FrameLayout
-            android:id="@+id/main_frameLayout"
+    <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_height="match_parent">
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:hapticFeedbackEnabled="true"
-            android:theme="@style/BottomNavigationViewFontedFa"
-            app:itemTextColor="?colorPrimary"
-            app:menu="@menu/navigation"
-            app:labelVisibilityMode="selected"
-            />
+        <LinearLayout
 
-</LinearLayout>
+                android:id="@+id/base_parent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layoutDirection="ltr"
+                android:orientation="vertical">
+
+            <FrameLayout
+                    android:id="@+id/base_frameLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+            <com.google.android.material.bottomnavigation.BottomNavigationView
+                    android:id="@+id/base_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:hapticFeedbackEnabled="true"
+                    android:theme="@style/BottomNavigationViewFontedFa"
+                    app:itemTextColor="?attr/colorPrimary"
+                    app:labelVisibilityMode="selected"
+                    app:menu="@menu/navigation" />
+
+        </LinearLayout>
+
+        <LinearLayout
+                android:id="@+id/base_llLoading"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:visibility="gone">
+
+            <ProgressBar
+                    android:id="@+id/base_pbLoading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

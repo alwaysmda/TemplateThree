@@ -13,18 +13,18 @@ open class Response() {
     }
 
     enum class StatusName {
-        NoInternetConnection,
-        OK,
-        Created,
-        NoContent,
-        NotModified,
-        BadRequest,
-        Unauthorized,
-        Forbidden,
-        NotFound,
-        Conflict,
-        InternalServerError,
-        Other
+        NoInternetConnection,  //0
+        OK,  //200
+        Created,  //201
+        NoContent,  //204
+        NotModified,  //304
+        BadRequest,  //400
+        Unauthorized,  //401
+        Forbidden,  //403
+        NotFound,  //404
+        Conflict,  //409
+        InternalServerError,  //500
+        Other  //Other
     }
 
     lateinit var request: Request
@@ -42,28 +42,28 @@ open class Response() {
         this.status = status
         return when (statusCode) {
             0 -> this.statusName = NoInternetConnection
-            200//OK
+            200 //OK
             -> this.statusName = OK
-            201//Created
+            201 //Created
             -> this.statusName = Created
-            204//No Content
+            204 //No Content
             -> this.statusName = NoContent
-            304//Not Modified
+            304 //Not Modified
             -> this.statusName = NotModified
-            400//Bad Request
+            400 //Bad Request
             -> this.statusName = BadRequest
-            401//Unauthorized
+            401 //Unauthorized
             -> this.statusName = Unauthorized
-            403//Forbidden
+            403 //Forbidden
             -> this.statusName = Forbidden
-            404//Not Found
+            404 //Not Found
             -> this.statusName = NotFound
-            409//Conflict
+            409 //Conflict
             -> this.statusName = Conflict
-            500//Internal Server Error
+            500 //Internal Server Error
             -> this.statusName = InternalServerError
-            else//Other
-            -> this.statusName = Other
+            else //Other
+              -> this.statusName = Other
         }
     }
 
@@ -71,13 +71,13 @@ open class Response() {
         val jsonObject = JSONObject()
         val headerObject = JSONObject()
         try {
-            if (headers != null) {
-                for (name in headers!!.names()) {
-                    headers!!.get(name)
-                    headerObject.put(name, headers!!.get(name))
+            headers?.let {
+                for (name in it.names()) {
+                    it.get(name)
+                    headerObject.put(name, it.get(name))
                 }
             }
-            jsonObject.put("request", request!!.toJSONObject())
+            jsonObject.put("request", request.toJSONObject())
             jsonObject.put("status", status)
             jsonObject.put("status_code", statusCode)
             jsonObject.put("status_name", statusName)
@@ -95,13 +95,13 @@ open class Response() {
         val jsonObject = JSONObject()
         val headerObject = JSONObject()
         try {
-            if (headers != null) {
-                for (name in headers!!.names()) {
-                    headers!!.get(name)
-                    headerObject.put(name, headers!!.get(name))
+            headers?.let {
+                for (name in it.names()) {
+                    it.get(name)
+                    headerObject.put(name, it.get(name))
                 }
             }
-            jsonObject.put("request", request!!.toJSONObject())
+            jsonObject.put("request", request.toJSONObject())
             jsonObject.put("status", status)
             jsonObject.put("status_code", statusCode)
             jsonObject.put("status_name", statusName)

@@ -10,6 +10,10 @@
                 type="main.ApplicationClass" />
 
         <variable
+                name="view"
+                type="view.TemplateFragment" />
+
+        <variable
                 name="viewModel"
                 type="viewmodel.TemplateViewModel" />
     </data>
@@ -17,7 +21,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="?android:colorBackground">
+            android:background="?attr/colorBackground0">
 
         <include
                 android:id="@+id/template_toolbar"
@@ -32,7 +36,7 @@
                 android:adapter="@{viewModel.adapter}"
                 android:layoutAnimation="@{appClass.recyclerViewAnimation}"
                 android:orientation="vertical"
-                android:padding="4dp"
+                android:padding="@dimen/paddingSmall"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 app:spanCount="3"
                 tools:listitem="@layout/row_template" />

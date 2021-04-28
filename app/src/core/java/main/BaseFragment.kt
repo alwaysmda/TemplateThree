@@ -3,30 +3,38 @@ package main
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import androidx.annotation.LayoutRes
 import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionInflater
+import com.xodus.templatethree.BR
+import com.xodus.templatethree.R
+import model.SharedElement
 import org.greenrobot.eventbus.EventBus
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.x.closestKodein
 import org.kodein.di.generic.instance
-import util.ViewModelFactory
-import util.getRandomInt
-import util.getRandomString
+import util.*
 
-open class BaseFragment : Fragment(), KodeinAware {
+abstract class BaseFragment<DB : ViewDataBinding, VM : BaseViewModel> : Fragment(), KodeinAware {
 
     override val kodein: Kodein by closestKodein()
     val appClass: ApplicationClass by instance()
     val viewModelFactory: ViewModelFactory by instance()
     var ID: String? = null
-    lateinit var baseActivity: BaseActivity
-    var tabIndex: Int = 0
-    var base: Boolean = false
+    protected lateinit var baseActivity: BaseActivity
+
+    //    var tabIndex: Int = 0
+    //    var base: Boolean = false
     var REQUEST_CODE: Int = 0
     var sharedElementListIn: ArrayList<SharedElement> = arrayListOf()
     var sharedElementListOut: ArrayList<SharedElement> = arrayListOf()
@@ -35,20 +43,39 @@ open class BaseFragment : Fragment(), KodeinAware {
     var sharedElementRecyclerViewViewID: Int = 0
     var sharedElementRecyclerViewPosition: Int = 0
     var sharedElementRecyclerViewReturnView: View? = null
-    var onBackPressed: OnBackPressedListener? = null
-    var isBackDisabled: Boolean = false
+
+    private var initialized = false
+    private var _binding: DB? = null
+    protected val binding: DB
+        get() = _binding!!
+    lateinit var viewModel: VM
+
+    private var layoutId: Int = 0
+    var snackBack = false
+    protected var REQ_CODE = getRandomInt(4)
 
 
-    interface OnBackPressedListener {
-        fun onBackPressed()
+    fun initialize(@LayoutRes layout: Int, viewModelClass: Class<VM>, snackBack: Boolean = false) {
+        layoutId = layout
+        initialized = true
+        this.viewModel = ViewModelProvider(this, viewModelFactory).get(viewModelClass)
+        this.snackBack = snackBack
     }
 
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (hidden.not()) {
+            rebind(appClass)
+        }
+    }
 
     override fun onStart() {
         super.onStart()
         if (ID == null) {
             val tmp = this.toString().substring(this.toString().indexOf("{") + 1)
             ID = tmp.substring(0, tmp.indexOf(" "))
+            setBase()
         }
     }
 
@@ -57,12 +84,73 @@ open class BaseFragment : Fragment(), KodeinAware {
         EventBus.getDefault().unregister(this)
     }
 
+    override fun onDestroy() {
+        viewModel.onDestroy()
+        _binding = null
+        super.onDestroy()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
         }
         baseActivity = activity as BaseActivity
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        if (initialized.not()) {
+            throw Exception("Layout and ViewModel are not initialized. Call [initialize] in OnAttach()")
+        }
+        _binding = DataBindingUtil.inflate(inflater, layoutId, container, false)
+        //        viewModel = ViewModelProvider(this, viewModelFactory).get(VM::class.java)
+        binding.lifecycleOwner = viewLifecycleOwner
+        binding.setVariable(BR.viewModel, viewModel)
+        binding.setVariable(BR.view, this)
+        binding.setVariable(BR.appClass, appClass)
+        setStatusbarColor(baseActivity, getColorFromAttributes(baseActivity, R.attr.colorPrimaryDark))
+        return binding.root
+    }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.apply {
+            showDialog.observe(viewLifecycleOwner, {
+                it?.show(parentFragmentManager)
+            })
+            doBack.observe(viewLifecycleOwner, {
+                it?.let {
+                    this@BaseFragment.doBack()
+                }
+            })
+            rebind.observe(viewLifecycleOwner, {
+                it?.let {
+                    rebind(it)
+                }
+            })
+            snack.observe(viewLifecycleOwner, {
+                it?.let {
+                    snack(view, it.message, it.long)
+                }
+            })
+            toast.observe(viewLifecycleOwner, {
+                it?.let {
+                    toast(it.message, it.long)
+                }
+            })
+            startFragment.observe(viewLifecycleOwner, {
+                it?.let {
+                    start(it)
+                    startFragment.value = null
+                }
+            })
+            showLoading.observe(viewLifecycleOwner, {
+                it?.let {
+                    baseActivity.setLoading(it.show, it.hideLoader)
+                }
+            })
+        }
     }
 
     private fun setBase() {
@@ -77,30 +165,30 @@ open class BaseFragment : Fragment(), KodeinAware {
             REQUEST_CODE = getRandomInt(4)
 
             if (it.substring(0, 4) == "base") {
-                base = true
-                tabIndex = Integer.valueOf(it.substring(4, 5))
+                viewModel.isBase = true
+                viewModel.tabIndex = Integer.valueOf(it.substring(4, 5))
             } else {
-                tabIndex = Integer.valueOf(it.substring(0, 1))
+                viewModel.tabIndex = Integer.valueOf(it.substring(0, 1))
             }
         }
     }
 
-    /**
-     *
-     * @return if it is the first fragment in the current tab or not
-     */
-    fun isBase(): Boolean {
-        if (ID == null) {
-            setBase()
+    fun rebind(data: Any) {
+        if (data is ApplicationClass) {
+            binding.setVariable(BR.appClass, null)
+            binding.setVariable(BR.appClass, data)
+        } else {
+            binding.setVariable(BR.data, null)
+            binding.setVariable(BR.data, data)
         }
-        return base
     }
+
 
     /**
      *
      * @return all the fragments in the current tab
      */
-    fun getTabFragmentTable(): List<BaseFragment> = baseActivity.getTabFragmentTable()
+    fun getTabFragmentTable(): List<BaseFragment<ViewDataBinding, BaseViewModel>> = baseActivity.getTabFragmentTable()
 
 
     /**
@@ -108,14 +196,14 @@ open class BaseFragment : Fragment(), KodeinAware {
      * @param permission example: Manifest.permission.READ_EXTERNAL_STORAGE
      */
     fun grantPremission(vararg permission: String) {
-        ActivityCompat.requestPermissions(activity!!, permission, REQUEST_CODE)
+        ActivityCompat.requestPermissions(baseActivity, permission, REQUEST_CODE)
     }
 
     /**
      * Instatiates and shows the fragment in the current tab and hides the current frgmant
      * @param fragment the new frgment to show
      */
-    fun start(fragment: BaseFragment) {
+    fun start(fragment: BaseFragment<ViewDataBinding, BaseViewModel>) {
         baseActivity.start(fragment)
     }
 
@@ -124,7 +212,7 @@ open class BaseFragment : Fragment(), KodeinAware {
      * to the desired fragment to be shown in the background.
      * @param fragment the fragment to start
      */
-    fun show(fragment: BaseFragment) {
+    fun show(fragment: BaseFragment<ViewDataBinding, BaseViewModel>) {
         baseActivity.show(fragment)
     }
 
@@ -133,7 +221,7 @@ open class BaseFragment : Fragment(), KodeinAware {
      * The fragments stack will not increase and the current fragment will be removed.
      * @param fragment the desired fragment to start
      */
-    fun replace(fragment: BaseFragment) {
+    fun replace(fragment: BaseFragment<ViewDataBinding, BaseViewModel>) {
         baseActivity.start(fragment, true)
     }
 
@@ -159,22 +247,10 @@ open class BaseFragment : Fragment(), KodeinAware {
      * Call enableBack() to restore the default onBackPressed.
      * @param onBackPressed listener to onBackPressed
      */
-    fun onBackPressed(onBackPressed: OnBackPressedListener) {
-        isBackDisabled = true
-        this.onBackPressed = onBackPressed
-    }
-
-    fun disableBack() {
-        isBackDisabled = true
-    }
-
-    fun enableBack() {
-        isBackDisabled = false
-    }
 
     fun doBack() {
-        isBackDisabled = false
-        activity!!.onBackPressed()
+        baseActivity.setLoading(false)
+        baseActivity.onBackPressed()
     }
 
     /*

@@ -4,16 +4,19 @@ import android.animation.ValueAnimator
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.annotation.NonNull
 import androidx.core.animation.doOnEnd
 import androidx.core.view.ViewCompat
+import androidx.databinding.ViewDataBinding
+import androidx.fragment.app.FragmentTransaction
 import com.xodus.templatethree.R
+import com.xodus.templatethree.databinding.ActivityBaseBinding
 import event.OnActivityResultEvent
 import event.OnRequestPermissionResultEvent
-import http.*
 import kotlinx.android.synthetic.main.activity_base.*
 import org.greenrobot.eventbus.EventBus
 import org.kodein.di.Kodein
@@ -21,25 +24,30 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import util.*
-import view.TemplateFragment
-import view.TemplateRoomFragment
 
 
-class BaseActivity : ThemeAndLocaleAwareActivity(), OnResponseListener, KodeinAware {
+class BaseActivity : ThemeAwareActivity(), KodeinAware {
     companion object {
+        @Volatile
+        private lateinit var instance: BaseActivity
+        fun getInstance() = instance
+
         const val TAB_ONE = 0
         const val TAB_TWO = 1
     }
 
     override val kodein: Kodein by closestKodein()
-    lateinit var fragmentTable: ArrayList<ArrayList<BaseFragment>>
-    lateinit var currentFragment: BaseFragment
+    private val appClass: ApplicationClass by instance()
+    lateinit var fragmentTable: ArrayList<ArrayList<BaseFragment<ViewDataBinding, BaseViewModel>>>
+    lateinit var currentFragment: BaseFragment<ViewDataBinding, BaseViewModel>
+    private var barHeight: Int = 0
+    lateinit var binding: ActivityBaseBinding
     var currentTabIndex = TAB_ONE
+
+    //Options
     private val startMode = StartMode.MultiInstance
     private val exitMode = ExitMode.BackToFirstTab
-    private var barHeight: Int = 0
-    private val client: Client by instance()
-    private val appClass: ApplicationClass by instance()
+    private val transitionAnimation: Int = FragmentTransaction.TRANSIT_FRAGMENT_FADE
 
     private enum class StartMode {
         SingleInstance, MultiInstance
@@ -51,29 +59,28 @@ class BaseActivity : ThemeAndLocaleAwareActivity(), OnResponseListener, KodeinAw
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        instance = this
+        binding = ActivityBaseBinding.inflate(layoutInflater)
         appClass.initFont()
         handleIntent()
-        setContentView(R.layout.activity_base)
+        setContentView(binding.root)
         initFragmentTable(
-            TemplateFragment.newInstance(),
-            TemplateRoomFragment.newInstance()
+            BaseFragmentFactory.templateFragment(),
+            BaseFragmentFactory.templateRoomFragment()
         )
         initBottomBar()
-        bar.post { barHeight = bar.height }
+        binding.baseBar.post { barHeight = binding.baseBar.height }
     }
 
 
     override fun onResume() {
         super.onResume()
-        Handler().postDelayed({ appClass.setPref(PREF_CRASH_REPEATING, false) }, 2000)
+        Handler(Looper.getMainLooper()).postDelayed({ appClass.setPref(PREF_CRASH_REPEATING, false) }, 2000)
     }
 
-    override fun onResponse(response: Response) {
-        log("BASE ACTIVITY", response.toJSONObject().toString())
-    }
-
-    override fun onProgress(request: Request, bytesWritten: Long, totalSize: Long, percent: Int) {
-
+    fun setLoading(loading: Boolean, hideLoader: Boolean = false) {
+        binding.baseLlLoading.fade(loading)
+        binding.basePbLoading.fade(hideLoader.not())
     }
 
     private fun handleIntent() {
@@ -82,21 +89,21 @@ class BaseActivity : ThemeAndLocaleAwareActivity(), OnResponseListener, KodeinAw
             try {
                 if (jsonObject.has("crash")) {
                     Toast.makeText(appClass, "-=REPORTING CRASH=-", Toast.LENGTH_SHORT).show()
-                    client.request(
-                        API.ReportError(
-                            this,
-                            jsonObject.getString("time"),
-                            jsonObject.getString("class"),
-                            jsonObject.getString("method"),
-                            jsonObject.getString("message")
-                        )
-                    )
+                    //                    client.request(
+                    //                        API.ReportError(
+                    //                            this,
+                    //                            jsonObject.getString("time"),
+                    //                            jsonObject.getString("class"),
+                    //                            jsonObject.getString("method"),
+                    //                            jsonObject.getString("message")
+                    //                        )
+                    //                    )
                 } else if (jsonObject.has("class")) {
                     if (jsonObject.getString("class") == "BaseActivity") {
                         if (jsonObject.has("action")) {
                             when (jsonObject.getString("action")) {
                                 "toast" -> toast(jsonObject.toString())
-                                "pref"  -> appClass.setPref(jsonObject.getString("pref_key"), jsonObject.get("pref_value"))
+                                "pref" -> appClass.setPref(jsonObject.getString("pref_key"), jsonObject.get("pref_value"))
                             }
                         }
                     } else {
@@ -109,11 +116,14 @@ class BaseActivity : ThemeAndLocaleAwareActivity(), OnResponseListener, KodeinAw
         }
     }
 
-    fun start(fragment: BaseFragment, replace: Boolean = false) {
-        val frag = supportFragmentManager.findFragmentByTag(currentTabIndex.toString() + fragment.javaClass.toString()) as BaseFragment?
+    @Suppress("UNCHECKED_CAST")
+    fun start(fragment: BaseFragment<ViewDataBinding, BaseViewModel>, replace: Boolean = false) {
+        val frag = supportFragmentManager.findFragmentByTag(currentTabIndex.toString() + fragment.javaClass.toString()) as BaseFragment<ViewDataBinding, BaseViewModel>?
         val fragmentTransaction = supportFragmentManager
             .beginTransaction()
+            .setTransition(transitionAnimation)
             .setReorderingAllowed(true)
+
 
         val sharedElementList = currentFragment.sharedElementListOut
         if (sharedElementList.isNotEmpty()) {
@@ -130,7 +140,7 @@ class BaseActivity : ThemeAndLocaleAwareActivity(), OnResponseListener, KodeinAw
         if (replace) {
             fragmentTransaction.remove(currentFragment)
             if (frag == null || startMode == StartMode.MultiInstance) {
-                fragmentTransaction.add(R.id.main_frameLayout, fragment, currentTabIndex.toString() + fragment.javaClass.toString())
+                fragmentTransaction.add(R.id.base_frameLayout, fragment, currentTabIndex.toString() + fragment.javaClass.toString())
                 currentFragment = fragment
                 fragmentTable[currentTabIndex].removeAt(fragmentTable[currentTabIndex].size - 1)
                 fragmentTable[currentTabIndex].add(currentFragment)
@@ -149,7 +159,7 @@ class BaseActivity : ThemeAndLocaleAwareActivity(), OnResponseListener, KodeinAw
         } else {
             fragmentTransaction.hide(currentFragment)
             if (frag == null || startMode == StartMode.MultiInstance) {
-                fragmentTransaction.add(R.id.main_frameLayout, fragment, currentTabIndex.toString() + fragment.javaClass.toString())
+                fragmentTransaction.add(R.id.base_frameLayout, fragment, currentTabIndex.toString() + fragment.javaClass.toString())
                 currentFragment = fragment
                 fragmentTable[currentTabIndex].add(currentFragment)
             } else {
@@ -168,10 +178,12 @@ class BaseActivity : ThemeAndLocaleAwareActivity(), OnResponseListener, KodeinAw
     }
 
 
-    fun show(fragment: BaseFragment) {
+    fun show(fragment: BaseFragment<ViewDataBinding, BaseViewModel>) {
         val fragmentTransaction = supportFragmentManager
             .beginTransaction()
+            .setTransition(transitionAnimation)
             .setReorderingAllowed(true)
+
 
         val sharedElementList = currentFragment.sharedElementListOut
         if (sharedElementList.isNotEmpty()) {
@@ -184,7 +196,7 @@ class BaseActivity : ThemeAndLocaleAwareActivity(), OnResponseListener, KodeinAw
             fragment.sharedElementListIn = sharedElementList
         }
 
-        val view = main_frameLayout
+        val view = base_frameLayout
         fragment.background = convertBitmapToDrawable(
             convertViewToBitmap(
                 view,
@@ -195,7 +207,7 @@ class BaseActivity : ThemeAndLocaleAwareActivity(), OnResponseListener, KodeinAw
 
         fragmentTransaction
             .hide(currentFragment)
-            .add(R.id.main_frameLayout, fragment, currentTabIndex.toString() + fragment.javaClass.toString())
+            .add(R.id.base_frameLayout, fragment, currentTabIndex.toString() + fragment.javaClass.toString())
             .commit()
         fragmentTable[currentTabIndex].add(fragment)
         currentFragment = fragment
@@ -203,15 +215,18 @@ class BaseActivity : ThemeAndLocaleAwareActivity(), OnResponseListener, KodeinAw
 
     fun selectTab(index: Int) {
         when (index) {
-            TAB_ONE -> bar.selectedItemId = R.id.navigation_one
-            TAB_TWO -> bar.selectedItemId = R.id.navigation_two
+            TAB_ONE -> binding.baseBar.selectedItemId = R.id.navigation_one
+            TAB_TWO -> binding.baseBar.selectedItemId = R.id.navigation_two
         }
     }
 
 
-    fun initFragmentTable(vararg fragments: BaseFragment) {
+    fun initFragmentTable(vararg fragments: BaseFragment<ViewDataBinding, BaseViewModel>) {
         currentTabIndex = 0
-        val fragmentTransaction = supportFragmentManager.beginTransaction()
+        val fragmentTransaction = supportFragmentManager
+            .beginTransaction()
+            .setTransition(transitionAnimation)
+
         for (item in supportFragmentManager.fragments) {
             fragmentTransaction.remove(item)
         }
@@ -219,42 +234,57 @@ class BaseActivity : ThemeAndLocaleAwareActivity(), OnResponseListener, KodeinAw
 
         fragmentTable = ArrayList()
         for (i in fragments.indices) {
-            val fragmentList = ArrayList<BaseFragment>()
+            val fragmentList = ArrayList<BaseFragment<ViewDataBinding, BaseViewModel>>()
             fragmentList.add(fragments[i])
             fragmentTable.add(fragmentList)
-            supportFragmentManager.beginTransaction()
-                .add(R.id.main_frameLayout, fragments[i], "base" + i + fragments[i].javaClass.toString())
+            supportFragmentManager
+                .beginTransaction()
+                .setTransition(transitionAnimation)
+                .add(R.id.base_frameLayout, fragments[i], "base" + i + fragments[i].javaClass.toString())
                 .hide(fragments[i])
                 .commit()
         }
         currentFragment = fragments[0]
-        supportFragmentManager.beginTransaction()
+        supportFragmentManager
+            .beginTransaction()
+            .setTransition(transitionAnimation)
             .show(currentFragment)
             .commit()
     }
 
-    fun getTabFragmentTable(): List<BaseFragment> {
+    fun getTabFragmentTable(): List<BaseFragment<ViewDataBinding, BaseViewModel>> {
         return fragmentTable[currentTabIndex]
     }
 
     private fun tabSelected() {
         //        GlobalClass.setStatusbarColor(this, ContextCompat.getColor(appClass, R.color.colorPrimaryDark));
         val selectedFragment = fragmentTable[currentTabIndex][fragmentTable[currentTabIndex].size - 1]
-        supportFragmentManager.beginTransaction().hide(currentFragment).show(selectedFragment).commit()
+
+        supportFragmentManager
+            .beginTransaction()
+            .setTransition(transitionAnimation)
+            .hide(currentFragment)
+            .show(selectedFragment)
+            .commit()
+
         currentFragment = selectedFragment
     }
 
     private fun tabReselected() {
         if (fragmentTable[currentTabIndex].size > 1) {
             for (size in fragmentTable[currentTabIndex].size - 1 downTo 2) {
-                supportFragmentManager.beginTransaction()
+                supportFragmentManager
+                    .beginTransaction()
+                    .setTransition(transitionAnimation)
                     .remove(fragmentTable[currentTabIndex][size])
                     .commit()
                 fragmentTable[currentTabIndex].removeAt(size)
             }
 
             currentFragment = fragmentTable[currentTabIndex][1]
-            supportFragmentManager.beginTransaction()
+            supportFragmentManager
+                .beginTransaction()
+                .setTransition(transitionAnimation)
                 .show(currentFragment)
                 .commit()
             onBackPressed()
@@ -272,41 +302,44 @@ class BaseActivity : ThemeAndLocaleAwareActivity(), OnResponseListener, KodeinAw
     }
 
     fun setNavigationBarEnabled(enabled: Boolean) {
-        for (i in 0 until bar.menu.size()) {
-            bar.menu.getItem(i).isEnabled = enabled
+        for (i in 0 until binding.baseBar.menu.size()) {
+            binding.baseBar.menu.getItem(i).isEnabled = enabled
         }
     }
 
     fun showHideNavigationBar(hide: Boolean, duration: Long = 500, onFinish: () -> (Unit) = {}) {
-        if (bar != null) {
-            if (barHeight == 0) {
-                bar.post {
-                    barHeight = bar.height
-                    showHideNavigationBar(hide, 0, onFinish)
-                }
+        if (barHeight == 0) {
+            binding.baseBar.post {
+                barHeight = binding.baseBar.height
+                showHideNavigationBar(hide, 0, onFinish)
+            }
+        } else {
+            val animator: ValueAnimator = if (hide) {
+                ValueAnimator.ofInt(binding.baseBar.height, 0)
             } else {
-                val animator: ValueAnimator = if (hide) {
-                    ValueAnimator.ofInt(bar.height, 0)
-                } else {
-                    ValueAnimator.ofInt(bar.height, barHeight)
-                }
-                animator.duration = duration
-                animator.addUpdateListener {
-                    val params = bar.layoutParams as LinearLayout.LayoutParams
-                    params.height = it.animatedValue as Int
-                    bar.layoutParams = params
-                }
-                animator.start()
-                animator.doOnEnd {
-                    onFinish()
-                }
+                ValueAnimator.ofInt(binding.baseBar.height, barHeight)
+            }
+            animator.duration = duration
+            animator.addUpdateListener {
+                val params = binding.baseBar.layoutParams as LinearLayout.LayoutParams
+                params.height = it.animatedValue as Int
+                binding.baseBar.layoutParams = params
+            }
+            animator.start()
+            animator.doOnEnd {
+                onFinish()
             }
         }
     }
 
+    fun resetBottomBarTitles() {
+        binding.baseBar.menu.getItem(0).title = appClass.one
+        binding.baseBar.menu.getItem(1).title = appClass.two
+    }
 
     private fun initBottomBar() {
-        bar.setOnNavigationItemSelectedListener { menuItem ->
+        resetBottomBarTitles()
+        binding.baseBar.setOnNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.navigation_one -> if (currentTabIndex == TAB_ONE) {
                     tabReselected()
@@ -326,14 +359,14 @@ class BaseActivity : ThemeAndLocaleAwareActivity(), OnResponseListener, KodeinAw
     }
 
     override fun onBackPressed() {
-        if (currentFragment.isBackDisabled) {
-            currentFragment.onBackPressed?.onBackPressed()
-        } else {
+        if (currentFragment.viewModel.onBackPressed(currentFragment.snackBack)) {
             val currentFragmentList = fragmentTable[currentTabIndex]
             if (currentFragmentList.size > 1) {
                 val fragmentTransaction = supportFragmentManager
                     .beginTransaction()
+                    .setTransition(transitionAnimation)
                     .setReorderingAllowed(true)
+
                 val sharedElementList = currentFragment.sharedElementListIn
                 if (currentFragment.view != null && sharedElementList.isNotEmpty()) {
                     val recyclerView = currentFragmentList[currentFragmentList.size - 2].sharedElementRecyclerView
@@ -364,7 +397,7 @@ class BaseActivity : ThemeAndLocaleAwareActivity(), OnResponseListener, KodeinAw
                 currentFragmentList.removeAt(currentFragmentList.size - 1)
                 currentFragment = currentFragmentList[currentFragmentList.size - 1]
             } else if (currentTabIndex != 0 && exitMode == ExitMode.BackToFirstTab) {
-                bar.selectedItemId = R.id.navigation_one
+                binding.baseBar.selectedItemId = R.id.navigation_one
             } else {
                 super.onBackPressed()
             }

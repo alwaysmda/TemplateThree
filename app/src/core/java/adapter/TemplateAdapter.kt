@@ -3,61 +3,40 @@ package adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
-import androidx.databinding.library.baseAdapters.BR
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.xodus.templatethree.R
+import com.xodus.templatethree.databinding.RowTemplateBinding
 import model.Template
+import util.getRainbow
 import viewmodel.TemplateViewModel
 
-class TemplateAdapter(private val viewModel: TemplateViewModel) : RecyclerView.Adapter<TemplateAdapter.TemplateViewHolder>() {
+class TemplateAdapter(private val template: TemplateViewModel) :
+    BaseAdapter<Template>(false, false, 0, template) {
 
-    var list: ArrayList<Template> = ArrayList() //todo Template
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TemplateViewHolder {
-        return TemplateViewHolder(DataBindingUtil.inflate(LayoutInflater.from(parent.context), viewType, parent, false))
-    }
-
-    override fun getItemCount() = list.size
-
-    override fun getItemViewType(position: Int): Int {
-        return R.layout.row_template //todo row_template
-    }
-
-    override fun onBindViewHolder(holder: TemplateViewHolder, position: Int) {
-        holder.bind(list[position], viewModel)
-    }
-
-    inner class TemplateViewHolder(private val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(data: Any, viewModel: TemplateViewModel) {
-            binding.setVariable(BR.data, data)
-            binding.setVariable(BR.viewModel, viewModel)
-            binding.executePendingBindings()
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if (viewType < 0) {
+            super.onCreateViewHolder(parent, viewType)
+        } else {
+            val binding = DataBindingUtil.inflate<RowTemplateBinding>(LayoutInflater.from(parent.context), R.layout.row_template, parent, false)
+            if (bindList.any { it.first == viewType }.not()) {
+                bindList.add(Pair(viewType, binding))
+            }
+            TemplateHolder(binding, sectionIndex, template)
         }
     }
 
-    fun updateList(newList: ArrayList<Template>) { //todo Template
-        val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                return list[oldItemPosition] == newList[newItemPosition]
-            }
 
-            override fun getOldListSize(): Int {
-                return list.size
+    companion object {
+        class TemplateHolder(private val binding: RowTemplateBinding, private val sectionIndex: Int, templateViewModel: TemplateViewModel?) :
+            BaseAdapter.Companion.BaseViewHolder<Template>(binding, templateViewModel = templateViewModel) { //todo RowNumberBinding, TemplateHolder, Template
+            override fun bindData(data: Template) { //todo Template
+                super.bindData(data)
+                binding.apply {
+                    rowTemplateTvNumber.setTextColor(getRainbow()[adapterPosition % getRainbow().size])
+                    rowTemplateTvNumber.setOnClickListener { templateViewModel?.onTvItemClick(data, rowTemplateTvNumber) }
+                }
             }
-
-            override fun getNewListSize(): Int {
-                return newList.size
-            }
-
-            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                return list[oldItemPosition] == newList[newItemPosition]
-            }
-        })
-        list.clear()
-        list.addAll(newList)
-        diffResult.dispatchUpdatesTo(this)
+        }
     }
-
 }
