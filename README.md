@@ -1,5 +1,5 @@
 # TemplateThree
-A Android template project that uses `Kotlin` `MVVM` `DataBinding` `OkHttp` `Room` `Kodein` and `BottomNavigationView`.
+An Android template project that uses `Kotlin` `MVVM` `DataBinding` `OkHttp` `Room` `Kodein` and `BottomNavigationView`.
 
 ## Main Features
 - Manage Fragments Easily
@@ -12,7 +12,7 @@ A Android template project that uses `Kotlin` `MVVM` `DataBinding` `OkHttp` `Roo
 - Rich Extentions
 
 ## BaseActivity
-There is only one activity and it is `BaseActivity`
+There is only one activity and it is `BaseActivity`.
 It controls the fragments and the navigation view.
 
 ### Options:
@@ -70,5 +70,23 @@ Views don't need to have `transitionName`.
 You only need to add the view you want to animate and the `id` of the target view.
 
 ## BaseAdapter:
+All adapters inherit this adapter.
+This is a generic adapter that holds a list of objects and has the option of showing a loading and an add button.
+Unless the `BaseActivity` and `BaseFragment`, this class should be modified based on your project needs.
+It has the following variables:
+- `showAdd` : Shows an Add button at the beginning
+- `showLoading` : Shows a `ProgressBar` as loading at the end
+- `sectionIndex` : It is used to differenciate adapters in a nested list
+- `addIsLeft` : Whether you want to show the add button on the left or not
+- `isHorizontal` : Whether your list is horizontal or not
+- `list` : A list of generic objects that bind into rows
+- `bindList` : A list of pairs that contain the `position` and the `ViewDataBinding` of rows
+
+In `onCreateViewHolder` the `viewType` variable is the position of the item in list.
+`super` must be called for positions below zero, to handle loading and add button.
+For the positions of zero and above, `ViewDataBinding` of the row must be created and also `bindList` should be modified just like the example.
+Create a `static` view holder class and inherit the `BaseViewHolder` and pass variables of your needs.
+
+
 __I'm tired now, lets write down the rest later :D__
 
