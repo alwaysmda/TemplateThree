@@ -159,6 +159,12 @@ It has the following variables:
 - `binding` : An instance of your `ViewDataBinding` that can be used to access view
 
 ### Important Functions:
+
+#### initialize
+```
+initialize(R.layout.fragment_template, TemplateViewModel::class.java)
+```
+
 #### rebind
 Refreshes the view's data
 ```
@@ -204,6 +210,71 @@ In `onCreateViewHolder` the `viewType` variable is the position of the item in l
 For the positions of zero and above, `ViewDataBinding` of the row must be created and also `bindList` should be modified just like the example.
 Create a `static` view holder class and inherit the `BaseViewHolder` and pass variables of your needs.
 
+## MVVM Workflow
+All models extend the `BaseObservable` to notify changes to view as they change.
+
+There are three kinds of data in a viewmodel.
+- Local Variables:
+
+Local variables are simple variables that we always use anywhere.
+
+- `SingleLiveEvent` variables:
+
+These are __outgoing__ variables that will be observed in fragments.
+This is a one way flow that goes from viewmodel to fragment.
+```
+//VIEWMODEL
+//define
+val showMyButton: SingleLiveEvent<Boolean> = SingleLiveEvent()
+
+//use
+showMyButton.value = true
+
+//FRAGMENT
+//observe
+showMyButton.observe(viewLifecycleOwner,{
+    it?.let {
+        myButton.show()
+    }
+})
+```
+- `ObservableField` variables:
+
+These are variables that bind the view and the layouts will notify when the data changes.
+It can be also used as two-way binding to get data from user.
+```
+//VIEWMODEL
+//define
+val tvTitleText: ObservableField<String> = ObservableField()
+
+//use
+tvTitleText.set("My String")
+
+
+//XML
+//one way
+android:text="@{viewModel.tvTitleText}"
+
+//two way
+android:text="@={viewModel.tvTitleText}"
+```
+
+Apart from the three variables above, you can call `public` functions from fragments or layouts.
+```
+//VIEWMODEL
+//define
+fun myFunction() {
+
+}
+
+//FRAGMENT
+viewModel.myFunction()
+
+//XML
+android:onClick="@{() -> viewModel.myFunction()}"
+```
+
+## HTTP Requests
 
 __Lets write down the rest later :D__
 
