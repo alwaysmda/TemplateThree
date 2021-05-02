@@ -186,6 +186,16 @@ abstract class BaseFragment<DB : ViewDataBinding, VM : BaseViewModel> : Fragment
         }
     }
 
+    fun registerEventBus() {
+        if (EventBus.getDefault().isRegistered(this).not()) {
+            EventBus.getDefault().register(this)
+        }
+    }
+
+    fun setLoading(loading: Boolean, hideLoader: Boolean = false) {
+        baseActivity.setLoading(loading, hideLoader)
+    }
+
 
     /**
      *
@@ -199,6 +209,7 @@ abstract class BaseFragment<DB : ViewDataBinding, VM : BaseViewModel> : Fragment
      * @param permission example: Manifest.permission.READ_EXTERNAL_STORAGE
      */
     fun grantPermission(vararg permission: String) {
+        registerEventBus()
         ActivityCompat.requestPermissions(baseActivity, permission, REQUEST_CODE)
     }
 
