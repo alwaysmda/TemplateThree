@@ -121,6 +121,7 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
         } else {
             appClass.changeTheme(Themes.LIGHT_PINK)
         }
+        BaseActivity.getInstance().selectTab(BaseActivity.TAB_ONE)
     }
 
     fun onBtnChangeLanguageClick() {
@@ -130,7 +131,6 @@ class TemplateRoomViewModel(private val repository: Client, private val appClass
             appClass.changeLang(Languages.FA)
         }
         BaseActivity.getInstance().resetBottomBarTitles()
-        BaseActivity.getInstance().selectTab(BaseActivity.TAB_ONE)
         rebind.value = appClass
     }
 

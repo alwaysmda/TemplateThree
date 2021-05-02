@@ -11,7 +11,7 @@ class BindingAdapterUtils {
         @BindingAdapter("imageUrl")
         fun imageUrl(imageView: ImageView, url: String?) {
             if (url.isNullOrEmpty().not()) {
-                Picasso.get().load(url).placeholder(R.color.md_grey_500).into(imageView)
+                Picasso.get().load(url).placeholder(R.color.md_grey_500).fit().into(imageView)
             }
         }
     }

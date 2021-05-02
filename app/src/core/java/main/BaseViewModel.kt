@@ -51,7 +51,6 @@ abstract class BaseViewModel(private val repository: Client, private val appClas
             withContext(Dispatchers.Main) {
                 parse(result)
             }
-
         }
     }
 

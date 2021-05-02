@@ -14,6 +14,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.multidex.MultiDex
 import billing.Market
 import com.google.firebase.FirebaseApp
+import com.squareup.picasso.Picasso
 import com.xodus.templatethree.BuildConfig
 import com.xodus.templatethree.R
 import db.TemplateDatabase
@@ -28,6 +29,7 @@ import org.kodein.di.generic.singleton
 import util.MCryptAES
 import util.ViewModelFactory
 import util.copyToClipboard
+import util.log
 import kotlin.system.exitProcess
 
 
@@ -71,6 +73,7 @@ open class ApplicationClass : Application(), KodeinAware {
         initSharedPreferences()
         initMarket()
         initFont()
+        initPicasso()
         recyclerViewAnimation = AnimationUtils.loadLayoutAnimation(applicationContext, R.anim.anim_layout_animation)
         FirebaseApp.initializeApp(this)
         changeLang(Languages.valueOf(getStringPref(PREF_LANGUAGE) ?: Languages.DEFAULT_LANGUAGE.value))
@@ -126,6 +129,15 @@ open class ApplicationClass : Application(), KodeinAware {
         } else {
             fontLight
         }
+    }
+
+    private fun initPicasso() {
+        val picasso = Picasso.Builder(this)
+            .listener { picasso, uri, exception ->
+                log("PICASSO EXCEPTION", uri, exception.localizedMessage, exception.printStackTrace())
+            }
+            .build()
+        Picasso.setSingletonInstance(picasso)
     }
 
     fun getStringPref(key: String): String? {
