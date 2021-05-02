@@ -19,22 +19,66 @@ To change application language, call `changeLang` and pass the `Languages` enum 
 Changing language in different versions of android is a headache. So I created a new system to change language.
 Intead of `strings.xml` file, follow the example and add all strings to `ApplicationClass`.
 All classes and also layouts have access to `ApplicationClass`.
+```
+appClass.changeLang(Languages.EN)
+```
+
+```
+//XML
+android:text="@{data.myLocalizedString}"
+
+//CLASS
+val myString = appClass.myLocalizedString
+```
 
 ### Change Theme in Runtime
 To change applicatio theme, call `changeTheme` and pass the `Themes` enum value to the function.
 Available themes are added in `styles.xml` and you can set different color for anything you want.
 Also there is an enum for each theme.
 Please note that having `Dark` in theme name changes the application theme to dark mode.
+```
+appClass.changeTheme(Themes.DARK_BLUE)
+```
 
 ### Excrypted Shared Preferences
-call `setPref` to save a value and call `getStringPref`, `getBooleanPref`, `getIntPref`, `getLongPref` or `getFloatPref` to get the saved value.
+Call `setPref` to save a value and call `getStringPref`, `getBooleanPref`, `getIntPref`, `getLongPref` or `getFloatPref` to get the saved value.
+It's best to create the preferences keys in `Constants` to avoid typo mistakes.
+```
+appClass.setPref(PREF_MY_BOOLEAN,true)
+appClass.setPref(PREF_MY_INT,26)
+appClass.setPref(PREF_MY_LONG,26L)
+appClass.setPref(PREF_MY_FLOAT,2.6F)
+appClass.setPref(PREF_MY_STRING,"Twenty Six")
+
+val myBoolean = appClass.getBooleanPref(PREF_MY_BOOLEAN)
+val mtInt = appClass.getIntPref(PREF_MY_INT)
+val myLong = appClass.getLongPref(PREF_MY_LONG)
+val myFloat = appClass.getFloatPref(PREF_MY_FLOAT)
+val myString = appClass.getStringPref(PREF_MY_STRING)
+```
 
 ### Fonts
 There are some fonts initialized in `ApplicationClass` and can be accessed anywhere in classes and layouts.
 However its best to access fonts using `@font/...` in xmls.
+```
+//XML
+android:fontFamily="@font/font_medium"
+//or
+android:fontFamily="@{appClass.fontMedium}"
+
+//CLASS
+val myTypeface = appClass.fontMedium
+```
 
 ### Universal RecyclerView Animation
-There is a `LayoutAnimationController` instance initialized and can be used like `android:layoutAnimation="@{appClass.recyclerViewAnimation}"` in xmls.
+There is a `LayoutAnimationController` instance initialized and can be used as row animations.
+```
+//XML
+android:layoutAnimation="@{appClass.recyclerViewAnimation}"
+
+//CLASS
+binding.templateRvTemp.layoutAnimation = appClass.recyclerViewAnimation
+```
 
 ## BaseActivity
 There is only one activity and it is `BaseActivity`.
@@ -60,18 +104,50 @@ Possible values are:
 ### Important Functions:
 #### setLoading
 Shows a `ProgressBar` and disables touch.
+It has an option to disable touch without showing a loading.
+```
+//Show loading and disable touch
+setLoading(true)
+
+//Disable touch without showing a loading
+setLoading(true,true)
+```
 
 #### start
 Starts a new fragment.
+You can use `BaseFragmentFactory` to get a fragment instance.
+```
+start(BaseFragmentFactory.templateFragment())
+```
 
 #### selectTab
 Navigate between navigation tabs.
+There is alse an enum that holds the tab indexes in `BaseActivity`.
+```
+selectTab(BaseActivity.TAB_ONE)
+```
 
 #### initFragmentTable
 Call this method and create the initial fragments that will load on each tabs.
+It's usually called once, in `onCreate` function of `BaseActivity`.
+```
+initFragmentTable(
+    BaseFragmentFactory.templateFragment(),
+    BaseFragmentFactory.templateRoomFragment()
+)
+```
 
 #### showHideNavigationBar
-Shows/Hides the navigation bar.
+Shows/Hides the navigation bar with animation.
+```
+//Show (simple example)
+baseActivity.showHideNavigationBar(false)
+
+//Hide (complete example)
+baseActivity.showHideNavigationBar(true, 500) {
+    //do on hide
+}
+```
 
 ## BaseFragment
 All fragments inherit this fragment.
@@ -85,14 +161,30 @@ It has the following variables:
 ### Important Functions:
 #### rebind
 Refreshes the view's data
+```
+rebind(data)
+```
 
 #### grantPermission
 Grant permissions using this method and result will be posted by `OnRequestPermissionResultEvent` event.
+```
+//Request permissions
+grantPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
+
+//Get results
+@Subscribe
+fun OnRequestPermissionResultEvent(event: OnRequestPermissionResultEvent) {
+  //code here
+}
+```
 
 #### addSharedElement
 Call a event to your fragment and add shared element views right before starting a new fragment.
 Views don't need to have `transitionName`.
 You only need to add the view you want to animate and the `id` of the target view.
+```
+addSharedElement(binding.templateIvIconSmall, R.id.template_ivIconLarge)
+```
 
 ## BaseAdapter:
 All adapters inherit this adapter.
@@ -113,5 +205,5 @@ For the positions of zero and above, `ViewDataBinding` of the row must be create
 Create a `static` view holder class and inherit the `BaseViewHolder` and pass variables of your needs.
 
 
-__I'm tired now, lets write down the rest later :D__
+__Lets write down the rest later :D__
 
