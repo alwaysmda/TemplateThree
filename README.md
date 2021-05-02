@@ -11,6 +11,31 @@ An Android template project that uses `Kotlin` `MVVM` `DataBinding` `OkHttp` `Ro
 - Simple RecyclerView Adapters
 - Rich Extentions
 
+## ApplicationClass
+This is the `Application` class and provides the following features:
+
+### Change Language in Runtime
+To change application language, call `changeLang` and pass the `Languages` enum value to the function.
+Changing language in different versions of android is a headache. So I created a new system to change language.
+Intead of `strings.xml` file, follow the example and add all strings to `ApplicationClass`.
+All classes and also layouts have access to `ApplicationClass`.
+
+### Change Theme in Runtime
+To change applicatio theme, call `changeTheme` and pass the `Themes` enum value to the function.
+Available themes are added in `styles.xml` and you can set different color for anything you want.
+Also there is an enum for each theme.
+Please note that having `Dark` in theme name changes the application theme to dark mode.
+
+### Excrypted Shared Preferences
+call `setPref` to save a value and call `getStringPref`, `getBooleanPref`, `getIntPref`, `getLongPref` or `getFloatPref` to get the saved value.
+
+### Fonts
+There are some fonts initialized in `ApplicationClass` and can be accessed anywhere in classes and layouts.
+However its best to access fonts using `@font/...` in xmls.
+
+### Universal RecyclerView Animation
+There is a `LayoutAnimationController` instance initialized and can be used like `android:layoutAnimation="@{appClass.recyclerViewAnimation}"` in xmls.
+
 ## BaseActivity
 There is only one activity and it is `BaseActivity`.
 It controls the fragments and the navigation view.
