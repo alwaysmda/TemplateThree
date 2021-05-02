@@ -5,6 +5,7 @@ import android.app.Application
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Typeface
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
@@ -13,7 +14,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.multidex.MultiDex
 import billing.Market
 import com.google.firebase.FirebaseApp
-import com.pddstudio.preferences.encrypted.EncryptedPreferences
 import com.xodus.templatethree.BuildConfig
 import com.xodus.templatethree.R
 import db.TemplateDatabase
@@ -25,9 +25,11 @@ import org.kodein.di.generic.bind
 import org.kodein.di.generic.instance
 import org.kodein.di.generic.provider
 import org.kodein.di.generic.singleton
+import util.MCryptAES
 import util.ViewModelFactory
 import util.copyToClipboard
 import kotlin.system.exitProcess
+
 
 open class ApplicationClass : Application(), KodeinAware {
     override val kodein by Kodein.lazy {
@@ -47,7 +49,6 @@ open class ApplicationClass : Application(), KodeinAware {
         fun getInstance() = instance
     }
 
-    private lateinit var encryptedPreferences: EncryptedPreferences
     lateinit var market: Market
     var fontUltraBold: Typeface? = null
     var fontBold: Typeface? = null
@@ -55,6 +56,8 @@ open class ApplicationClass : Application(), KodeinAware {
     var fontLight: Typeface? = null
     var fontUltraLight: Typeface? = null
     lateinit var recyclerViewAnimation: LayoutAnimationController
+    private lateinit var prefs: SharedPreferences
+    private lateinit var prefsCrypto: MCryptAES
 
 
     override fun onCreate() {
@@ -63,7 +66,8 @@ open class ApplicationClass : Application(), KodeinAware {
         //        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
         //            handleUncaughtException(throwable)
         //        }
-        encryptedPreferences = EncryptedPreferences.Builder(applicationContext).withEncryptionPassword(BuildConfig.APPLICATION_ID).build()
+        prefs = getSharedPreferences(BuildConfig.APPLICATION_ID, MODE_PRIVATE)
+        prefsCrypto = MCryptAES(BuildConfig.APPLICATION_ID)
         initSharedPreferences()
         initMarket()
         initFont()
@@ -125,44 +129,53 @@ open class ApplicationClass : Application(), KodeinAware {
     }
 
     fun getStringPref(key: String): String? {
-        val f = encryptedPreferences.getString(key, "")
-        return if (f == "") null else f
+        val data = prefs.getString(prefsCrypto.encrypt(key), null)
+        return if (data == null) {
+            null
+        } else {
+            prefsCrypto.decrypt(data)
+        }
     }
 
     fun getBooleanPref(key: String): Boolean {
-        return encryptedPreferences.getBoolean(key, false)
+        val data = prefs.getString(prefsCrypto.encrypt(key), "false") ?: "false"
+        return if (data == "false") {
+            false
+        } else {
+            prefsCrypto.decrypt(data).toBoolean()
+        }
     }
 
     fun getIntPref(key: String): Int {
-        return encryptedPreferences.getInt(key, 0)
+        val data = prefs.getString(prefsCrypto.encrypt(key), null) ?: "0"
+        return if (data == "0") {
+            0
+        } else {
+            prefsCrypto.decrypt(data).toIntOrNull() ?: 0
+        }
     }
 
     fun getLongPref(key: String): Long {
-        return encryptedPreferences.getLong(key, 0L)
+        val data = prefs.getString(prefsCrypto.encrypt(key), null) ?: "0"
+        return if (data == "0") {
+            0L
+        } else {
+            prefsCrypto.decrypt(data).toLongOrNull() ?: 0L
+        }
     }
 
     fun getFloatPref(key: String): Float {
-        return encryptedPreferences.getFloat(key, 0F)
+        val data = prefs.getString(prefsCrypto.encrypt(key), null) ?: "0"
+        return if (data == "0") {
+            0F
+        } else {
+            prefsCrypto.decrypt(data).toFloatOrNull() ?: 0F
+        }
     }
 
+
     fun setPref(key: String, value: Any) {
-        when (value) {
-            is String -> {
-                encryptedPreferences.edit().putString(key, value).apply()
-            }
-            is Int -> {
-                encryptedPreferences.edit().putInt(key, value).apply()
-            }
-            is Boolean -> {
-                encryptedPreferences.edit().putBoolean(key, value).apply()
-            }
-            is Float -> {
-                encryptedPreferences.edit().putFloat(key, value).apply()
-            }
-            is Long -> {
-                encryptedPreferences.edit().putLong(key, value).apply()
-            }
-        }
+        prefs.edit().putString(prefsCrypto.encrypt(key), prefsCrypto.encrypt(value.toString())).apply()
     }
 
     fun setCurrentClass(currentClass: String) {
