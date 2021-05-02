@@ -137,6 +137,14 @@ open class ApplicationClass : Application(), KodeinAware {
         return encryptedPreferences.getInt(key, 0)
     }
 
+    fun getLongPref(key: String): Long {
+        return encryptedPreferences.getLong(key, 0L)
+    }
+
+    fun getFloatPref(key: String): Float {
+        return encryptedPreferences.getFloat(key, 0F)
+    }
+
     fun setPref(key: String, value: Any) {
         when (value) {
             is String -> {
